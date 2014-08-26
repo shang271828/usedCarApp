@@ -1,0 +1,22 @@
+@charset "UTF-8";
+.container {
+	width:990px;
+	position:relative;
+} 
+
+.container .title {
+	height:30px;
+	text-align:left;
+	font-family:微软雅黑;
+	font-size::18px;
+	color:white;
+	background-color:#536a4a;
+}
+
+.container .eval {
+	height:30px;
+	text-align:left;
+	font-family:微软雅黑;
+	font-size::16px;
+	font-weight:bold;
+}
