@@ -9,6 +9,14 @@
 |	http://codeigniter.com/user_guide/general/hooks.html
 |
 */
+$hook['pre_controller'] = array(
+                                'class'    => 'Check_user_hook',
+                                'function' => 'check_user',
+                                'filename' => 'check_user_hook.php',
+                                'filepath' => 'hooks',
+                                'params'   => ''
+                                );
+
 
 
 
