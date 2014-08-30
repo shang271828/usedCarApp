@@ -1,82 +1,86 @@
 <?php
 class Checkuser_lib
 {
+	var $userName;
+	var $userTime;
+	var $token;
+	var $password;
+	var $userCode;
 	function check($userInfo)
 	{
 		ini_set('date.timezone','Asia/Shanghai');
-		
-		//客户端传递过来的用户信息，保存在json字符串中。			            			            				           			      	
-		$obj        = json_decode($userInfo);
-		$uname      = $obj->{"head"}->{"uname"};
-		$utime      = $obj->{"head"}->{"utime"};
-		$token      = $obj->{"head"}->{"token"};			 	
-	 	$utimeStamp = strtotime($utime);	//生成时间戳，int
-	 	$stimeStamp = strtotime("now");
-	 	
-	 	echo "client time:";
-		var_dump($utimeStamp);	
-		echo "server time:"	;
-		var_dump($stimeStamp);
-		$timeDiff   = $stimeStamp - $utimeStamp; //服务器时间与客户端时间差值
-		$timeError  = 300;						 //时间误差设置。
-		$result     = $this->query_db($uname);		 //载入数据库
-		echo "datebase userInfo:";
-		var_dump($result);
+		$this->getInfo($userInfo);
+		$this->userCode = 0;// no error
 
-		if ($timeDiff > $timeError)
-		{
-			$returnInfo["head"] 
-					= array("returnCode"  		=> "001",
-							"returnDescription" => "error: Connection time-out !"
-							);
-		}
-		else if ( $timeDiff < -$timeError)
-		{
-			$returnInfo["head"] = array("returnCode" => "004","returnDescription" => "error: Carsality error !");
-		}
-		else if ( ! is_object($result))
-		{
-			$returnInfo["head"] = $result;
-		}
-		else
-		{	
-			$uname     = $result->{"uname"};
-			$timeStr   = substr($utime,0,-6);				
-			$upassword = $result->{"upassword"};
-			$returnInfo["head"]=$this->compare_md5($uname,$timeStr,$upassword,$token);
-		}		
-		return $returnInfo;
+		do{
+			if( ! $this->checkTime_Ok())
+			{
+				$this->userCode = 1;
+				break;
+			}
+			if ( ! $this->checkName_Ok())
+			{
+				$this->userCode = 2;
+				break;
+			}
+			if ( ! $this->checkToken_Ok())
+			{	
+				$this->userCode = 3;
+				break;
+			}
+		}while(FALSE);	
+	return 	$this->userCode;
 	}
 
-	private function query_db($uname)
-	{	
-	 	$CI =& get_instance();	
-		$CI->load->model("query_model");
-		$result=$CI->query_model->query("carapp_userinfo","uname",$uname);		
-		if( ! $result)
-		{	
-			//echo "username don't exist!";		
-			$result = array("returnCode" => "002","returnDescription" => "error: username don't exist!");
+	function getInfo($userInfo)
+	{
+		//客户端传递过来的用户信息，保存在json字符串中。
+		$this->userName = $userInfo->{"head"}->{"userName"};
+		$this->userTime = $userInfo->{"head"}->{"userTime"};
+		$this->token    = $userInfo->{"head"}->{"token"};			 		 	
+	}
+
+	private function checkTime_Ok()
+	{
+		$userTimeStamp = strtotime($this->userTime);	//生成时间戳，int
+	 	$sTimeStamp = strtotime("now");
+		$timeDiff   = $sTimeStamp - $userTimeStamp;    //服务器时间与客户端时间差值
+		$timeError  = 300;								 //时间误差设置。
+		$result = ($timeDiff < $timeError && $timeDiff > -$timeError);
+		return $result;
+	}
+
+	private function checkName_Ok()
+	{
+		$dbInfo = $this->query_db($this->userName);
+		$result = is_object($dbInfo);
+		if($result)
+		{		
+			$this->password = $dbInfo->{"upassword"};
 		}
+		return $result;
+	}
+
+	private function checkToken_Ok()
+	{
+		$timeStr = substr($this->userTime,0,-6); 
+		$str 	 = $this->userName.$timeStr.$this->password;
+	    $result  = $this->compare_md5($str,$this->token); 
+	    return 	$result;				
+	}
+
+	private function query_db($userName)
+	{	
+	 	$CI = & get_instance();	
+		$CI->load->model("query_model");
+		$result = $CI->query_model->query("carapp_userinfo","uname",$userName);				
  		return $result;					
 	}
 
-	private	function compare_md5($uname,$timeStr,$upassword,$token)
+	private	function compare_md5($str,$token)
 	{		
-		$str=$uname.$timeStr.$upassword;
-		var_dump($str);
-		$smd5= md5($str);
-		var_dump($smd5) ;
-		if(0 == substr_compare($smd5,$token,0))
-		{
-			//echo "user information correct";
-			$result = array("returnCode" => "000","returnDescription" => "user information correct!");
-		}
-		else 
-		{
-			//echo "password error";
-			$result = array("returnCode" => "003","returnDescription" => "error: password error");
-		}
-	return $result;
+		$smd5   = md5($str);				
+		$result = (substr_compare($smd5,$token,0) == 0);
+		return $result;
 	}
 }
