@@ -24,7 +24,7 @@ class MY_Output extends CI_Output
 
     function setReturnCode($code)
     {
-    	$this->head->returnCode = "0"."$code"."0";
+        $this->head->returnCode = "0"."$code"."0";
         $this->setReturnDescription();
     }
 
@@ -51,15 +51,21 @@ class MY_Output extends CI_Output
         $this->head->returnDescription = $returnDescription;        
     }
 
+    function set_body($name, $value)
+    {
+        ; $this->body->$name = $value
+        ;
+    }
+
 
     function my_output()
     {   
         $this->is_printed = true;
-        $this->set_content_type('application/json');
+        // $this->set_content_type('application/json');
 
         echo $returnInfo = json_encode($this->res);
         // echo "output info:"; 
-    	// var_dump($returnInfo);
+        // var_dump($returnInfo);
     }
 
     function __destruct()
@@ -70,3 +76,4 @@ class MY_Output extends CI_Output
         }
     }
 }
+

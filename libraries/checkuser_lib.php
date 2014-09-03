@@ -29,6 +29,7 @@ class Checkuser_lib
 				break;
 			}
 		}while(FALSE);	
+		
 	return 	$this->userCode;
 	}
 
@@ -56,7 +57,7 @@ class Checkuser_lib
 		$result = is_object($dbInfo);
 		if($result)
 		{		
-			$this->password = $dbInfo->{"upassword"};
+			$this->password = $dbInfo->{"password"};
 		}
 		return $result;
 	}
@@ -72,8 +73,8 @@ class Checkuser_lib
 	private function query_db($userName)
 	{	
 	 	$CI = & get_instance();	
-		$CI->load->model("query_model");
-		$result = $CI->query_model->query("carapp_userinfo","uname",$userName);				
+		$CI->load->model("user_query_model");
+		$result = $CI->user_query_model->query("prefix_user","username",$userName);				
  		return $result;					
 	}
 

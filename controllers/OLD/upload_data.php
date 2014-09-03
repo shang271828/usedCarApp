@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed'); 
 
-class Upload extends CI_Controller 
+class Upload_data extends CI_Controller 
 {
     function __construct()
     {
@@ -23,9 +23,8 @@ class Upload extends CI_Controller
         //$fileNameSecond = "pic1";
         $image_data=$this->upload_lib->do_upload_one($fileNameFirst);  
         var_dump($image_data);
-        $table_name = "carapp_imageinfo";
+        $table_name = "prefix_image";
         echo $this->insert_model->insert($table_name,$image_data);
-
     }
 }
 

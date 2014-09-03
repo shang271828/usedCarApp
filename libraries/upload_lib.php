@@ -2,8 +2,6 @@
 class Upload_lib
 {   
     //var $image_data;
-    
-
     function do_upload_one($fileName)
     {
         $CI =& get_instance();
@@ -13,23 +11,18 @@ class Upload_lib
         if ( ! $bool)                                         //判断文件是否上传成功
         {
             $error = array("error" => $CI->upload->display_errors());
-            $CI->load->view("upload_form_one_view", $error);
         } 
         else
         { 
             $image_data_old["imageName"] = $image_data_all["file_name"];
             $image_data_old["imagePath"] = $image_data_all["file_path"];
             $image_data_old["imageType"] = $image_data_all["image_type"];                                    
-            $image_data                  = $this->compress_image( $image_data_old ); //压缩图片
-
-
-            var_dump($image_data);
-            $CI->load->view("upload_success_one_view", $image_data);         
+            $image_data                  = $this->compress_image( $image_data_old ); //压缩图片     
         return $image_data;
         }  
     } 
 
-    function compress_image($image_data_old)
+    function compress_image($image_data_old, $width ,$height)
     {
         $imageType            = $image_data_old["imageType"];
         $imageName            = $image_data_old["imageName"];
@@ -65,11 +58,11 @@ class Upload_lib
         imagedestroy( $src_im ); 
         $image_data  = array
         (
-            "image_name"    => $imageName, 
-            "image_type"    => $imageType,
-            "image_url"     => $imagePath.$imageName,
-            "image_uid"     => "",
-            "image_url_old" => $imagePathOld.$imageName
+            "image_name"       => $imageName, 
+            "type"             => $imageType,
+            "image_url"        => $imagePath.$imageName,
+            "uid"              => "",
+            "image_url_origin" => $imagePathOld.$imageName
         );
         return $image_data;
     }
@@ -77,33 +70,33 @@ class Upload_lib
 
 
 
-     function do_upload_two($fileNameFirst,$fileNameSecond)
-    {
-        $CI =& get_instance();
-        $CI->load->library( "upload" );//加载系统类库upload
-        $boolFirst  = $CI->upload->do_upload($fileNameFirst); //上传图片1        
-        $imageDatAll["uploadDataFirst"]  = $CI->upload->data();//保存图片1信息       
-        $boolSecond = $CI->upload->do_upload($fileNameSecond);//上传图片2               
-        $imageDataAll["uploadDataSecond"] = $CI->upload->data();//保存图片2信息
+    //  function do_upload_two($fileNameFirst,$fileNameSecond)
+    // {
+    //     $CI =& get_instance();
+    //     $CI->load->library( "upload" );//加载系统类库upload
+    //     $boolFirst  = $CI->upload->do_upload($fileNameFirst); //上传图片1        
+    //     $imageDatAll["uploadDataFirst"]  = $CI->upload->data();//保存图片1信息       
+    //     $boolSecond = $CI->upload->do_upload($fileNameSecond);//上传图片2               
+    //     $imageDataAll["uploadDataSecond"] = $CI->upload->data();//保存图片2信息
         
-        //判断文件是否上传成功
-        if ( ! $boolFirst || ! $boolSecond)
-        {
-            $error = array("error" => $CI->upload->display_errors());
-            $CI->load->view("upload_form_view", $error);
-        } 
-        else
-        {   
-            foreach ($imageDataAll as $key => $value) 
-            {
-                $imageData[$key]["imageName"] = $imageDataAll[$key]["file_name"];
-                $imageData[$key]["imagePath"] = $imageDataAll[$key]["file_path"];
-                $imageData[$key]["imageType"] = $imageDataAll[$key]["image_type"]; 
-                $compress_image_data[""]=$this->compress_image( $image_data[$key] ); //压缩图片
-            }
-        $CI->load->view("upload_success_view", $image_data);                                    
-        return $image_data;
-        }  
-    } 
+    //     //判断文件是否上传成功
+    //     if ( ! $boolFirst || ! $boolSecond)
+    //     {
+    //         $error = array("error" => $CI->upload->display_errors());
+    //         $CI->load->view("upload_form_view", $error);
+    //     } 
+    //     else
+    //     {   
+    //         foreach ($imageDataAll as $key => $value) 
+    //         {
+    //             $imageData[$key]["imageName"] = $imageDataAll[$key]["file_name"];
+    //             $imageData[$key]["imagePath"] = $imageDataAll[$key]["file_path"];
+    //             $imageData[$key]["imageType"] = $imageDataAll[$key]["image_type"]; 
+    //             $compress_image_data[""]=$this->compress_image( $image_data[$key] ); //压缩图片
+    //         }
+    //     $CI->load->view("upload_success_view", $image_data);                                    
+    //     return $image_data;
+    //     }  
+    // } 
 }
 /* End of file upload_lib.php */
