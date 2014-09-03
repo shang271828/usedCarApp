@@ -27,6 +27,27 @@ class Notice_model extends CI_Model
 		$this->db->insert($this->table,$data);
 	}
 
+
+	function get_notice($pageNumber,$numberPerPage,$sortStr )
+	{
+		$noticeNumber = ($pageNumber-1)*$numberPerPage;
+		var_dump($noticeNumber);
+		$sql  = "SELECT nid,
+						title,
+						content,
+						img_list,
+						coordinate,
+						counter_view,
+						counter_follow,
+						counter_praise
+				FROM ".$this->table." ORDER BY ".$sortStr." DESC
+		        limit  $noticeNumber,$numberPerPage";
+		$query = $this->db->query($sql);
+		
+		$noticeInfo = $query->result_array();
+		return $noticeInfo;
+	}
+
 	function define()
 	{
 		$this->table  = "prefix_notice";
@@ -45,3 +66,24 @@ class Notice_model extends CI_Model
         );
 	}
 }
+
+/****
+database table : prefix_notice
+
+CREATE TABLE IF NOT EXISTS `prefix_notice` (
+  `nid` int(30) NOT NULL AUTO_INCREMENT,
+  `title` tinytext,
+  `content` text,
+  `img_list` varchar(512) DEFAULT NULL,
+  `uid` int(11) DEFAULT NULL,
+  `time` datetime DEFAULT NULL,
+  `coordinate` varchar(64) DEFAULT NULL,
+  `counter_view` int(11) DEFAULT NULL,
+  `counter_follow` int(11) DEFAULT NULL,
+  `counter_praise` int(11) DEFAULT NULL,
+  PRIMARY KEY (`nid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
+
+*/

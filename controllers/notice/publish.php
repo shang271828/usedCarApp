@@ -30,13 +30,13 @@ class publish extends MY_Controller
 		 * union test
 		 *
 		 **/
-		//$body = new stdClass;
+		$body = new stdClass;
 
-		//$body->title         = "aa";
-		//$body->content       = "bbb";
-		//$body->img_var_list  = "pic0";
+		$body->title         = "aa";
+		$body->content       = "bbb";
+		$body->img_var_list  = "pic0";
 
-		//$this->input->body =&$body;
+		$this->input->body =&$body;
 
 		$this->input->uid        = "111";
 		$this->input->sysTime    = date("Y-m-d H:i:s");
@@ -46,8 +46,8 @@ class publish extends MY_Controller
 		 *
 		 *
 		 */
-		@$this->title        = $this->input->body->title;
-		@$this->content      = $this->input->body->content;
+		@$this->title        = $body->title;
+		@$this->content      = $body->content;
 
 		$this->img_var_list  = $this->input->body->img_var_list;
 		$this->img_list = array('http://x.co/img1.jpg','http://x.co/img2.jpg');//$this->upload_lib->do_upload_one($this->img_var_list);
