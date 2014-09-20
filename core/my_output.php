@@ -9,6 +9,74 @@ class MY_Output extends CI_Output
     function __construct()
     {
         parent::__construct();
+        ; $this->define()
+        ;
+    }
+
+    function set_user_code($code)
+    {
+        ; $this->userCode = $code
+        ; $this->set_return_head()
+        ;
+    }
+
+
+    function set_body($name, $value)
+    {
+        ; $this->body->$name = $value
+        ;
+    }
+
+
+
+    
+    private function set_return_head()
+    {
+        $description = '';
+        do
+        {
+            if($this->sysCode)
+            {
+                ; $description
+                    = $this->errorList['sys'][$this->sysCode]
+                ; break
+                ;
+            }
+            if($this->userCode)
+            {
+                ; $description 
+                    = $this->errorList['user'][$this->userCode]
+                ; break
+                ;
+            }
+            if($this->APICode)
+            {
+                ; $description 
+                    = $this->errorList['API'][$this->APICode]
+                ; break
+                ;
+            }
+
+            ; $description = 'through verification'
+            ;
+        }while(false)
+        ;
+
+        if(IS_DEBUG)
+        {
+            ; $description = 'debug environment'
+            ;
+        }
+        ; $this->head->returnCode  
+            = $this->sysCode
+                . $this->userCode
+                . $this->APICode
+        ; $this->head->returnDescription = $description
+        ;        
+    }
+
+    private function define()
+    {
         $this->is_printed = false;            
         
         $this->res  = new stdClass; 
@@ -19,61 +87,52 @@ class MY_Output extends CI_Output
         $this->res->body = $this->body;
 
         //default set
-        $this->head->returnCode = 222;     
-    }
+        $this->sysCode  = 0; // no error
+        $this->userCode = 1; // Connection time-out!
+        $this->APICode  = 0; // no error
 
-    function setReturnCode($code)
-    {
-        $this->head->returnCode = "0"."$code"."0";
-        $this->setReturnDescription();
-    }
 
-    private function setReturnDescription()
-    {
-        switch ($this->head->returnCode) 
-        {
-            case "000":
-                $returnDescription = "UserInfo correct!";
-                break;
-            case "010":
-                $returnDescription = "Error: Connection time-out!";
-                break;
-            case "020":
-                $returnDescription = "Error: username don't exist!!";
-                break;
-            case "030":
-                $returnDescription = "Error: password incorrect!";
-                break;             
-            default:
-                $returnDescription = "unknown problem";
-                break;
-        }
-        $this->head->returnDescription = $returnDescription;        
-    }
-
-    function set_body($name, $value)
-    {
-        ; $this->body->$name = $value
+        ; $this->errorList = array()
+        ; $this->errorList['user']
+            = array(
+                  "UserInfo correct!"
+                 ,"Error: Connection time-out!"
+                 ,"Error: user id don't exist!!"
+                 ,"Error: password incorrect!"
+                 )
         ;
     }
 
-
-    function my_output()
+    function _my_output()
     {   
-        $this->is_printed = true;
-        // $this->set_content_type('application/json');
+        ; $this->is_printed = true
+        ; $this->set_return_head()
+        ; $this->set_output(
+                json_encode($this->res)
+            )
+        ;
 
-        echo $returnInfo = json_encode($this->res);
-        // echo "output info:"; 
-        // var_dump($returnInfo);
+
+       // echo $returnInfo = json_encode($this->res);
+        if(IS_DEBUG)
+        {
+            ; $this->set_content_type('text/html')
+            ;            
+
+        }
+        else
+        {
+            ; $this->set_content_type('application/json')
+            ;
+        }
+
     }
-
     function __destruct()
     {
         if(!$this->is_printed)
         {
-            $this->my_output();
+            $this->_my_output();
         }
+        $this->_display();
     }
 }
-

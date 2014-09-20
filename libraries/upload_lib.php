@@ -18,7 +18,7 @@ class Upload_lib
             $image_data_old["imagePath"] = $image_data_all["file_path"];
             $image_data_old["imageType"] = $image_data_all["image_type"];                                    
             $image_data                  = $this->compress_image( $image_data_old ); //压缩图片     
-        return $image_data;
+        return $image_data_all;
         }  
     } 
 

@@ -1,68 +1,96 @@
 <?php
 class MY_Input extends CI_Input
-{		
-
-	
+{
 	function __construct()
 	{
 		parent :: __construct();
-		ini_set('date.timezone','Asia/Shanghai');
-	//	
+		; ini_set('date.timezone','Asia/Shanghai')
+		; $this->sys_input()
+		; $this->_my_input()
+		;
+	}
+	
+	function _my_input()
+	{
+		if(IS_DEBUG_INPUT)
+		{
+			; $this->json_package 
+				= json_decode(
+					$this->debug_input()
+					)
+			;
+		}
+		else
+		{
+			; $this->json_package
+				= json_decode(
+					$this->post('json_package')
+					)
+			;
+		}
+
+		; $json_package = & $this->json_package
+		; $this->head = & $json_package->head
+		; $this->body = & $json_package->body
+
+		//////**head**/////
+		; $this->uid  	  = & $json_package->head->uid
+		; $this->userTime = & $json_package->head->userTime
+		; $this->token    = & $json_package->head->token
+
+		/////**optional input**/////
+		; $this->terminal   = & $json_package->head->terminal
+		; $this->coordinate = & $json_package->head->coordinate
+		;
+		; $this->verify()
+		; 
+		;
 	}
 
-	function createJson()
+	private function verify()
 	{
-		//$CI =& get_instance();
-		//$CI->load->library("upload_lib");
-		//客户端传递过来的用户信息，保存在json字符串中。暂时先自建。
-		$userName    = "shangmeng";
-		$userTime    = date("Y-m-d H:i:s");
-		$userTimeStr = substr($userTime,0,-6);
-		$password    = "123";
-		$token       = md5($userName.$userTimeStr.$password);
-		$title       = $this->post("title");
-		$content     = $this->post("content");		
-		$userInfo = array
+		if(!$this->terminal)
+		{
+			; $this->terminal = 'unknown'
+			;
+		}
+		if(!$this->coordinate)
+		{
+			; $this->coordinate = '0,0'
+			;
+		}
+	}
+
+	private function sys_input()
+	{
+		; $this->sysTime = date('Y-m-d H:i:s')
+		;
+	}
+
+	private function debug_input()
+	{
+		$uid    	 = "1";
+		$userTime    = "14-09-3005 00:45:05";
+		$password    = "123456";
+		$token       = md5($uid
+							.substr($userTime,0,-6) // '14-08-30 20:'
+							.$password);
+		$debug_struct = array
 		(
 			"head" => array 
 			(
-				"userName"  => $userName,
+				"uid"  => $uid,
 			    "userTime"  => $userTime,
 			    "token"     => $token
 			),
 			"body" => array
 			(
-				"title"         => $title,
-				"content"       => $content,
-				"img_var_list"  => "pic0",
-				"coordinate"    => '{"longitude":"E118", "latitude":"N32"}'
+				"img_var_list"  => "http://xdream.co/upload/compressed_image/Newton.png",
+			    "imageName" => "Newton.png"
 			)
 		);
-		$userInfo=json_encode($userInfo);//json字符串
-	return $userInfo; 
-	}
-
-	function my_input($postJson)
-	{
-		// echo "input info :";
-	 	// var_dump($userInfo);		
-		/////*****/////
-
-		//var_dump($status);
-		// //union test
-		$json_package = json_decode($postJson);
-		$this->json_package = & $json_package;
-
-		$this->head = & $json_package->head;
-		$this->body = & $json_package->body;
-		$this->userName = & $json_package->head->userName;
-		$this->userTime = & $json_package->head->userTime;
-		$this->token = & $json_package->head->token;
-
-	}
-	private function sys_input()
-	{
-		$this->sysTime = date('Y-m-d H:i:s');
+		; return json_encode($debug_struct)
+		;
 	}
 }
 // end

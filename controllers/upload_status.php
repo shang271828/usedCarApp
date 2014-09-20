@@ -10,7 +10,7 @@ class Upload_status extends MY_Controller
 	 	$this->load->database();
 	 	$this->load->library("upload");
 	 	header("Content-type:text/html;charset=utf-8"); 
-	 	$this->load->model('user_query_model');
+	 	//$this->load->model('user_query_model');
 	 	$this->load->model('insert_model');	
     ini_set('date.timezone','Asia/Shanghai');
 	}
@@ -31,7 +31,7 @@ class Upload_status extends MY_Controller
       $returnInfo = json_decode($returnInfo,TRUE);
 
       $this->load->view("upload_status_success_view", $returnInfo);  
-
+      
       $this->do_upload();      	  			            				           			      	
 	}
 
@@ -42,7 +42,7 @@ class Upload_status extends MY_Controller
         var_dump($imageData);
         $table_name="prefix_user";
         $username=$this->input->userName;
-        $result = $this->user_query_model->query($table_name,"username",$username); 
+        //$result = $this->user_query_model->query($table_name,"username",$username); 
         $base_url=base_url(); 
                 var_dump($base_url); 
 
@@ -59,7 +59,7 @@ class Upload_status extends MY_Controller
         $notice_data["title"]      = $this->input->body->{"title"};
         $notice_data["content"]    = $this->input->body->{"content"};        
         $notice_data["img_list"]   = json_encode($img_list);
-        $notice_data["uid"]        = $result->{"uid"};  
+        //$notice_data["uid"]        = $result->{"uid"};  
         $notice_data["time"]       = $this->input->userTime;
         $notice_data["coordinate"] = $this->input->body->{"coordinate"};
         var_dump($notice_data);

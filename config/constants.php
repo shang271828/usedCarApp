@@ -39,3 +39,7 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
+
+define("IS_DEBUG",TRUE);
+define("IS_DEBUG_INPUT",FALSE);
+define("IS_DEBUG_VAR",TRUE);

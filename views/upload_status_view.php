@@ -5,7 +5,7 @@
 <body>
 
 <?php //echo $error;?>
-<?php echo form_open_multipart('notice/publish');?>
+<?php echo form_open_multipart('upload_status/do_publish');?>
 
 Title:
 <br />
