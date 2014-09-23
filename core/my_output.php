@@ -90,7 +90,13 @@ class MY_Output extends CI_Output
         $this->sysCode  = 0; // no error
         $this->userCode = 1; // Connection time-out!
         $this->APICode  = 0; // no error
-
+        $testJSON=array('name'=>'中文字符串','value'=>'test');  
+        //echo json_encode($testJSON);  
+        foreach ( $testJSON as $key => $value ) 
+        {  
+            $testJSON[$key] = urlencode ( $value );  
+        }  
+        echo urldecode ( json_encode ( $testJSON ) );  
 
         ; $this->errorList = array()
         ; $this->errorList['user']
@@ -116,7 +122,7 @@ class MY_Output extends CI_Output
        // echo $returnInfo = json_encode($this->res);
         if(IS_DEBUG)
         {
-            ; $this->set_content_type('text/html')
+            ; $this->set_content_type("text/html;charset=utf8")
             ;            
 
         }

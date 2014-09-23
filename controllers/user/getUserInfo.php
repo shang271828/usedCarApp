@@ -21,7 +21,7 @@ class GetUserInfo extends MY_Controller
 		if($is_param_ok)
 		{
 			$userInfo = $this->user_model
-							 ->get_userinfo($this->get_uid);
+							 ->select_userinfo($this->get_uid);
 			$this->output->set_body('result', '0');
 			$this->output->set_body('description', 'get userinfo!');
 			$this->output->set_body('userInfo',$userInfo);
@@ -57,7 +57,7 @@ class GetUserInfo extends MY_Controller
    "token"        : "9fd98454b511ce20120ecb593ed177e3"
   },
  "body":{  
-  "get_uid"       : "2"
+  "get_uid"       : "1"
   }
 }
 */

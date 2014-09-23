@@ -1,62 +1,73 @@
 <?php
-class GetNotice extends MY_Controller
+header("Content-Type: text/html; charset=utf-8");
+class SearchNotice extends MY_Controller
 {
 	function __construct()
 	{
 		parent ::__construct();
 		$this->load->database();
 		$this->load->helper("form");
-		$this->load->model("notice_model");
+		$this->load->model("notice_model");		
 	}
 
 	function index()
 	{
-		//unite test
 		$body = $this->input->body;
-
-		@$this->pageNumber    = $body->pageNumber;
-		@$this->numberPerPage = $body->numberPerPage;
-		@$this->sortStr       = $body->sortStr;
 		
+		@$this->pageNumber     = $body->pageNumber;
+		@$this->numberPerPage  = $body->numberPerPage;
+		$searchStr = explode(":", $body->searchStr);
+		@$this->searchType     = $searchStr[0];
+		@$this->searchValue    = $searchStr[1];
+
 		$is_param_ok = $this->notice_param_check();
 		
 		if($is_param_ok)
 		{
-
 			$notice_list = $this->notice_model
-								->get_notice($this->pageNumber,
-										 	 $this->numberPerPage,
-										 	 $this->sortStr);
-	 
+								->search_notice_list($this->pageNumber,
+										 	         $this->numberPerPage,
+										 	         $this->searchType,
+										 	         $this->searchValue);
+	 		
 			if (! $notice_list)	
 			{
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","null notice");
+				$this->output->set_body("description","No corresponding notice!");
 				$this->output->set_body("notice_list", $notice_list);
 			}
 			else
 			{
 				$this->output->set_body("result",0);
-				$this->output->set_body("description","notice get");
+				$this->output->set_body("description","get notice list!");
 				$this->output->set_body("notice_list", $notice_list);
 			}
 		}
 	}
 
+
 	function view_test()
 	{	
-		$this->load->view('notice/get_notice_view');
+		$this->load->view('notice/search_notice_view');
 	}
 
 	function notice_param_check()
 	{
 		$is_param_ok = TRUE;
-		$is_param_missing  = ! ($this->pageNumber&&$this->numberPerPage&&$this->sortStr);
+		$is_param_missing  = ! ($this->pageNumber
+							  &&$this->numberPerPage
+							  &&$this->searchType
+			 				  &&$this->searchValue);
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
-		$is_param_val_error = ($this->pageNumber<1) || ($this->numberPerPage>20);
-		$sortStrList = array(1=>"counter_view",2=>"counter_follow",3=>"counter_praise");
-		$is_param_str_error = ! array_search("counter_view",$sortStrList);
+		$typeList = array(1=>"price",
+						  2=>"mileage",
+						  3=>"region_code",
+						  4=>"brand",
+						  5=>"recency");
+		$is_param_val_error = ! array_search($this->searchType,$typeList)
+							  || ($this->pageNumber<1) 
+		                      || ($this->numberPerPage>20);
 
 		do
 		{
@@ -81,19 +92,13 @@ class GetNotice extends MY_Controller
 				$this->output->set_body("description","parameter's value is wrong ");
 				break;
 			}
-			if($is_param_str_error )
-			{
-				$is_param_ok = FALSE;
-				$this->output->set_body("result",5);
-				$this->output->set_body("description","sortStr's value is wrong ");
-				break;
-			}
+
 		}while(FALSE);
 
 	return $is_param_ok;
 	}
 }
-//getNotice.php end
+//searchNotice.php end
 /*input :
 {
  "head":{  
@@ -104,7 +109,7 @@ class GetNotice extends MY_Controller
  "body":{  
   "pageNumber"    : "1",  
   "numberPerPage" : "2",
-  "sortStr"       : "counter_view"
+  "searchStr"    : "brand:Benz"
   }
 }
 */

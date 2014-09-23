@@ -41,14 +41,13 @@ class MY_Upload extends CI_Upload {
 
     function fetch_img_by_name($img_name)
     {
-        ; $base_url  = 'http://xdream.co/CI_API/application/upload_dir/'
         ; $this->my_upload_path($this->config['upload_path'])
-
+        ;var_dump($this->config['upload_path'])
         ; $is_done   = $this->do_upload($img_name);    
         ; 
         if ( ! $is_done)                                         
         {
-            ; $error = array("error" => $this->display_errors('',''));
+            ; $this->error = array("error" => $this->display_errors('',''));
             ; return false
             ;
         } 
@@ -61,7 +60,7 @@ class MY_Upload extends CI_Upload {
             ; return array('full_name' => $full_name
                           ,'full_path' => $full_path
                           ,'file_size' => $file_size
-                          ,'file_url'  => $base_url.$full_name
+                          ,'file_url'  => base_url().'upload_dir/'.$full_name
                           )
             ;
         }
@@ -71,7 +70,7 @@ class MY_Upload extends CI_Upload {
    {
         ; $this->config 
             = array(
-                 'upload_path'   => realpath('./application/upload_dir')
+                 'upload_path'   => realpath('./upload_dir')
                 ,'allowed_types' => 'gif|jpg|png'
                 ,'max_size'      => '100' //K 
                 ,'max_width'     => '1024'

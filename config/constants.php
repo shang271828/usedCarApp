@@ -43,3 +43,6 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 define("IS_DEBUG",TRUE);
 define("IS_DEBUG_INPUT",FALSE);
 define("IS_DEBUG_VAR",TRUE);
+
+/*error description */
+define("null_input","输入为空");

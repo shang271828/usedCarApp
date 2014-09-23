@@ -5,7 +5,7 @@
 <body>
 
 
-<?php echo form_open_multipart('user/getUserPhoneDir');?>
+<?php echo form_open_multipart('notice/getNoticeList');?>
 
 <input type="text" name="json_package"  size="200" />
 <br/>

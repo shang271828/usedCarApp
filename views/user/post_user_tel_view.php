@@ -5,7 +5,7 @@
 <body>
 
 
-<?php echo form_open_multipart('user/shieldUser');?>
+<?php echo form_open_multipart('user/postUserTel');?>
 
 <input type="text" name="json_package"  size="200" />
 <br/>

@@ -30,172 +30,118 @@ class Notice_model extends CI_Model
 		$this->db->insert($this->table,$data);
 	}
 
-	//*******************************************************
-	//API:getNoticeList & getNoticeDetail
-	//****************************************************
-	function get_notice_list($pageNumber,$numberPerPage,$pageType)
+	function get_notice($pageNumber,$numberPerPage,$pageType)
 	{
 		$this->noticeNumber  = ($pageNumber-1)*$numberPerPage;
 		$this->numberPerPage = $numberPerPage;
 
+		$coordinate = '["120","32"]';
 		switch ($pageType) 
 		{
 			case "mainpage":
-				$this->get_mainpage();
+				$noticeList = $this->get_city_label($coordinate);
 				break;
 			case "discovery":
-				$this->get_discovery();
+				$noticeList = $this->get_discovery($noticeNumber,
+												   $numberPerPage);
 				break;
 			case "timeline":
-				$this->get_timeline();
+				$noticeList = $this->get_timeline($noticeNumber,
+												  $numberPerPage);
 				break;
 			default:
 				echo "error";
 				break;
 		}
-
-		return $this->noticeList;
+		return $noticeList;
 	}
 
-	function get_notice_detail($nid)
+	function get_mainpage_list()
 	{
+		$mainpage_list = array("city"       =>"同城",
+							   "friend"     =>"朋友圈",
+							   "hot_degree" =>"人气");
+		return $mainpage_list;
+	}
+
+	function get_city_label($coordinate)
+	{
+		//if (103<longitude<123 && 22<latitude<34 )
+			//$zone = "south";
+		//else if (103<longitude<135 && 34<latitude<53)
+		//    $zone = "nouth";
+		//elseif (73<longitude<123 && 37<latitude<50) 
+		//	$zone = "nouthwest";
+		//else(73<longitude<104 && 24<latitude<40)
+		// $zone = "Tibet";
 		$this->db->select("nid,
 						   title,
 		 				   content,
+		 				   img_list,
 		 				   uid,
 		 				   coordinate,
 		 				   counter_view,
 		 				   counter_follow,
-		 				   counter_praise,
-		 				   notice_type" );
-		$query = $this->db->get_where($this->table,	
-								      array('nid'=> $nid));
+		 				   counter_praise" );
+		$this->db->where("coordinate",$coordinate);
+		$query = $this->db->get($this->table, 
+								$this->noticeNumber, 
+								$this->numberPerPage);
+		$noticeList = $query->result_array();
+		$noticeList = $this->update_notice_list($noticeList);
+		var_dump($noticeList);
+		return $noticeList;
 
-		$noticeArray = $query->row_array();
-		$type = $noticeArray["notice_type"];
-		switch ($type) {
-			case "normal_notice":
-				$noticeArray = $this->update_normal_notice_detail($noticeArray);
-				break;
-			case "car_notice":
-				$noticeArray = $this->update_car_notice_detail($noticeArray);
-				break;
-			case "comment_notice":
-				$noticeArray = $this->update_comment_notice_detail($noticeArray);
-				break;			
-			default:
-				echo "error";
-				break;
-		}
-		return $noticeArray;
 	}
-
-
-	// function get_mainpage_list()
+	// function get_notice($pageNumber,$numberPerPage,$sortStr)
 	// {
-	// 	$mainpage_list = array("city"       =>"同城",
-	// 						   "friend"     =>"朋友圈",
-	// 						   "hot_degree" =>"人气");
-	// 	return $mainpage_list;
+	// 	$noticeNumber = ($pageNumber-1)*$numberPerPage;
+	// 	$this->db->order_by($sortStr, "desc"); 
+	// 	$this->db->select("nid,
+	// 					   title,
+	// 	 				   content,
+	// 	 				   img_list,
+	// 	 				   uid,
+	// 	 				   coordinate,
+	// 	 				   counter_view,
+	// 	 				   counter_follow,
+	// 	 				   counter_praise" );
+	// 	$query = $this->db->get($this->table, $numberPerPage, $noticeNumber);		
+	// 	$noticeList = $query->result_array();
+	// 	$i = 0;
+	// 	foreach ($noticeList as $value) 
+	// 	{
+	// 		$img_info  = $this->get_img_info($value["nid"]);
+	// 		$user_info = $this->get_user_info($value["uid"]);
+	// 		$noticeList[$i]["img_list"]  = $img_info;
+	// 		$noticeList[$i]["user_info"] = $user_info;
+	// 		$i = $i + 1;
+	// 	}
+	// 	return $noticeList;
 	// }
-
-	private function get_mainpage()
+	private function update_notice_list($noticeList)
 	{
-		$this->db->select("nid,
-						   title,
-		 				   uid,
-		 				   counter_view,
-		 				   counter_follow,
-		 				   counter_praise" );
-		
-		$query = $this->db->get($this->table, 
-								$this->numberPerPage,
-								$this->noticeNumber
-								);
-		$this->noticeList = $query->result_array();
+		$i = 0;
 
-		$this->update_notice_list($this->noticeList);
-	}
-
-	private function get_discovery()
-	{
-		$this->db->select("nid,
-						   title,		 				
-		 				   uid,
-		 				   counter_view,
-		 				   counter_follow,
-		 				   counter_praise" );
-		
-		$query = $this->db->get($this->table, 
-								$this->numberPerPage,
-								$this->noticeNumber
-								);
-		$this->noticeList = $query->result_array();
-
-		$this->update_notice_list($this->noticeList);
-	}
-
-	private function get_timeline()
-	{
-		$this->db->select("nid,
-						   title,
-		 				   content,
-		 				   uid,
-		 				   coordinate,
-		 				   counter_view,
-		 				   counter_follow,
-		 				   counter_praise" );
-		
-		$query = $this->db->get($this->table, 
-								$this->numberPerPage,
-								$this->noticeNumber
-								);
-		$this->noticeList = $query->result_array();
-
-		$this->update_notice_list($this->noticeList);
-	}
-
-	private function update_car_notice_detail($noticeArray)
-	{
-		$nid = $noticeArray["nid"];
-		$uid = $noticeArray["uid"];
-		$img_info  = $this->get_img_info ($nid);
-		$user_info = $this->get_user_info($uid);
-		$car_info  = $this->get_car_info ($nid);
-		$noticeArray["pid"]        = $img_info["pid"];
-	 	$noticeArray["pic_url"]    = $img_info["pic_url"];
-		$noticeArray["uid"]        = $user_info["uid"];
-		$noticeArray["username"]   = $user_info["username"];
-		$noticeArray["signature"]  = $user_info["signature"];
-		$noticeArray["avatar_url"] = $user_info["avatar_url"];
-		$noticeArray["price"]      = $car_info["price"];
-		$noticeArray["mileage"]    = $car_info["mileage"];
-		$noticeArray["brand"]      = $car_info["brand"];
-		$noticeArray["recency"]    = $car_info["recency"];
-		return $noticeArray;			
-	}
-	private function update_notice_list()
-	{
-	$i = 0;
-		foreach ($this->noticeList as $value) 
+		foreach ($noticeList as $value) 
 		{
+			$img_info  = $this->get_img_info($value["nid"]);
 			$user_info = $this->get_user_info($value["uid"]);
-			$this->noticeList[$i]["uid"]        = $user_info["uid"];
-			$this->noticeList[$i]["username"]   = $user_info["username"];
-			$this->noticeList[$i]["signature"]  = $user_info["signature"];
-			$this->noticeList[$i]["avatar_url"] = $user_info["avatar_url"];
-			
+			$noticeList[$i]["img_list"]  = $img_info;
+			$noticeList[$i]["user_info"] = $user_info;
 			$i = $i + 1;
 		}
+		return $noticeList;
 	}
 
 	private function get_img_info($nid)
 	{
 		$query = $this->db->get_where("prefix_picture",
 									  array('nid' => $nid));
-		$img_info = $query->row_array();
+		$img_info = $query->result_array();
+		$img_list = $img_info;
 
-	return $img_info;
+	return $img_list;
 	}
 
 	private function get_user_info($uid)
@@ -203,105 +149,24 @@ class Notice_model extends CI_Model
 		$this->db->select("uid,username,signature,avatar_url");
 		$query = $this->db->get_where("prefix_user",
 									  array('uid' => $uid));
-
-		$user_info = $query->row_array();
+		$user_info = $query->result_array();
 	return $user_info;
 	}
 
-	private function get_car_info($nid)
-	{
-		$query = $this->db->get_where("prefix_car_notice",
-									  array('nid' => $nid));
-		$car_info = $query->row_array();
-	return $car_info;
-	}
 
-    //*******************************************************
-	//API:searchNotice
-	//****************************************************
-	function search_notice_list($pageNumber,
-								$numberPerPage,
-								$searchType,
-								$searchValue)
-	{
-		$this->noticeNumber  = ($pageNumber-1)*$numberPerPage;
-		$this->numberPerPage = $numberPerPage;
+	// function get_img_info($img_list)
+	// {
+	// 	$img_array = json_decode($img_list,TRUE);
+	// 	foreach ($img_array as $pid) 
+	// 	{
+	// 		$query = $this->db->get_where("prefix_picture",
+	// 									  array('pid' => $pid));
+	// 		$img_info = $query->result_array();
+	// 		$img_list = $img_info[0];
+	// 	}
+	// 	return $img_list;
+	// }
 
-		if ($searchType == "region_code" ||
-		    $searchType == "brand"       ||
-		    $searchType == "recency")
-		    $this->search_single_str($searchType,$searchValue);
-		elseif ($searchType == "price" ||
-		        $searchType == "mileage")
-			$this->search_complex_str($searchType,$searchValue);
-		
-		return $this->noticeList;
-	}
-
-	private function search_single_str($searchType,$searchValue)
-	{
-
-		$this->db->select("prefix_car_notice.nid,
-						   title,
-		 				   uid,
-		 				   counter_view,
-		 				   counter_follow,
-		 				   counter_praise"
-						  );
-
-		$this->db->from('prefix_car_notice');
-		$this->db->join($this->table, 
-			            $this->table.'.nid = prefix_car_notice.nid');
-		$this->db->where("prefix_car_notice.".$searchType,$searchValue);
-		$this->db->limit($this->numberPerPage,
-						 $this->noticeNumber);
-		$query = $this->db->get();
-
-		$this->noticeList = $query->result_array();
-
-		$i = 0;
-		foreach ($this->noticeList as $value) 
-		{
-			$noticeArray = $this->noticeList[$i];
-			$this->noticeList[$i] = $this->update_car_notice_detail($noticeArray);
-			$i = $i + 1;
-		}		
-	}
-
-	private function search_complex_str($searchType,$searchValue)
-	{
-
-		$value = explode("-", $searchValue);
-		$this->db->select("prefix_car_notice.nid,
-						   title,
-		 				   uid,
-		 				   counter_view,
-		 				   counter_follow,
-		 				   counter_praise"
-						  );
-
-		$this->db->from('prefix_car_notice');
-		$this->db->join($this->table, 
-			            $this->table.'.nid = prefix_car_notice.nid');
-		$this->db->where("prefix_car_notice.".$searchType." <=",$value[1]);
-		$this->db->where("prefix_car_notice.".$searchType." >=",$value[0]);
-		$this->db->limit($this->numberPerPage,
-						 $this->noticeNumber);
-		$query = $this->db->get();
-
-		$this->noticeList = $query->result_array();
-
-		$i = 0;
-		foreach ($this->noticeList as $value) 
-		{
-			$noticeArray = $this->noticeList[$i];
-			$this->noticeList[$i] = $this->update_car_notice_detail($noticeArray);
-			$i = $i + 1;
-		}		
-	}
-	//*******************************************************
-	//API:praiseNotice& followNotice
-	//****************************************************
 	//更新user_list_praise和counter_praise
 	function update_praise_list($uid,$nid)
 	{

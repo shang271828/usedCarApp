@@ -7,11 +7,6 @@ class Message_model extends CI_model
 		$this->load->database();
 		$this->define();
 	}
-	function test($data=0)
-	{
-
-	}
-
 
 	function insert_message($content, 
 							$img_list, 

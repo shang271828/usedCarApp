@@ -7,7 +7,7 @@
 
 <?php echo form_open_multipart('notice/publishNotice');?>
 
-<input type="text" name="json_package"  size="20" />
+<input type="text" name="json_package"  size="200" />
 <br/>
 <input type="file" name="pic0" id="pic0" size="20" />
 <br /><br />

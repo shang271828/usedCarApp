@@ -15,9 +15,9 @@ class SendMessage extends MY_Controller
 	{
 		// // work code
 		;$body = $this->input->body
-		; @$this->content   		 = $body->content
-		; @$this->img_list   		 = $body->img_list
-		; @$this->destination_list   = $body->destination_list
+		; @$this->content   	   = $body->content
+		; @$this->img_list   	   = $body->img_list
+		; @$this->destination_list = $body->destination_list
 		//; @$type   			 = &$this->input->body->type
 		;
 
@@ -33,7 +33,6 @@ class SendMessage extends MY_Controller
 			; $this->output->set_body('description', 'message sent')
 			;
 		}
-
 	}
 
 	function view_test()
@@ -46,7 +45,6 @@ class SendMessage extends MY_Controller
 	// {
 
 	// }
-
 
 	private function param_check()
 	{

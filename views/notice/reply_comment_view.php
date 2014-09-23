@@ -7,7 +7,7 @@
 
 <?php echo form_open_multipart('notice/replyComment');?>
 
-<input type="text" name="json_package"  size="20" />
+<input type="text" name="json_package"  size="200" />
 <br/>
 
 <input type="submit" value="submit" />

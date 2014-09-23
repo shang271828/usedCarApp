@@ -9,7 +9,6 @@ class publishNotice extends MY_Controller
 	{
 		parent ::__construct();
 		$this->load->helper( array("url","form") );
-        header("Content-type:text/html;charset=utf-8"); 
 		$this->load->model("notice_model");
 		$this->load->library("upload"); 		
 	}	
@@ -17,30 +16,10 @@ class publishNotice extends MY_Controller
 
 	function index()
 	{	
-		/*
-		 * union test
-		 *
-		 **/
 		$body = $this->input->body;
-
-
-		/* work space
-		 *
-		 *
-		 */
-		@$this->title        = $body->title;
-		@$this->content      = $body->content;
-		$img  = $this->upload->fetch_img_by_name($body->img);
-		if(!$img)
-		{
-			$this->img_url = '';
-		}
-		else
-		{
-			$this->img_url = $img['file_url'];
-		}
-
-
+		@$this->title   = $body->title;
+		@$this->content = $body->content;
+		@$this->img_url = $body->img_url;
 
 		$is_param_ok = $this->notice_param_check();
 		if($is_param_ok)

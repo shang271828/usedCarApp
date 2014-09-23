@@ -67,12 +67,30 @@ class User_model extends CI_model
 		;
 	}
 
-	function add_phone_dir($uid,$phone_dir)
+	function add_user_tel($uid,$tel_dir,$do_type)
 	{
-		$data = array("phone_dir" => $phone_dir);
-		$this->db->where('uid', $uid);
-		$this->db->update($this->table, $data); 
+		if ($do_type == "add")
+		{
+			foreach ($tel_dir as $tel) 
+			{
+				$data = array(
+							  "uid"         => $uid,
+							  "tel"         => $tel,
+							  "update_time" => $this->input->sysTime
+							  );
+				$this->db->insert("prefix_user_tel", $data); 
+			}	
+		}
+		else 
+		{
+			foreach ($tel_dir as $tel) 
+			{
+				$this->db->delete("prefix_user_tel", array('uid' => $uid,
+													       "tel" => $tel)); 
+			}			
+		}	
 	}
+
 
 	function get_phone_dir($uid)
 	{
@@ -95,11 +113,13 @@ class User_model extends CI_model
 
 	function select_userinfo($get_uid)
 	{
-		$this->db->select("username,signature,avatar_url");
-		$query = $this->db->get_where($this->table,
-									  array('uid' =>$get_uid));
+		$this->db->select('username,signature,avatar_url,login_state');
+		$this->db->from($this->table);
+		$this->db->join('prefix_user_state', 
+						$this->table.'.uid = prefix_user_state.uid');
+		$this->db->where("prefix_user_state.uid",$get_uid);
+		$query = $this->db->get();
 		$userInfo = $query->row();
-
 		return $userInfo;
 	}
 
