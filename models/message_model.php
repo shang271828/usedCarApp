@@ -8,24 +8,23 @@ class Message_model extends CI_model
 		$this->define();
 	}
 
-	function insert_message($content, 
-							$img_list, 
-							$destination_list
+	function insert_message($receive_uid,							
+							$receive_nid,
+							$content    ,
+							$img_list   ,
+							$messageType	
 					        )
 	{
-
-		; $data 
-			= array(
-					 'content'			=>$content
-					,'img_list'			=>$img_list
-					,'destination_list'	=>$destination_list
-					,'type'				=>'permanent'		
-								
-					,'uid'				=>$this->input->uid
-					,'time'				=>$this->input->sysTime
-					,'coordinate'		=>$this->input->coordinate
-					,'is_fetched'       =>'0'
-					,
+		$data = array(
+					'receive_uid'       =>$receive_uid,
+					'receive_nid'       =>$receive_nid,
+					'content'			=>$content,
+					'img_list'			=>$img_list,
+					'messageType'	    =>$this->messageType,	
+							
+					'send_uid'		    =>$this->input->uid,
+					'time'				=>$this->input->sysTime,
+					'coordinate'		=>$this->input->coordinate					
 				)
 		; $this->db->insert($this->table, $data);
 	}
@@ -33,18 +32,34 @@ class Message_model extends CI_model
 	function get_message($pageNumber,$numberPerPage)
 	{
 		$messageNumber = ($pageNumber-2)*$numberPerPage;
-		$this->db->order_by("is_fetched", "asc"); 
+		$this->db->order_by("time", "desc"); 
 		$this->db->select("mid,
+			               receive_uid,
+			               receive_nid,
 						   content,
 		 				   img_list,
-		 				   destination_list,
-		 				   uid,
+		 				   send_uid,
 		 				   time,
 		 				   coordinate,
 						   is_fetched" 
 						  );
 		$query = $this->db->get($this->table, $numberPerPage, $messageNumber);		
 		$messageList = $query->result_array();
+		var_dump($messageList);
+		$messageList = $this->update_img_list($messageList);
+		var_dump($messageList);
+		return $messageList;
+	}
+
+	function update_img_list($messageList)
+	{
+		$i = 0;
+		foreach ($messageList as $value) 
+		{
+			$img_array   = explode(",", $value["img_list"]);
+			$messageList[$i]["img_list"] = $img_array;
+			$i = $i + 1;
+		}
 		return $messageList;
 	}
 

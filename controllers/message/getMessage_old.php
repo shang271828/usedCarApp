@@ -12,7 +12,13 @@ class GetMessage extends MY_Controller
 
 	function index()
 	{
-		$body = $this->input->body;
+		//unite test
+		$body = new stdClass;
+		$body->pageNumber    = "2";
+		$body->numberPerPage = "4"; 
+		
+
+		//work space
 		$this->pageNumber    = $body->pageNumber;
 		$this->numberPerPage = $body->numberPerPage;
 		
@@ -56,11 +62,11 @@ class GetMessage extends MY_Controller
 		// var_dump($this->unread_list);
 		// $this->user_alert_model->update($this->unread_list);
 	
+
 	function view_test()
 	{	
 		$this->load->view('message/get_message_view');		
 	}
-	
 	function message_param_check()
 	{
 		$is_param_ok = TRUE;
@@ -68,7 +74,7 @@ class GetMessage extends MY_Controller
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
 		$is_param_val_error = ($this->pageNumber<1) || ($this->numberPerPage>20);
-		
+
 		do
 		{
 			if ($is_param_missing)
