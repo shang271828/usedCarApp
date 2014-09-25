@@ -11,13 +11,15 @@ class Notice_model extends CI_Model
 		$this->define();
 	}
 
-	function insert($title,	$content, $img_list)
+	function insert_normal_notice($title,$content,$img_list,$notice_type)
 	{
+		$img_str = $this->array_to_str($img_list);
 		$data = array
 		(
        		"title"          => $title,
        		"content"        =>	$content,
-       		"img_list"		 =>	$img_list,	
+       		"img_list"		 =>	$img_str,	
+       		"notice_type"    => $notice_type,
 
        		"uid"            => $this->input->uid,
        		"time"			 =>	$this->input->sysTime,
@@ -28,8 +30,80 @@ class Notice_model extends CI_Model
        		"counter_praise" => 0
 		);
 		$this->db->insert($this->table,$data);
+		$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array();
+		return $nid["LAST_INSERT_ID()"];
 	}
 
+	function insert_car_notice( $nid,
+								$price      ,
+								$region_code,
+								$brand      ,
+								$recency	  ,
+								$mileage 	)
+	{
+		$data = array
+		(
+			"nid"         => $nid,
+			"price"       => $price      ,			
+			"region_code" => $region_code,
+			"brand"       => $brand      ,
+			"recency"     => $recency	, 
+			"mileage "    => $mileage 	
+		);
+		$this->db->insert("prefix_car_notice",$data);
+
+	}
+
+	function insert_comment_notice( $nid ,
+				 					$p_nid,
+									$commentType = "public"
+				 					)
+	{
+		$layer =$this->count_layer($p_nid);
+		$data = array
+		(
+			"nid"         => $nid        ,
+			"p_nid"       => $p_nid      ,	
+			"layer"	      => $layer,
+			"commentType" => $commentType	
+		);
+		$this->db->insert("prefix_comment",$data);
+	}
+
+	function count_layer($p_nid)
+	{
+		if ($p_nid == 0)
+			$layer = 1;
+		else
+		{
+			$query = $this->db->get_where($this->table,array("nid"=>$p_nid));
+			$notice_array = $query->row_array();
+			$notice_type = $notice_array["notice_type"];
+			if($notice_type == "comment_notice")
+			{
+				$query = $this->db->get_where("prefix_comment",array("nid"=>$p_nid));
+				$comment_array = $query->row_array();
+				$p_layer = $comment_array["layer"];
+				$layer = $p_layer + 1;
+			}
+			else
+				$layer = 1;
+		}
+		return $layer;
+	}
+
+	function array_to_str($img_list)
+	{
+		$i = 0;
+		$img_str = $img_list[$i];
+		foreach ($img_list as $value) 
+		{
+			if ($i > 0)				
+				$img_str = $img_str.",".$img_list[$i];
+			$i ++;
+		}
+		return $img_str;
+	}
 	//*******************************************************
 	//API:getNoticeList & getNoticeDetail
 	//****************************************************
@@ -75,7 +149,7 @@ class Notice_model extends CI_Model
 		$type = $noticeArray["notice_type"];
 		switch ($type) {
 			case "normal_notice":
-				$noticeArray = $this->update_normal_notice_detail($noticeArray);
+				
 				break;
 			case "car_notice":
 				$noticeArray = $this->update_car_notice_detail($noticeArray);
@@ -89,15 +163,6 @@ class Notice_model extends CI_Model
 		}
 		return $noticeArray;
 	}
-
-
-	// function get_mainpage_list()
-	// {
-	// 	$mainpage_list = array("city"       =>"同城",
-	// 						   "friend"     =>"朋友圈",
-	// 						   "hot_degree" =>"人气");
-	// 	return $mainpage_list;
-	// }
 
 	private function get_mainpage()
 	{
@@ -114,7 +179,7 @@ class Notice_model extends CI_Model
 								);
 		$this->noticeList = $query->result_array();
 
-		$this->update_notice_list($this->noticeList);
+		$this->add_userinfo_to_notice_list($this->noticeList);
 	}
 
 	private function get_discovery()
@@ -132,29 +197,77 @@ class Notice_model extends CI_Model
 								);
 		$this->noticeList = $query->result_array();
 
-		$this->update_notice_list($this->noticeList);
+		$this->add_userinfo_to_notice_list($this->noticeList);
 	}
 
 	private function get_timeline()
 	{
-		$this->db->select("nid,
+		$this->db->select("prefix_user_timeline.nid,
 						   title,
-		 				   content,
-		 				   uid,
-		 				   coordinate,
+						   content,
+		 				   prefix_user_timeline.uid,
+		 				   prefix_user_timeline.time,
 		 				   counter_view,
 		 				   counter_follow,
-		 				   counter_praise" );
-		
-		$query = $this->db->get($this->table, 
-								$this->numberPerPage,
-								$this->noticeNumber
-								);
+		 				   counter_praise,
+		 				   notice_type" );
+		$this->db->from('prefix_user_timeline');
+		$this->db->order_by("time", "desc"); 
+		$this->db->join($this->table, $this->table.'.nid = prefix_user_timeline.nid');
+		$this->db->limit($this->numberPerPage,$this->noticeNumber);
+		//$this->db->where("prefix_user_timeline.uid",$this->input->head->uid);
+		$query = $this->db->get(); 
 		$this->noticeList = $query->result_array();
 
-		$this->update_notice_list($this->noticeList);
+		$this->add_userinfo_to_notice_list($this->noticeList);
+		$this->judge_notice_type();
+			
 	}
 
+	private function judge_notice_type()
+	{
+		$i = 0;
+		foreach ($this->noticeList as $value) 
+		{
+
+			switch ($value["notice_type"]) 
+			{
+			case 'comment_notice':
+				$this->add_comment_to_notice_list($i,$value["nid"]);
+				break;
+			case 'car_notice':
+				$this->add_carinfo_to_notice_list($i,$value["nid"]);
+				break;
+			case 'normal_notice':
+
+				break;
+			default:
+				echo "error";
+				break;
+			}
+			
+			$i = $i + 1;
+		}		
+	}
+	private function update_comment_notice_detail($noticeArray)
+	{
+		$nid = $noticeArray["nid"];
+		$uid = $noticeArray["uid"];
+		$img_info  = $this->get_img_info ($nid);
+		$user_info = $this->get_user_info($uid);
+		$comment_info  = $this->get_comment_info ($nid);
+		$noticeArray["pid"]        = $img_info["pid"];
+	 	$noticeArray["pic_url"]    = $img_info["pic_url"];
+		$noticeArray["uid"]        = $user_info["uid"];
+		$noticeArray["username"]   = $user_info["username"];
+		$noticeArray["signature"]  = $user_info["signature"];
+		$noticeArray["avatar_url"] = $user_info["avatar_url"];
+		$noticeArray["p_nid"]      = $comment_info["p_nid"];
+		$noticeArray["layer"]      = $comment_info["layer"];
+		$noticeArray["commentType"]      = $comment_info["commentType"];
+
+		return $noticeArray;			
+	}
 	private function update_car_notice_detail($noticeArray)
 	{
 		$nid = $noticeArray["nid"];
@@ -174,7 +287,27 @@ class Notice_model extends CI_Model
 		$noticeArray["recency"]    = $car_info["recency"];
 		return $noticeArray;			
 	}
-	private function update_notice_list()
+	private function add_comment_to_notice_list($i,$nid )
+	{
+
+		$comment_info = $this->get_comment_info($nid);
+
+		$this->noticeList[$i]["p_nid"]   = $comment_info["p_nid"];
+		$this->noticeList[$i]["layer"]   = $comment_info["layer"];
+		$this->noticeList[$i]["commentType"] = $comment_info["commentType"];
+	}
+
+	private function add_carinfo_to_notice_list($i,$nid )
+	{
+
+		$car_info = $this->get_car_info($nid);
+		$this->noticeList[$i]["price"]      = $car_info["price"];
+		$this->noticeList[$i]["mileage"]    = $car_info["mileage"];
+		$this->noticeList[$i]["brand"]      = $car_info["brand"];
+		$this->noticeList[$i]["recency"]    = $car_info["recency"];
+	}
+
+	private function add_userinfo_to_notice_list()
 	{
 	$i = 0;
 		foreach ($this->noticeList as $value) 
@@ -192,6 +325,15 @@ class Notice_model extends CI_Model
 	private function get_img_info($nid)
 	{
 		$query = $this->db->get_where("prefix_picture",
+									  array('nid' => $nid));
+		$img_info = $query->row_array();
+
+	return $img_info;
+	}
+
+	private function get_comment_info($nid)
+	{
+		$query = $this->db->get_where("prefix_comment",
 									  array('nid' => $nid));
 		$img_info = $query->row_array();
 
@@ -421,15 +563,18 @@ class Notice_model extends CI_Model
     //更新user_list_follow和counter_follow
 	function update_follow_list($uid,$nid)
 	{
+		echo '111111111111';
 		$is_uid_exist = $this->is_user_follow_exist($uid,$nid);
 
 		if ($is_uid_exist)
 		{
+
 			$this->reduce_user_list($uid,$nid,$is_uid_exist);
 			$is_followed = 1;
 		}
 		else
 		{
+
 			$this->add_user_list($uid,$nid);
 			$is_followed = 0;
 		}

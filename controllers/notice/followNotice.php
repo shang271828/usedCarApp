@@ -13,8 +13,8 @@ class FollowNotice extends MY_Controller
 	function index()
 	{
 	    $body = $this->input->body;
-		$this->uid = $this->input->head->uid;
-		$this->nid = $body->nid;
+		@$this->uid = $this->input->head->uid;
+		@$this->nid = $body->nid;
 		
 		$is_param_ok = $this->notice_param_check();
 

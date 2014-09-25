@@ -26,9 +26,6 @@ class MY_Output extends CI_Output
         ; $this->body->$name = $value
         ;
     }
-
-
-
     
     private function set_return_head()
     {

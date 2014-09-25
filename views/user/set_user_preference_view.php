@@ -5,9 +5,9 @@
 <body>
 
 
-<?php echo form_open_multipart('notice/searchNotice');?>
+<?php echo form_open_multipart('user/setUserPreference');?>
 
-<textarea name="json_package" cols="100" rows="25"></textarea>
+<input type="text" name="json_package"  size="200" />
 <br/>
 
 <input type="submit" value="submit" />

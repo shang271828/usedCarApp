@@ -7,7 +7,8 @@
 
 <?php echo form_open_multipart('notice/getNoticeList');?>
 
-<input type="text" name="json_package"  size="200" />
+<textarea name="json_package" cols="100" rows="25"></textarea>
+
 <br/>
 
 <input type="submit" value="submit" />

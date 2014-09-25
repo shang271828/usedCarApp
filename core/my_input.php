@@ -30,8 +30,8 @@ class MY_Input extends CI_Input
 		}
 
 		; $json_package = & $this->json_package
-		; $this->head = & $json_package->head
-		; $this->body = & $json_package->body
+		; $this->head   = & $json_package->head
+		; $this->body   = & $json_package->body
 
 		//////**head**/////
 		; $this->uid  	  = & $json_package->head->uid

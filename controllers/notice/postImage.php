@@ -11,13 +11,13 @@ class PostImage extends MY_Controller
         ; $upload_path = realpath('./upload_dir')
         ; $this->upload->my_upload_path($upload_path)
         ; $this->upload_url = base_url().'upload_dir/'
-        ; var_dump($this->upload_url)
         ;
     }
 
     function index()
     {
-    	; @$file_name = $this->input->body->fileName
+        
+    	; @$file_name = $this->input->body->file_name
 
     	; $file_info = $this->upload->fetch_img_by_name($file_name)
     	; 
@@ -46,3 +46,15 @@ class PostImage extends MY_Controller
     }
 
 }
+/*
+{ 
+ "head":{  
+   "uid"          : "123456",  
+   "time"         : "2014-08-03 03:08:05", 
+   "token"        : "9fd98454b511ce20120ecb593ed177e3"
+  },
+ "body":{    
+   "file_name"      : "pic0"
+  }
+}
+*/

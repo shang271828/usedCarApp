@@ -6,12 +6,12 @@
 <body>
 
 
-<?php 
+<pre><?php 
 ;
-var_dump($this->output->res->head);
-var_dump($this->output->res->body);
+var_dump(json_encode($this->output->res->head));
+var_dump(json_encode($this->output->res->body));
 ?>
-
+</pre>
 
 
 </form>

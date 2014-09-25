@@ -5,9 +5,10 @@ class Register extends CI_Controller
 						
 	function __construct()
 	{
-		parent :: __construct();
-		;$this->load->database();
-		;$this->load->helper("form");
+		;parent :: __construct()
+		;$this->load->database()
+		;$this->load->helper("form")
+		
 		; $this->load->model('user_model')
 		;
 	}
@@ -15,22 +16,41 @@ class Register extends CI_Controller
 	function index()
 	{
 		// work code
+
 		$body = $this->input->body;
 		; @$this->userName = $body->userName
 		; @$this->password = $body->password
 		; @$this->phone	   = $body->phone
+		; @$this->code     = $body->code
 		;
 
 		; $is_param_ok = $this->register_param_check();
 		if($is_param_ok)
 		{
 			// input ok!
-			; $this->user_model->addUser($this->userName, 
-										 $this->password, 
-										 $this->phone)
-			; $this->output->set_body('result', '0')
-			; $this->output->set_body('description', 'user added!')
+			; $this->sysCode  = rand(1000,9999)
+			; $this->send_sms($this->phone,array($this->sysCode,'2'),"1")
+			; $this->code  = $this->sysCode 
+			; $is_code_error = !($this->code == $this->sysCode) 
 			;
+			if($is_code_error)
+			{
+
+				; $this->output->set_body('result', '4')
+				; $this->output->set_body('description', 'code error!')
+				; //function end
+			}
+			else
+			{
+				; $this->user_model->addUser($this->userName, 
+											 $this->password, 
+											 $this->phone,
+											 $this->code)
+	
+				; $this->output->set_body('result', '0')
+				; $this->output->set_body('description', 'user added!')
+				;
+			}
 		}
 	}
 	function view_test()
@@ -38,6 +58,61 @@ class Register extends CI_Controller
 		$this->load->view('user/register_view');
 	}
 
+	function send_sms($to,$datas,$tempId)
+	{
+
+		//主帐号,对应开官网发者主账号下的 ACCOUNT SID
+		$accountSid= 'aaf98f89488d0aad0148ab8e790f0d1c';
+
+		//主帐号令牌,对应官网开发者主账号下的 AUTH TOKEN
+		$accountToken= 'fda1ca24f48c49daa959a0f5f095de53';
+		
+		//应用Id，在官网应用列表中点击应用，对应应用详情中的APP ID
+		//在开发调试的时候，可以使用官网自动为您分配的测试Demo的APP ID
+		$appId='8a48b551488d07a80148ab95f97d0d62';
+		
+		//请求地址
+		//沙盒环境（用于应用开发调试）：sandboxapp.cloopen.com
+		//生产环境（用户应用上线使用）：app.cloopen.com
+		$serverIP='sandboxapp.cloopen.com';
+		
+		
+		//请求端口，生产环境和沙盒环境一致
+		$serverPort='8883';
+		
+		//REST版本号，在官网文档REST介绍中获得。
+		$softVersion='2013-12-26';
+		$params = array
+		(
+			"ServerIP" => $serverIP,
+			"ServerPort" => $serverPort,
+			"SoftVersion" => $softVersion
+		);
+
+		$this->load->library("Rest_lib",$params);
+		$this->rest_lib->setAccount($accountSid,$accountToken);
+     	$this->rest_lib->setAppId($appId);
+
+     	echo "Sending TemplateSMS to $to <br/>";
+     	$result = $this->rest_lib->sendTemplateSMS($to,$datas,$tempId);
+     	var_dump($result);
+     	if($result == NULL ) {
+     	    echo "result error!";
+     	    break;
+     	}
+     	if($result->statusCode!=0) {
+     	    echo "error code :" . $result->statusCode . "<br>";
+     	    echo "error msg :"  . $result->statusMsg  . "<br>";
+     	    //TODO 添加错误处理逻辑
+     	}else{
+     	    echo "Sendind TemplateSMS success!<br/>";
+     	    // 获取返回信息code
+     	    $smsmessage = $result->TemplateSMS;
+     	    echo "dateCreated:"  .$smsmessage->dateCreated."<br/>";
+     	    echo "smsMessageSid:".$smsmessage->smsMessageSid."<br/>";
+     	    //TODO 添加成功处理逻辑
+     	}
+	}
 	private function register_param_check()
 	{
 		$is_param_ok = true;
@@ -48,6 +123,8 @@ class Register extends CI_Controller
 								  &&$this->password
 								  &&$this->phone)
 			; 
+
+			
 			if( $is_param_missing )
 			{
 				; $is_param_ok = false
@@ -56,6 +133,7 @@ class Register extends CI_Controller
 				; break
 				; //function end
 			}
+
 
 			; $is_username_exist 
 				= $this->user_model->is_username_exist($this->userName)
@@ -81,7 +159,9 @@ class Register extends CI_Controller
 				; $this->output->set_body('description', 'phone exist!')
 				; break
 				; //function end
-			}	
+			}
+
+					
 
 		}while(false)
 
@@ -97,7 +177,7 @@ class Register extends CI_Controller
    "token"        : "9fd98454b511ce20120ecb593ed177e3"
   },
  "body":{  
-  "userName"      : "shang",  
+  "userName"      : "hou",  
   "password"      : "4",
   "phone"         : "123"
   }

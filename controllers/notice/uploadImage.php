@@ -6,17 +6,17 @@ class UploadImage extends MY_Controller
     {
         parent :: __construct();
         $this->load->helper("form");
-        //$this->load->helper("url");
-        //$this->load->database();
-        //$this->load->model("picture_model");      
+        $this->load->helper("url");
+        $this->load->database();
+        $this->load->model("image_model");      
     }
 
     function index()
     {
         ;$body = $this->input->body
-        ;$this->img = $body->img
+        ;$this->img_name = $body->file_name
         ;
-        ;$this->img_store = $this->fetch_img_by_name($this->img)
+        ;$this->img_store = $this->fetch_img_by_name($this->img_name)
         ;var_dump($this->img_store)
         ;
         ;$this->output->set_body("result",0)
@@ -34,7 +34,7 @@ class UploadImage extends MY_Controller
         ;$base_url = 'http://xdream.co/CI_API/application/upload_dir/'
         ;var_dump($this->config)
         // ; $this->my_upload_path($this->config['upload_path'])
-        ; $this->do_upload($img_name)
+        ; $is_done = $this->do_upload($img_name)
         ;
         if ( ! $is_done)                                         
         {
@@ -54,7 +54,7 @@ class UploadImage extends MY_Controller
                           ,'file_url'  => $base_url.$full_name
                           )
             ;
-        }
+        // }
     }
 
     function do_upload($img_name)
@@ -77,23 +77,23 @@ class UploadImage extends MY_Controller
         //; $this->initialize($this->config)
         ;
     }
-    
-    private function define()
-    {
-    // ; $this->config 
-    //     = array(
-    //         'upload_path'    => './application/upload_dir'
-    //         ,'allowed_types' => 'gif|jpg|png'
-    //         ,'max_size'      => '100' //K 
-    //         ,'max_width'     => '1024'
-    //         ,'max_height'    => '768'            
-    //         )
-    // ;
-    // ;$config = $this->config
-    ;var_dump($config)
-    ;
-    }
 }
+    // private function define()
+    // {
+    // // ; $this->config 
+    // //     = array(
+    // //         'upload_path'    => './application/upload_dir'
+    // //         ,'allowed_types' => 'gif|jpg|png'
+    // //         ,'max_size'      => '100' //K 
+    // //         ,'max_width'     => '1024'
+    // //         ,'max_height'    => '768'            
+    // //         )
+    // // ;
+    // // ;$config = $this->config
+    // ;var_dump($config)
+    // ;
+    // }
+
 
     // function & fetch_img_accord_json($img_list_json)
     // {
@@ -116,3 +116,16 @@ class UploadImage extends MY_Controller
 
 
 /* End of file upload_lib.php */
+
+/*
+{
+ "head":{  
+   "uid"          : "123456",  
+   "time"         : "2014-08-03 03:08:05", 
+   "token"        : "9fd98454b511ce20120ecb593ed177e3"
+  },
+ "body":{    
+   "file_name"      : "pic0"
+  }
+}
+*/    

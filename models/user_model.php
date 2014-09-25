@@ -53,13 +53,14 @@ class User_model extends CI_model
 		;
 		return $result->is_phone_exist;
 	}
-	function addUser($userName, $password, $phone)
+	function addUser($userName, $password, $phone,$code)
 	{
 		; $data 
 			= array(
 					 'username' 		=> $userName
 					,'password'			=> $password
 					,'phone'	        => $phone
+					,'captcha'			=> $code
 					,'register_time'	=> date('Y-m-d H:i:s')
 
 					)

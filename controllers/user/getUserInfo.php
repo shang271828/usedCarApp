@@ -13,7 +13,6 @@ class GetUserInfo extends MY_Controller
 
 	function index()
 	{
-		// work code
 		$body = $this->input->body;
 		@$this->get_uid = $body->get_uid;
 		$is_param_ok = $this->user_param_check();

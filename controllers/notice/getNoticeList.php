@@ -8,8 +8,7 @@ class GetNoticeList extends MY_Controller
 		parent ::__construct();
 		$this->load->database();
 		$this->load->helper("form");
-		$this->load->model("notice_model");
-		
+		$this->load->model("notice_model");		
 	}
 
 	function index()
@@ -44,7 +43,7 @@ class GetNoticeList extends MY_Controller
 				$this->output->set_body("notice_list", $notice_list);
 			}
 			
-			//$this->load->view("output_view");
+			$this->load->view("output_view");
 
 		}
 	}
@@ -110,8 +109,8 @@ class GetNoticeList extends MY_Controller
   },
  "body":{  
   "pageNumber"    : "1",  
-  "numberPerPage" : "2",
-  "pageType"       : "mainpage"
+  "numberPerPage" : "8",
+  "pageType"       : "timeline"
   }
 }
 */
