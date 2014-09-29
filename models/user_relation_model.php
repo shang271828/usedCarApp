@@ -9,6 +9,21 @@ class User_relation_model extends CI_Model
 		$this->define();
 	}
 
+	function addUser($uid)
+	{
+		; $data 
+			= array(
+					'uid'  => $uid
+					,'friend_list_initial'    => "[]"
+					,'friend_list_secondary'  => "[]"
+					,'notice_list_following'  => "[]"									
+					,'user_list_following'	  => "[]"		
+					,'disgust_list'			  => "[]"
+					)
+		; $this->db->insert($this->table, $data)
+		;
+		
+	}
 
 	function get_friend_list($get_uid)
 	{
@@ -295,6 +310,7 @@ class User_relation_model extends CI_Model
 		$query = $this->db->get_where($this->table,
 			                          array('uid' => $uid));
 		$userInfo = $query->row_array();
+
 		$this->notice_list_following = $userInfo["notice_list_following"];
 
 		$this->str_nid = "'".$nid."'";

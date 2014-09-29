@@ -8,6 +8,18 @@ class User_alert_model extends CI_Model
 		$this->define();
 	}
 
+	function addUser($uid)
+	{
+		$data = array
+		(   
+			"uid"                    => $uid,
+       		"user_list_following"    => "",
+       		"summoning_list"         =>	"",
+       		"msg_list_unread"		 =>	""
+			);
+		$this->db->insert($this->table,$data);
+	}
+
 	function update($msg_list_unread)
 	{
 		$data = array

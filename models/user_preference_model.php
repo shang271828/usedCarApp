@@ -8,20 +8,48 @@ class User_preference_model extends CI_Model
 		$this->define();
 	}
 
+	function addUser($uid)
+	{
+		$data = array
+		(   
+			"uid"        => $uid,
+       		"price"      => "",
+       		"mileage"    =>	"",
+       		"brand"		 =>	""
+			);
+		$this->db->insert($this->table,$data);
+	}
+
+
+
 	function insert($price,
 					$mileage,
 					$brand)
 	{
-		var_dump($price);
+		$this->db->select("uid");
+		$query = $this->db->get($this->table);
+		$uid_list = $query->row_array();
+		
+		$uid = $this->input->head->uid;
 		$data = array
 		(
-			"uid"        => $this->input->head->uid,
+			"uid"        => $uid,
        		"price"      => $price,
        		"mileage"    =>	$mileage,
        		"brand"		 =>	$brand
 		);
-		$this->db->insert($this->table,$data);
+
+		$search = array_search($uid,$uid_list);
+		if (!($search === FALSE))
+		{
+			$this->db->where("uid",$uid);
+			$this->db->update($this->table,$data);
+		}
+		else
+			$this->db->insert($this->table,$data);
 	}
+
+
 
 	function define()
 	{

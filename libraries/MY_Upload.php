@@ -42,7 +42,6 @@ class MY_Upload extends CI_Upload {
     function fetch_img_by_name($img_name)
     {
         ; $this->my_upload_path($this->config['upload_path'])
-        ;var_dump($this->config['upload_path'])
         ; $is_done   = $this->do_upload($img_name);    
         ; 
         if ( ! $is_done)                                         

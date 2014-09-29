@@ -5,10 +5,9 @@
 <body>
 
 
-<?php echo form_open_multipart('user/register');?>
+<?php echo form_open_multipart('notice/sticky');?>
 
 <textarea name="json_package" cols="100" rows="25"></textarea>
-
 <br/>
 
 <input type="submit" value="submit" />

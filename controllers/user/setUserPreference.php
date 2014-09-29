@@ -15,6 +15,8 @@ class SetUserPreference extends MY_Controller
 		$this->price   = $body->price;
 		$this->mileage = $body->mileage;
 		$this->brand   = $body->brand;
+		
+		$brand_str = $this->array_to_string($this->brand);
 
 		$is_param_ok = $this->user_param_check();
 		if($is_param_ok)
@@ -22,7 +24,7 @@ class SetUserPreference extends MY_Controller
 			$this->user_preference_model
 				->insert($this->price
 						,$this->mileage
-						,$this->brand						
+						,$brand_str						
 						);
 
 			$this->output->set_body("result",0);
@@ -35,6 +37,20 @@ class SetUserPreference extends MY_Controller
 		$this->load->view('user/set_user_preference_view');
 	}
 	
+	function array_to_string($array)
+	{
+		if (count($array) == 1)
+			$str = $array[0];
+		elseif(count($array) > 1)
+		{
+			foreach ($array as  $value) 
+			{
+				$str = $array[0].','.$value;
+			}
+		}
+		return $str;
+	}
+
 	function user_param_check()
 	{
 		$is_param_ok = TRUE;

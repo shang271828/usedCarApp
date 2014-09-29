@@ -75,9 +75,20 @@ class SearchNotice extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",2);
-				$this->output->set_body("description","parameter missing");
+				if(!$this->pageNumber)
+					$this->output->set_body("description","parameter missing: pageNumber");
+				elseif (!$this->numberPerPage) 
+					$this->output->set_body("description","parameter missing: numberPerPage");
+				elseif (!$this->searchType)
+					$this->output->set_body("description","parameter missing: searchType");
+				elseif(!$this->searchValue)
+					$this->output->set_body("description","parameter missing: searchValue");
+				//$this->output->set_body("description","parameter missing");
 				break;
 			}
+
+
+
 			if($is_param_nonnum)
 			{
 				$is_param_ok = FALSE;

@@ -5,6 +5,7 @@ class User_model extends CI_model
 	function __construct()
 	{
 		parent::__construct();
+		;$this->load->database();
 		; $this->define()
 		;
 	
@@ -59,14 +60,86 @@ class User_model extends CI_model
 			= array(
 					 'username' 		=> $userName
 					,'password'			=> $password
-					,'phone'	        => $phone
-					,'captcha'			=> $code
+					,'phone'			=> $phone
+					,'captcha'          => $code
 					,'register_time'	=> date('Y-m-d H:i:s')
 
 					)
 		; $this->db->insert($this->table, $data)
+		;$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array()
+		;return $nid["LAST_INSERT_ID()"]
+		;
+
+	}
+	function updateUser($userName, $password, $phone)
+	{
+		; $data 
+			= array(
+					 'username' 		=> $userName
+					,'password'			=> $password
+					,'register_time'	=> date('Y-m-d H:i:s')
+
+					)
+		;$this->db->where('phone',$phone)
+		; $this->db->update($this->table, $data)
 		;
 	}
+
+	function delete_user($uid)
+	{
+		;$this->db->delete($this->table, array('uid' => $uid)); 
+		;
+	}
+
+	function get_all_user()
+	{
+		;$query = $this->db->get($this->table);
+		;$user_list = $query->row_array();
+		;return $user_list
+		;
+	}
+
+	function update_password( $phone,$password)
+	{
+		; $data 
+			= array(
+					'password'			=> $password
+					)
+		;$this->db->where('phone',$phone)
+
+		; $this->db->update($this->table, $data)
+		;
+	}
+	
+	function updateCaptcha($phone,$code)
+	{
+		; $data = array(
+					 'phone'	        => $phone
+					,'captcha'			=> $code
+					)
+		; $this->db->where('phone', $phone);
+		; $this->db->update($this->table, $data)
+		;
+	}
+
+	function addCaptcha($phone,$code)
+	{
+		; $data = array(
+					 'phone'	        => $phone
+					,'captcha'			=> $code
+					)
+		; $this->db->insert($this->table, $data)
+		;
+	}
+
+	function get_captcha($phone)
+	{
+		;$query = $this->db->get_where($this->table,array("phone"=>$phone))
+		;$captcha = $query->row()->{'captcha'};
+		;return $captcha
+		;
+	}
+
 
 	function add_user_tel($uid,$tel_dir,$do_type)
 	{

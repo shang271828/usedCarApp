@@ -8,6 +8,7 @@ class FollowNotice extends MY_Controller
 		$this->load->helper("form");
 		$this->load->model("notice_model");
 		$this->load->model("user_relation_model");
+		$this->load->model("user_timeline_model");
 	}
 
 	function index()
@@ -30,10 +31,16 @@ class FollowNotice extends MY_Controller
 				     	              $is_followed);
 
 			$this->output->set_body("result",0);
-			if ($is_followed == 0)
-		 	   	$this->output->set_body("description","notice followed");		 	   	
+			if ($is_followed == 1)
+			{
+				$this->user_timeline_model->insert($this->nid,"my_follow");
+		 	   	$this->output->set_body("description","notice followed");	
+		 	}	 	   	
 		 	else
+		 	{
+		 		$this->user_timeline_model->insert($this->nid,"my_follow_canceled");
 		 		$this->output->set_body("description","follow canceled");
+		 	}
 		 	$this->output->set_body("is_followed",$is_followed);
 		}
 	}

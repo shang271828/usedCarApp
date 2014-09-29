@@ -5,7 +5,7 @@
 <body>
 
 
-<?php echo form_open_multipart('user/register');?>
+<?php echo form_open_multipart('user/getCaptcha');?>
 
 <textarea name="json_package" cols="100" rows="25"></textarea>
 

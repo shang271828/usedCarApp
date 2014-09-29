@@ -14,14 +14,20 @@ class publishCarNotice extends MY_Controller
 	function index()
 	{	
 		$body = $this->input->body;
-		@$this->title       = $body->title;
-		@$this->content     = $body->content;
-		@$this->img_list    = $body->img_list;
-		@$this->price       = $body->price      ;
-		@$this->region_code = $body->region_code;
-		@$this->brand       = $body->brand      ;
-		@$this->recency	    = $body->recency	   ;
-		@$this->mileage     = $body->mileage    ;
+		$this->title       = $body->title;
+		$this->content     = $body->content;
+		$this->img_list    = $body->img_list;
+		$car_info = $body->car_info;
+		$this->price             = $car_info->price      ;
+		$this->save_money        = $car_info->save_money    ;
+		$this->location    		 = $car_info->location;
+		$this->brand       		 = $car_info->brand      ;
+		$this->recency	   		 = $car_info->recency	   ;
+		$this->registration_time = $car_info->registration_time;
+		$this->speed_box     	 = $car_info->speed_box    ;
+		$this->car_number    	 = $car_info->car_number    ;		
+		$this->mileage           = $car_info->mileage    ;
+
 
 		$is_param_ok = $this->notice_param_check();
 		if($is_param_ok)
@@ -35,13 +41,8 @@ class publishCarNotice extends MY_Controller
 		
 			$this->notice_model
 				 ->insert_car_notice($nid,
-				 					$this->price      ,
-				 					$this->region_code,
-				 					$this->brand      ,
-				 					$this->recency	  ,
-				 					$this->mileage    
-				 					);	
-			$this->user_timeline_model->insert($nid);
+				 					 $car_info);	
+			$this->user_timeline_model->insert($nid,"my_publish");
 			$this->output->set_body("result",0);
 			$this->output->set_body("description","car notice published");
 		}
@@ -92,11 +93,17 @@ class publishCarNotice extends MY_Controller
   "content"         : "my_content",
   "img_list"        : ["http:\/\/xdream.co\/CI_API\/application\/upload_dir\/4.jpg ",
   					   "http:\/\/xdream.co\/CI_API\/application\/upload_dir\/4.jpg "],
-  "price"  :"500000",
-	"region_code"   :"01",
-	"brand":"Benz",
-	"recency":"80",
-	"mileage":"30000"
+  "car_info":{
+"price":"50",
+"save_money":"20",
+"location":"",
+"brand":"Benz",
+"recency":"80",
+"registration_time":"",
+"speed_box":"",
+"car_number":"",
+"mileage":"20"	
+}
   }
 }
 */

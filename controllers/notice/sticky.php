@@ -1,21 +1,19 @@
 
 
 <?php
-class PraiseNotice extends MY_Controller
+class Sticky extends MY_Controller
 {
 	function __construct()
 	{
 		parent ::__construct();
 		$this->load->database();
 		$this->load->helper("form");
-		$this->load->model("notice_model");	
-		$this->load->model("user_timeline_model");		
+		$this->load->model("user_timeline_model");
 	}
 
 	function index()
 	{
 	    $body = $this->input->body;
-		$this->uid = $this->input->head->uid;
 		$this->nid = $body->nid;
 		
 		$is_param_ok = $this->notice_param_check();
@@ -23,34 +21,32 @@ class PraiseNotice extends MY_Controller
 		if($is_param_ok)
 		{
 		
-			$is_praised = $this->notice_model
-					 			->update_praise_list($this->uid,
-					 	                  			 $this->nid);
+			$is_sticky = $this->user_timeline_model->set_sticky($this->nid);
 					 			
 			$this->output->set_body("result",0);
-			if ($is_praised == 1)
+			if ($is_sticky == 1)
 			{
-				$this->user_timeline_model->insert($this->nid,"my_praise");
-		 	   	$this->output->set_body("description","notice praised");
+		 	   	$this->output->set_body("description","is_sticky");
+		 	    $this->output->set_body("is_sticky",$is_sticky);
 		 	}
-
 		 	else
 		 	{
-		 		$this->user_timeline_model->insert($this->nid,"my_praise_canceled");
-		 		$this->output->set_body("description","praise canceled");
+		 		$this->output->set_body("description","is_sticky canceled");
+		 		$this->output->set_body("is_sticky",$is_sticky);
 		 	}
 		}
 	}
-	
+
 	function view_test()
 	{	
-		$this->load->view('notice/praise_notice_view');
+		$this->load->view('notice/sticky_view');
 	}
 
+	
 	function notice_param_check()
 	{
 		$is_param_ok      = TRUE;
-		$is_param_missing = ! ($this->uid&&$this->nid);
+		$is_param_missing = ! ($this->nid);
 		if ($is_param_missing)
 		{
 			$is_param_ok = FALSE;
@@ -61,7 +57,6 @@ class PraiseNotice extends MY_Controller
 
 	}
 }
-//input json:
 /*
 {
  "head":{  
@@ -70,7 +65,7 @@ class PraiseNotice extends MY_Controller
    "token"        : "9fd98454b511ce20120ecb593ed177e3"
   },
  "body":{    
-   "nid"          : "1"
+   "nid"          : "4"
   }
 }
 */

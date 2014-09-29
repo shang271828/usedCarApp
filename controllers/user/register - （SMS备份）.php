@@ -10,19 +10,20 @@ class Register extends CI_Controller
 		;$this->load->helper("form")
 		
 		; $this->load->model('user_model')
-		; $this->load->model('user_relation_model')
-		; $this->load->model('user_preference_model')
 		;
 	}
 
 	function index()
 	{
+		// work code
+
 		$body = $this->input->body;
-		; @$this->userName        = $body->userName
-		; @$this->password        = $body->password
-		; @$this->phone	   		  = $body->phone
-		; @$this->code     		  = $body->code
+		; @$this->userName = $body->userName
+		; @$this->password = $body->password
+		; @$this->phone	   = $body->phone
+		; @$this->code     = $body->code
 		;
+
 		; $is_param_ok = $this->register_param_check();
 		if($is_param_ok)
 		{
@@ -39,12 +40,11 @@ class Register extends CI_Controller
 			}
 			else
 			{
-				; $nid = $this->user_model->addUser($this->userName, 
+				; $this->user_model->addUser($this->userName, 
 											 $this->password, 
 											 $this->phone,
 											 $this->code)
-				; $this->user_relation_model->addUser($nid); 
-				; $this->user_preference_model->addUser($nid);
+	
 				; $this->output->set_body('result', '0')
 				; $this->output->set_body('description', 'user added!')
 				;
@@ -67,7 +67,7 @@ class Register extends CI_Controller
 								  &&$this->password
 								  &&$this->phone)
 			; 
-			
+		
 			if( $is_param_missing )
 			{
 				; $is_param_ok = false
@@ -90,18 +90,18 @@ class Register extends CI_Controller
 				; //function end
 			}	
 
-			; $is_phone_exist 
-				= $this->user_model->is_phone_exist($this->phone)
-			;
+			// ; $is_phone_exist 
+			// 	= $this->user_model->is_phone_exist($this->phone)
+			// ;
 
-			if($is_phone_exist)
-			{
-				; $is_param_ok = false
-				; $this->output->set_body('result', '3')
-				; $this->output->set_body('description', 'phone exist!')
-				; break
-				; //function end
-			}	
+			// if($is_phone_exist)
+			// {
+			// 	; $is_param_ok = false
+			// 	; $this->output->set_body('result', '3')
+			// 	; $this->output->set_body('description', 'phone exist!')
+			// 	; break
+			// 	; //function end
+			// }					
 
 		}while(false)
 
@@ -121,7 +121,7 @@ class Register extends CI_Controller
   "userName"      : "hou",  
   "password"      : "4",
   "phone"         : "123",
-  "code"          : "1234"
+  "code"          : ""
   }
 }
 */
