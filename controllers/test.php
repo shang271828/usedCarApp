@@ -8,12 +8,21 @@ class Test extends MY_Controller
 		$this->load->database();
         $this->load->model("notice_model");
         $this->load->model("user_timeline_model");
+        $this->load->library('JSON_lib');
 
 	}
 
 	function index()
     {
-        $this->notice_model->test('1','4');
+        $arrayName = array
+        ('name' =>'尚萌' ,
+        'age' =>'24' );
+        
+        $json  = $this->json_lib->encode($arrayName);
+        $array = $this->json_lib->decode($json);
+        var_dump( $json);
+        var_dump( $array);
+       
     }
 
     function array_serialize()

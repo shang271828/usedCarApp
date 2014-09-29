@@ -19,15 +19,18 @@ class publishCarNotice extends MY_Controller
 		$this->img_list    = $body->img_list;
 		$car_info = $body->car_info;
 		$this->price             = $car_info->price      ;
-		$this->save_money        = $car_info->save_money    ;
+		$this->market_price      = $car_info->market_price      ;
 		$this->location    		 = $car_info->location;
 		$this->brand       		 = $car_info->brand      ;
 		$this->recency	   		 = $car_info->recency	   ;
 		$this->registration_time = $car_info->registration_time;
 		$this->speed_box     	 = $car_info->speed_box    ;
 		$this->car_number    	 = $car_info->car_number    ;		
-		$this->mileage           = $car_info->mileage    ;
-
+		$this->valid_date           = $car_info->valid_date    ;
+		$this->insurance_date           = $car_info->insurance_date    ;
+		$this->commerce_insurance_date           = $car_info->commerce_insurance_date    ;
+		$this->exchange_time           = $car_info->exchange_time    ;
+		$this->car_configuration   = $car_info->car_configuration;
 
 		$is_param_ok = $this->notice_param_check();
 		if($is_param_ok)
@@ -95,14 +98,19 @@ class publishCarNotice extends MY_Controller
   					   "http:\/\/xdream.co\/CI_API\/application\/upload_dir\/4.jpg "],
   "car_info":{
 "price":"50",
-"save_money":"20",
+"market_price":"70",
 "location":"",
 "brand":"Benz",
 "recency":"80",
 "registration_time":"",
 "speed_box":"",
 "car_number":"",
-"mileage":"20"	
+"mileage":"20",	
+"valid_date":"",          
+"insurance_date":"",         
+"commerce_insurance_date":"",
+"exchange_time":"",
+"car_configuration":""       
 }
   }
 }

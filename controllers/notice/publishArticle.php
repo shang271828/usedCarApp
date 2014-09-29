@@ -1,0 +1,70 @@
+<?php
+class publishArticle extends MY_Controller
+{
+
+	function __construct()
+	{
+		parent ::__construct();
+		$this->load->helper(array("url","form"));
+		$this->load->model("article_model");		
+	}	
+
+	function index()
+	{	
+		$body = $this->input->body;
+		$this->uid         = $body->uid;
+		$this->title       = $body->title;
+		$this->content     = $body->content;
+
+		$is_param_ok = $this->notice_param_check();
+		if($is_param_ok)
+		{
+			$nid = $this->article_model
+				 		->insert_article($this->uid    																 	,$this->title  
+										,$this->content);
+
+			$this->output->set_body("result",0);
+			$this->output->set_body("description","article published");
+		}
+
+	}
+
+	function view_test()
+	{	
+		$this->load->view('notice/publish_article_view');
+	}
+	
+	function notice_param_check()
+	{
+		$is_param_ok = TRUE;
+		
+		$is_param_missing = ! ($this->title && $this->content);
+		
+		do
+		{
+			if ($is_param_missing)
+			{
+				$is_param_ok = FALSE;
+				$this->output->set_body("result",1);
+				$this->output->set_body("description","parameter missing");
+				break;
+			}
+
+		}while(FALSE);
+		return $is_param_ok;
+	}
+}
+/*
+{
+ "head": {  
+    "uid"  : "1", 
+   "time"  : "2014-08-03 03:08:05", 
+   "token" : "9fd98454b511ce20120ecb593ed177e3"
+  },
+ "body":{  
+ "uid":"1",  
+  "title"           : "my_title",
+  "content"         : "my_content"
+  }
+}
+*/

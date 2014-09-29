@@ -17,6 +17,7 @@ class SearchNotice extends MY_Controller
 		@$this->pageNumber     = $body->pageNumber;
 		@$this->numberPerPage  = $body->numberPerPage;
 		$searchStr = explode(":", $body->searchStr);
+		$this->location = $body->location;
 		@$this->searchType     = $searchStr[0];
 		@$this->searchValue    = $searchStr[1];
 
@@ -27,6 +28,7 @@ class SearchNotice extends MY_Controller
 			$notice_list = $this->notice_model
 								->search_notice_list($this->pageNumber,
 										 	         $this->numberPerPage,
+										 	         $this->location,
 										 	         $this->searchType,
 										 	         $this->searchValue);
 	 		
@@ -61,10 +63,9 @@ class SearchNotice extends MY_Controller
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
 		$typeList = array(1=>"price",
-						  2=>"mileage",
-						  3=>"region_code",
-						  4=>"brand",
-						  5=>"recency");
+						  2=>"speed_box",
+						  3=>"is_recommended",
+						  4=>"brand");
 		$is_param_val_error = ! array_search($this->searchType,$typeList)
 							  || ($this->pageNumber<1) 
 		                      || ($this->numberPerPage>20);
