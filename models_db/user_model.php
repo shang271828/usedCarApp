@@ -56,22 +56,16 @@ class User_model extends CI_model
 	}
 	function addUser($userName, $password, $phone,$code)
 	{
-		$time = $this->input->sysTime;
-		// ; $data 
-		// 	= array(
-		// 			 'username' 		=> $userName
-		// 			,'password'			=> $password
-		// 			,'phone'			=> $phone
-		// 			,'captcha'          => $code
-		// 			,'register_time'	=> date('Y-m-d H:i:s')
+		; $data 
+			= array(
+					 'username' 		=> $userName
+					,'password'			=> $password
+					,'phone'			=> $phone
+					,'captcha'          => $code
+					,'register_time'	=> date('Y-m-d H:i:s')
 
-		// 			)
-		// ; $this->db->insert($this->table, $data)
-		// ; $str = $this->db->last_query()
-		// ; var_dump($str);
-		; $SQL = "INSERT INTO `prefix_user` (`username`, `password`, `phone`, `captcha`, `register_time`) 
-				  VALUES ('".$userName."', '".$password."', '".$phone."', '".$code."', '".$time."')";
-		;$this->db->query($SQL);
+					)
+		; $this->db->insert($this->table, $data)
 		;$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array()
 		;return $nid["LAST_INSERT_ID()"]
 		;
@@ -104,22 +98,16 @@ class User_model extends CI_model
 		;return $user_list
 		;
 	}
-	//重设密码API调用此函数
+
 	function update_password( $phone,$password)
 	{
-		// ; $data 
-		// 	= array(
-		// 			'password'			=> $password
-		// 			)
-		// ;$this->db->where('phone',$phone)
+		; $data 
+			= array(
+					'password'			=> $password
+					)
+		;$this->db->where('phone',$phone)
 
-		// ; $this->db->update($this->table, $data)
-		// ; $str = $this->db->last_query();
-		// ; var_dump($str);
-		; $SQL = "UPDATE `prefix_user` 
-				  SET `password` = '".$password."' 
-				  WHERE `phone` =  '".$phone."'"
-		;$this->db->query($SQL)
+		; $this->db->update($this->table, $data)
 		;
 	}
 	
@@ -131,9 +119,6 @@ class User_model extends CI_model
 					)
 		; $this->db->where('phone', $phone);
 		; $this->db->update($this->table, $data)
-		;
-		; $str = $this->db->last_query()
-		; var_dump($str)
 		;
 	}
 
@@ -155,7 +140,7 @@ class User_model extends CI_model
 		;
 	}
 
-	//通讯录api调用
+
 	function add_user_tel($uid,$tel_dir,$do_type)
 	{
 		if ($do_type == "add")

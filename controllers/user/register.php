@@ -5,13 +5,13 @@ class Register extends CI_Controller
 						
 	function __construct()
 	{
-		;parent :: __construct()
-		;$this->load->database()
-		;$this->load->helper("form")
-		
+		; parent :: __construct()
+		; $this->load->database()
+		; $this->load->helper("form")		
 		; $this->load->model('user_model')
 		; $this->load->model('user_relation_model')
 		; $this->load->model('user_preference_model')
+		//; $this->load->model('user_alert_model')
 		;
 	}
 
@@ -34,7 +34,7 @@ class Register extends CI_Controller
 			{
 
 				; $this->output->set_body('result', '4')
-				; $this->output->set_body('description', 'code error!')
+				; $this->output->set_body('description', CAPTCHA_ERROR)
 				; //function end
 			}
 			else
@@ -45,8 +45,9 @@ class Register extends CI_Controller
 											 $this->code)
 				; $this->user_relation_model->addUser($nid); 
 				; $this->user_preference_model->addUser($nid);
+				//; $this->user_alert_model->addUser($nid);
 				; $this->output->set_body('result', '0')
-				; $this->output->set_body('description', 'user added!')
+				; $this->output->set_body('description', USER_ADD)
 				;
 			}
 		}
@@ -72,7 +73,7 @@ class Register extends CI_Controller
 			{
 				; $is_param_ok = false
 				; $this->output->set_body('result', '1')
-				; $this->output->set_body('description', 'parameter error!')
+				; $this->output->set_body('description', PARAMETER_MISSING)
 				; break
 				; //function end
 			}
@@ -85,7 +86,7 @@ class Register extends CI_Controller
 			{
 				; $is_param_ok = false
 				; $this->output->set_body('result', '2')
-				; $this->output->set_body('description', 'userName exist!')
+				; $this->output->set_body('description', NAME_EXIST)
 				; break
 				; //function end
 			}	
@@ -98,7 +99,7 @@ class Register extends CI_Controller
 			{
 				; $is_param_ok = false
 				; $this->output->set_body('result', '3')
-				; $this->output->set_body('description', 'phone exist!')
+				; $this->output->set_body('description', PHONE_EXIST)
 				; break
 				; //function end
 			}	

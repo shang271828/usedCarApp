@@ -30,7 +30,7 @@ class PostUserTel extends MY_Controller
 							   $this->do_type );
 
 			$this->output->set_body('result', '0');
-			$this->output->set_body('description', 'operation is done!');
+			$this->output->set_body('description', IS_DONE);
 		}
 			
 	}
@@ -49,7 +49,7 @@ class PostUserTel extends MY_Controller
 		{
 			$is_param_ok = FALSE;
 			$this->output->set_body("result",1);
-			$this->output->set_body("description","parameter missing");
+			$this->output->set_body("description",PARAMETER_MISSING);
 		}
 	return $is_param_ok;
 	}

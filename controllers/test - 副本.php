@@ -1,26 +1,24 @@
 <?php
+//header("Content-Type:text/html;charset=utf-8");
 class Test extends MY_Controller
 {
 
 	function __construct()
 	{
-        header("Content-Type:text/html;charset=utf-8");
 		parent ::__construct();
 		$this->load->database();
         $this->load->model("notice_model");
         $this->load->model("user_timeline_model");
-        //$this->load->library('JSON_lib');
-
+        $this->load->library('JSON_lib');
 	}
 
 	function index()
     {
-       $testJSON=array('name'=>'中文字符串','value'=>'test');  
-    //echo json_encode($testJSON);  
-    foreach ( $testJSON as $key => $value ) {  
-        $testJSON[$key] = urlencode ( $value );  
-    }  
-    echo urldecode ( json_encode ( $testJSON ) );  
+        $stooges = array('尚','Larry','Curly');
+      $a = $this->json_lib->encode($stooges);
+      var_dump($a);
+       $b = $this->json_lib->decode($stooges);
+    var_dump($b);
     }
 
     function array_serialize()

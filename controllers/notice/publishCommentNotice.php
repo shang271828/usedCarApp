@@ -44,7 +44,7 @@ class publishCommentNotice extends MY_Controller
 					 						);	
 			$this->user_timeline_model->insert($nid,"my_comment");
 			$this->output->set_body("result",0);
-			$this->output->set_body("description","comment notice published");
+			$this->output->set_body("description",PUBLISH_COMMENT_NOTICE);
 		}
 
 	}
@@ -58,7 +58,7 @@ class publishCommentNotice extends MY_Controller
 	{
 		$is_param_ok = TRUE;
 		
-		$is_param_missing = ! ($this->title && $this->content);
+		$is_param_missing = ! ($this->title && $this->content && $this->img_list);
 		
 		do
 		{
@@ -66,17 +66,17 @@ class publishCommentNotice extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","parameter missing");
+				$this->output->set_body("description",PARAMETER_MISSING);
 				break;
 			}
 
-			if(!$this->img_list)
-			{
-				$is_param_ok = FALSE;
-				$this->output->set_body("result",2);
-				$this->output->set_body("description","image missing");
-				break;				
-			}
+			// if(!$this->img_list)
+			// {
+			// 	$is_param_ok = FALSE;
+			// 	$this->output->set_body("result",2);
+			// 	$this->output->set_body("description","image missing");
+			// 	break;				
+			// }
 		}while(FALSE);
 		return $is_param_ok;
 	}
@@ -91,7 +91,7 @@ class publishCommentNotice extends MY_Controller
  "body":{    
   "title"           : "my_title",
   "content"         : "my_content",
-  "img_list"        : ["http:\/\/xdream.co\/CI_API\/application\/upload_dir\/4.jpg ","http:\/\/xdream.co\/CI_API\/application\/upload_dir\/4.jpg "],
+  "img_list"        : ["http://xdream.co/CI_API/upload_dir/1303bcfae0b6c8f859bcc2aafcb2ee23.jpg","http://xdream.co/CI_API/upload_dir/225e97394f00e2bf3c42f34e665553c3.jpg"],
   "p_nid"  :"5",
   "commentType"   :"private"
   }

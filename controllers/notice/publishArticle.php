@@ -12,7 +12,7 @@ class publishArticle extends MY_Controller
 	function index()
 	{	
 		$body = $this->input->body;
-		$this->uid         = $body->uid;
+		$this->a_uid         = $body->a_uid;
 		$this->title       = $body->title;
 		$this->content     = $body->content;
 
@@ -20,11 +20,11 @@ class publishArticle extends MY_Controller
 		if($is_param_ok)
 		{
 			$nid = $this->article_model
-				 		->insert_article($this->uid    																 	,$this->title  
+				 		->insert_article($this->a_uid    																,$this->title  
 										,$this->content);
 
 			$this->output->set_body("result",0);
-			$this->output->set_body("description","article published");
+			$this->output->set_body("description",PUBLISH_ARTICLE);
 		}
 
 	}
@@ -46,7 +46,7 @@ class publishArticle extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","parameter missing");
+				$this->output->set_body("description",PARAMETER_MISSING);
 				break;
 			}
 
@@ -62,7 +62,7 @@ class publishArticle extends MY_Controller
    "token" : "9fd98454b511ce20120ecb593ed177e3"
   },
  "body":{  
- "uid":"1",  
+ "a_uid":"1",  
   "title"           : "my_title",
   "content"         : "my_content"
   }

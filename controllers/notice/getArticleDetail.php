@@ -26,27 +26,19 @@ class GetArticleDetail extends MY_Controller
 
 			$article_detail = $this->article_model
 								->get_article_detail($this->aid);
-			// if ($this->pageType == "mainpage")
-			// {
-			// 	$total_article_row = $this->article_model
-			// 				   		 	 ->get_total_car_row($this->pageType);
-			// 	$this->output->set_body("total_article_row", $total_article_row);
-			// }
 	 		
 			if (! $article_detail)	
 			{
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","null article!");
+				$this->output->set_body("description",NULL_ARTICLE);
 				$this->output->set_body("article_detail", $article_detail);
 			}
 			else
 			{
 				$this->output->set_body("result",0);
-				$this->output->set_body("description","get article detail!");
+				$this->output->set_body("description",GET_ARTICLE_DETAIL);
 				$this->output->set_body("article_detail", $article_detail);
 			}
-			
-			//$this->load->view("output_view");
 
 		}
 	}
@@ -69,7 +61,7 @@ class GetArticleDetail extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",2);
-				$this->output->set_body("description","parameter missing");
+				$this->output->set_body("description",PARAMETER_MISSING);
 				break;
 			}
 

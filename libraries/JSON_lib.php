@@ -1,4 +1,4 @@
-<?php
+<?php 
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 /**
  * Converts to and from JSON format.
@@ -116,8 +116,9 @@ define('JSON_lib_USE_TO_JSON', 64);
  * $value = $json->decode($input);
  * </code>
  */
-class JSON_lib
+class Json_lib
 {
+   
    /**
     * constructs a new JSON instance
     *

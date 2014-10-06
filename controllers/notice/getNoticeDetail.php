@@ -27,13 +27,13 @@ class GetNoticeDetail extends MY_Controller
 			if (! $notice_detail)	
 			{
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","null notice!");
+				$this->output->set_body("description",NULL_NOTICE);
 				$this->output->set_body("notice_detail", $notice_detail);
 			}
 			else
 			{
 				$this->output->set_body("result",0);
-				$this->output->set_body("description","get notice detail!");
+				$this->output->set_body("description",GET_NOTICE_DETAIL);
 				$this->output->set_body("notice_detail", $notice_detail);
 			}			
 		}
@@ -54,7 +54,7 @@ class GetNoticeDetail extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",2);
-				$this->output->set_body("description","parameter missing");
+				$this->output->set_body("description",PARAMETER_MISSING);
 				break;
 			}
 		}while(FALSE);

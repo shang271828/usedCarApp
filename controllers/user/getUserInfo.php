@@ -23,7 +23,7 @@ class GetUserInfo extends MY_Controller
 			$userInfo = $this->user_model
 							 ->select_userinfo($this->get_uid);
 			$this->output->set_body('result', '0');
-			$this->output->set_body('description', 'get userinfo!');
+			$this->output->set_body('description', GET_USERINFO);
 			$this->output->set_body('userInfo',$userInfo);
 		}
 	}
@@ -42,7 +42,7 @@ class GetUserInfo extends MY_Controller
 		{
 			$is_param_ok = FALSE;
 			$this->output->set_body("result",1);
-			$this->output->set_body("description","parameter missing");
+			$this->output->set_body("description",PARAMETER_MISSING);
 		}
 	return $is_param_ok;
 	}

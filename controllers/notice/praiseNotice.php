@@ -31,13 +31,13 @@ class PraiseNotice extends MY_Controller
 			if ($is_praised == 1)
 			{
 				$this->user_timeline_model->insert($this->nid,"my_praise");
-		 	   	$this->output->set_body("description","notice praised");
+		 	   	$this->output->set_body("description",PRAISE);
 		 	}
 
 		 	else
 		 	{
-		 		$this->user_timeline_model->insert($this->nid,"my_praise_canceled");
-		 		$this->output->set_body("description","praise canceled");
+		 		//$this->user_timeline_model->insert($this->nid,"my_praise_canceled");
+		 		$this->output->set_body("description",PRAISE_CANCEL);
 		 	}
 		}
 	}
@@ -55,7 +55,7 @@ class PraiseNotice extends MY_Controller
 		{
 			$is_param_ok = FALSE;
 			$this->output->set_body("result",1);
-			$this->output->set_body("description","parameter missing");
+			$this->output->set_body("description",PARAMETER_MISSING);
 		}
 		return $is_param_ok;
 

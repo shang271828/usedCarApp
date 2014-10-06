@@ -25,7 +25,7 @@ class PostImage extends MY_Controller
     	if($file_info)
     	{
     		; $this->output->set_body('result','0')
-    		; $this->output->set_body('description','图片上传成功')
+    		; $this->output->set_body('description',UPLOAD_IMAGE)
     		; $file_url = $this->upload_url.$file_info['full_name']
     		; $this->output->set_body('URL',$file_url)
     		;

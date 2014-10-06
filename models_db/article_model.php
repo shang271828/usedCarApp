@@ -13,12 +13,16 @@ class Article_model extends CI_model
 							$content	
 					        )
 	{
-		$time = $this->input->sysTime;
-		$SQL = "INSERT INTO `prefix_article` 
-		       ( `a_uid`, `title`, `content`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `user_list_view`, `user_list_follow`, `user_list_praise`) 
-		       VALUES ('".$uid."','".$title."', '".$content."','".$time."' , '0', '0', '0', '[]', '[]', '[]')";
+		$this->colomn['uid']            = $uid;
+		$this->colomn['title']          = $title;
+		$this->colomn['content']        = $content;
+		$this->colomn['time']           = $this->input->sysTime;
 
-		$this->db->query($SQL);
+		$this->db->insert($this->table, $this->colomn);
+		
+		$this->db->last_query();
+		$str = $this->db->last_query();
+		var_dump($str);
 
 	}
 
@@ -44,26 +48,49 @@ class Article_model extends CI_model
 
 	function get_article_detail($aid)
 	{
-		$SQL = "SELECT `aid`, `title`, `a_uid`, `content`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`
-				FROM (`prefix_article`)
-				JOIN `prefix_user` ON `uid` = `a_uid`
-				WHERE `aid` =  '".$aid."'"; 
-		$query = $this->db->query($SQL);
-		$this->articleDetail = $query->result_array();
+
+		$this->db->select( "aid,
+						   title,"
+		 				   .$this->table.".uid,	
+		 				   content,
+		 				   time,	 				
+		 				   counter_view,
+		 				   counter_follow,
+		 				   counter_praise,
+		 				   username,
+      					   signature,
+      					   avatar_url,
+						" );
+		$this->db->from($this->table);
+		$this->db->where("aid",$aid);
+		$this->db->join("prefix_user", $this->table.'.uid = prefix_user.uid');
+		$query = $this->db->get(); 
+
+		$this->articleDetail = $query->result_array();	
 
 		return $this->articleDetail;
 	}
 
 	private function get_tips_list()
 	{
-		$SQL ="SELECT `aid`, `title`, `a_uid`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`
-				FROM (`prefix_article`)
-				JOIN `prefix_user` ON `uid` = `a_uid`
-				ORDER BY `time` desc
-				LIMIT ".$this->articleNumber.",".$this->numberPerPage;
-		$query = $this->db->query($SQL);
-		$this->articleList = $query->result_array();
-			
+		$this->db->select( "aid,
+						   title,"
+		 				   .$this->table.".uid,	
+		 				   time,	 				
+		 				   counter_view,
+		 				   counter_follow,
+		 				   counter_praise,
+		 				   username,
+      					   signature,
+      					   avatar_url,
+							" );
+		$this->db->from($this->table);
+		$this->db->order_by("time", "desc"); 
+		$this->db->join("prefix_user", $this->table.'.uid = prefix_user.uid');
+		$this->db->limit($this->numberPerPage,$this->articleNumber);
+		$query = $this->db->get(); 
+
+		$this->articleList = $query->result_array();				
 	}
 
 	function define()

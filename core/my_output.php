@@ -21,11 +21,53 @@ class MY_Output extends CI_Output
     }
 
 
-    function set_body($name, $value)
+    function set_body($name, $value_1)
     {
-        ; $this->body->$name = $value
+        if (is_array($value_1))
+        {
+            foreach ( $value_1 as $key_2 => &$value_2 ) 
+            {  
+                if(is_array($value_2))
+                {
+                    foreach ($value_2 as $key_3 => &$value_3) 
+                    {
+                        if(is_array($value_3))
+                        {
+                            foreach ($value_3 as $key_4 => &$value_4) 
+                            {
+                        
+                                ;$value_3[$key_4] = urlencode ( $value_4)
+                                ;  
+                            }
+                        }
+                        else
+                        {
+                            ;$value_2[$key_3] = urlencode ( $value_3 )
+                            ;  
+                        }
+                    }
+                
+                }
+                else
+                {
+                    ;$value_1[$key_2] = urlencode ( $value_2 )
+                    ;  
+                }
+                
+            } 
+        ; $this->body->$name = $value_1;
+        ; 
+
+        }
+        else
+        {
+        ; $this->body->$name = urlencode($value_1)
         ;
+        }
     }
+
+
+
     
     private function set_return_head()
     {
@@ -54,21 +96,21 @@ class MY_Output extends CI_Output
                 ;
             }
 
-            ; $description = 'through verification'
+            ; $description = THROUGH_VERIFICATION
             ;
         }while(false)
         ;
 
         if(IS_DEBUG)
         {
-            ; $description = 'debug environment'
+            ; $description = DEBUG_ENVIRONMENT
             ;
         }
         ; $this->head->returnCode  
             = $this->sysCode
                 . $this->userCode
                 . $this->APICode
-        ; $this->head->returnDescription = $description
+        ; $this->head->returnDescription = urlencode($description)
         ;        
     }
 
@@ -87,21 +129,15 @@ class MY_Output extends CI_Output
         $this->sysCode  = 0; // no error
         $this->userCode = 1; // Connection time-out!
         $this->APICode  = 0; // no error
-        // $testJSON=array('name'=>'中文字符串','value'=>'test');  
-        //echo json_encode($testJSON);  
-        // foreach ( $testJSON as $key => $value ) 
-        // {  
-        //     $testJSON[$key] = urlencode ( $value );  
-        // }  
-       // echo urldecode ( json_encode ( $testJSON ) );  
+
 
         ; $this->errorList = array()
         ; $this->errorList['user']
             = array(
-                  "UserInfo correct!"
-                 ,"Error: Connection time-out!"
-                 ,"Error: user id don't exist!!"
-                 ,"Error: password incorrect!"
+                  USERINFO_CORRECT
+                 ,TIME_OUT
+                 ,ID_NONEXIST
+                 ,PASSWORD_INCORRECT
                  )
         ;
     }
@@ -111,7 +147,7 @@ class MY_Output extends CI_Output
         ; $this->is_printed = true
         ; $this->set_return_head()
         ; $this->set_output(
-                json_encode($this->res)
+                urldecode(json_encode($this->res))
             )
         ;
 
@@ -119,7 +155,7 @@ class MY_Output extends CI_Output
        // echo $returnInfo = json_encode($this->res);
         if(IS_DEBUG)
         {
-            ; $this->set_content_type("text/html;charset=utf8")
+            ; $this->set_content_type('text/html;charset=utf-8')
             ;            
 
         }
@@ -128,6 +164,7 @@ class MY_Output extends CI_Output
             ; $this->set_content_type('application/json')
             ;
         }
+        //header("Content-Type:text/html;charset=utf-8");
 
     }
     function __destruct()

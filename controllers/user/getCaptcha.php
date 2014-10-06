@@ -28,28 +28,38 @@ class GetCaptcha extends MY_Controller
 		{
 			// input ok!
 			; $this->code  = rand(1000,9999)
-			
-			; $this->send_sms($this->phone,array($this->code,'2'),"1")
-			;
+			; $is_send = $this->send_sms($this->phone,array($this->code,'2'),"1")
+
 			; $is_phone_exist 
 				= $this->user_model->is_phone_exist($this->phone)
 			;
-			if ($is_phone_exist)
+			
+			if($is_send == 0)
 			{
-				; $this->user_model->addCaptcha($this->phone,
-										 		$this->code)
-				;
+				; $this->output->set_body('result', '2')
+				; $this->output->set_body('description', SEND_ERROR)
+				;		
 			}
 			else
 			{
-				; $this->user_model->updateCaptcha($this->phone,
-										 			$this->code)
-				;
+				if ($is_phone_exist)
+				{			
+					; $this->user_model->addCaptcha($this->phone,
+											 		$this->code)
+					;
+				}
+				else
+				{
+					; $this->user_model->updateCaptcha($this->phone,
+											 			$this->code)	
+					;					
+				}
+				; $this->output->set_body('result', '0')
+				; $this->output->set_body('description', GET_CAPTCHA)
+				;	
 			}
 
-			; $this->output->set_body('result', '0')
-			; $this->output->set_body('description', 'get captcha!')
-			;			
+				
 		}
 	}
 	function view_test()
@@ -71,23 +81,10 @@ class GetCaptcha extends MY_Controller
 			{
 				; $is_param_ok = false
 				; $this->output->set_body('result', '1')
-				; $this->output->set_body('description', 'parameter error!')
+				; $this->output->set_body('description', PARAMETER_MISSING)
 				; break
 				; //function end
-			}
-
-			// ; $is_phone_exist 
-			// 	= $this->user_model->is_phone_exist($this->phone)
-			// ;
-
-			// if($is_phone_exist)
-			// {
-			// 	; $is_param_ok = false
-			// 	; $this->output->set_body('result', '3')
-			// 	; $this->output->set_body('description', 'phone exist!')
-			// 	; break
-			// 	; //function end
-			// }					
+			}					
 
 		}while(false)
 
@@ -140,15 +137,18 @@ class GetCaptcha extends MY_Controller
      	if($result->statusCode!=0) {
      	   // echo "error code :" . $result->statusCode . "<br>";
      	   // echo "error msg :"  . $result->statusMsg  . "<br>";
+     	   $is_send = 0;
      	    //TODO 添加错误处理逻辑
      	}else{
      	   // echo "Sendind TemplateSMS success!<br/>";
-     	    // 获取返回信息code
+     	    //获取返回信息code
      	    $smsmessage = $result->TemplateSMS;
      	   // echo "dateCreated:"  .$smsmessage->dateCreated."<br/>";
-     	    //echo "smsMessageSid:".$smsmessage->smsMessageSid."<br/>";
+     	   //  echo "smsMessageSid:".$smsmessage->smsMessageSid."<br/>";
      	    //TODO 添加成功处理逻辑
+     	     $is_send = 1;    	     
      	}
+     	return $is_send ;
 	}
 }
 /*

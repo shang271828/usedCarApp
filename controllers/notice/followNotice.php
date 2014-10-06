@@ -26,20 +26,19 @@ class FollowNotice extends MY_Controller
 					 			->update_follow_list($this->uid,
 					 	                  			 $this->nid);
 			$this->user_relation_model
-				 ->update_notice_list($this->uid,
-				     	              $this->nid,
-				     	              $is_followed);
+				 ->update_notice_list_following($this->uid,
+				     	              		  $this->nid);
 
 			$this->output->set_body("result",0);
 			if ($is_followed == 1)
 			{
 				$this->user_timeline_model->insert($this->nid,"my_follow");
-		 	   	$this->output->set_body("description","notice followed");	
+		 	   	$this->output->set_body("description",FOLLOW);	
 		 	}	 	   	
 		 	else
 		 	{
-		 		$this->user_timeline_model->insert($this->nid,"my_follow_canceled");
-		 		$this->output->set_body("description","follow canceled");
+		 		//$this->user_timeline_model->insert($this->nid,"my_follow_canceled");
+		 		$this->output->set_body("description",FOLLOW_CANCEL);
 		 	}
 		 	$this->output->set_body("is_followed",$is_followed);
 		}
@@ -58,7 +57,7 @@ class FollowNotice extends MY_Controller
 		{
 			$is_param_ok = FALSE;
 			$this->output->set_body("result",1);
-			$this->output->set_body("description","parameter missing");
+			$this->output->set_body("description",PARAMETER_MISSING);
 		}
 		return $is_param_ok;
 	}

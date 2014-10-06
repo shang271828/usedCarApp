@@ -18,8 +18,6 @@ class User_alert_model extends CI_Model
        		"msg_list_unread"		 =>	""
 			);
 		$this->db->insert($this->table,$data);
-		$str = $this->db->last_query();
-		var_dump($str);
 	}
 
 	function update($msg_list_unread)

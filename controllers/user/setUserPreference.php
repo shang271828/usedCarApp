@@ -12,11 +12,13 @@ class SetUserPreference extends MY_Controller
 	function index()
 	{	
 		$body = $this->input->body;
-		$this->price   = $body->price;
-		$this->mileage = $body->mileage;
-		$this->brand   = $body->brand;
+		$this->price     = $body->price;
+		$this->mileage   = $body->mileage;
+		$this->brand     = $body->brand;
+		$this->age       = $body->age;
+		$this->car_type  = $body->car_type;
+		$this->speed_box = $body->speed_box;
 		
-		$brand_str = $this->array_to_string($this->brand);
 
 		$is_param_ok = $this->user_param_check();
 		if($is_param_ok)
@@ -24,11 +26,14 @@ class SetUserPreference extends MY_Controller
 			$this->user_preference_model
 				->insert($this->price
 						,$this->mileage
-						,$brand_str						
+						,$this->brand    
+						,$this->age      
+						,$this->car_type 
+						,$this->speed_box						
 						);
 
 			$this->output->set_body("result",0);
-			$this->output->set_body("description","set user preference");
+			$this->output->set_body("description",SET_PREFERENCE);
 		}
 	}
 
@@ -37,19 +42,6 @@ class SetUserPreference extends MY_Controller
 		$this->load->view('user/set_user_preference_view');
 	}
 	
-	function array_to_string($array)
-	{
-		if (count($array) == 1)
-			$str = $array[0];
-		elseif(count($array) > 1)
-		{
-			foreach ($array as  $value) 
-			{
-				$str = $array[0].','.$value;
-			}
-		}
-		return $str;
-	}
 
 	function user_param_check()
 	{
@@ -77,9 +69,13 @@ class SetUserPreference extends MY_Controller
    "token" : "9fd98454b511ce20120ecb593ed177e3"
   },
  "body":{    
-"price"  : "500000-800000",
-"mileage"  : "20000-80000",
-"brand"  : "Benz"
+"price"  : "50-80",
+"mileage"  : "2-8",
+"age" : "1-4",
+"car_type":"",
+"brand"  : "Benz",
+"speed_box":""
+
   }
 }
 

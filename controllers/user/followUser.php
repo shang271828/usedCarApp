@@ -29,9 +29,9 @@ class FollowUser extends MY_Controller
 					 			
 			$this->output->set_body("result",0);
 			if ($is_followed == 1)
-		 	   	$this->output->set_body("description","user followed");
+		 	   	$this->output->set_body("description",FOLLOW);
 		 	else
-		 		$this->output->set_body("description","follow canceled");
+		 		$this->output->set_body("description",FOLLOW_CANCEL);
 		}
 	}
 
@@ -49,7 +49,7 @@ class FollowUser extends MY_Controller
 		{
 			$is_param_ok = FALSE;
 			$this->output->set_body("result",1);
-			$this->output->set_body("description","parameter missing");
+			$this->output->set_body("description",PARAMETER_MISSING);
 		}
 		return $is_param_ok;
 

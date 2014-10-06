@@ -35,13 +35,13 @@ class SearchNotice extends MY_Controller
 			if (! $notice_list)	
 			{
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","No corresponding notice!");
+				$this->output->set_body("description",NO_CORRESPONDING_NOTICE);
 				$this->output->set_body("notice_list", $notice_list);
 			}
 			else
 			{
 				$this->output->set_body("result",0);
-				$this->output->set_body("description","get notice list!");
+				$this->output->set_body("description",GET_NOTICE);
 				$this->output->set_body("notice_list", $notice_list);
 			}
 		}
@@ -77,13 +77,13 @@ class SearchNotice extends MY_Controller
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",2);
 				if(!$this->pageNumber)
-					$this->output->set_body("description","parameter missing: pageNumber");
+					$this->output->set_body("description",PARAMETER_MISSING."pageNumber");
 				elseif (!$this->numberPerPage) 
-					$this->output->set_body("description","parameter missing: numberPerPage");
+					$this->output->set_body("description",PARAMETER_MISSING."numberPerPage");
 				elseif (!$this->searchType)
-					$this->output->set_body("description","parameter missing: searchType");
+					$this->output->set_body("description",PARAMETER_MISSING."searchType");
 				elseif(!$this->searchValue)
-					$this->output->set_body("description","parameter missing: searchValue");
+					$this->output->set_body("description",PARAMETER_MISSING."searchValue");
 				//$this->output->set_body("description","parameter missing");
 				break;
 			}
@@ -94,14 +94,14 @@ class SearchNotice extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",3);
-				$this->output->set_body("description","parameter's type is wrong ");
+				$this->output->set_body("description",WRONG_TYPE);
 				break;
 			}
 			if($is_param_val_error)
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",4);
-				$this->output->set_body("description","parameter's value is wrong ");
+				$this->output->set_body("description",WRONG_VALUE);
 				break;
 			}
 
@@ -121,6 +121,7 @@ class SearchNotice extends MY_Controller
  "body":{  
   "pageNumber"    : "1",  
   "numberPerPage" : "2",
+  "location" : "杭州",
   "searchStr"    : "brand:Benz"
   }
 }

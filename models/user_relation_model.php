@@ -11,16 +11,21 @@ class User_relation_model extends CI_Model
 
 	function addUser($uid)
 	{
-		; $data 
-			= array(
-					'uid'  => $uid
-					,'friend_list_initial'    => "[]"
-					,'friend_list_secondary'  => "[]"
-					,'notice_list_following'  => "[]"									
-					,'user_list_following'	  => "[]"		
-					,'disgust_list'			  => "[]"
-					)
-		; $this->db->insert($this->table, $data)
+		// ; $data 
+		// 	= array(
+		// 			'uid'  => $uid
+		// 			,'friend_list_initial'    => "[]"
+		// 			,'friend_list_secondary'  => "[]"
+		// 			,'notice_list_following'  => "[]"									
+		// 			,'user_list_following'	  => "[]"		
+		// 			,'disgust_list'			  => "[]"
+		// 			)
+		// ; $this->db->insert($this->table, $data)
+
+		; $SQL = "INSERT INTO `prefix_user_relation` (`uid`, 
+			`friend_list_initial`, `friend_list_secondary`, `notice_list_following`,`user_list_following`, `disgust_list`) 
+				  VALUES (".$uid.", '[]', '[]', '[]', '[]','[]')";
+		; $this->db->query($SQL);
 		;
 		
 	}
@@ -29,109 +34,44 @@ class User_relation_model extends CI_Model
 	{
 		$this->db->select("friend_list_initial,friend_list_secondary");
 		$query = $this->db->get_where($this->table,array("uid"=>$get_uid));
+		
 		$friend_list = $query->row();
 		return $friend_list;
 	}
 
 	//fuid: follow_uid
+
 	function update_user_list_following($uid,$fuid)
 	{
-		$is_fuid_exist = $this->is_fuid_exist($uid,$fuid);
+		$SQL = "SELECT `user_list_following`
+				FROM (`prefix_user_relation`)
+				WHERE `uid` =  ".$uid;
+		$query = $this->db->query($SQL);
+		$noticeInfo = $query->row_array();
+		$user_list_following = $noticeInfo['user_list_following'];
 
-		if($is_fuid_exist == 0)
+		if($user_list_following == NULL || $user_list_following == 'null' )
+			$user_list_following = '[]';
+		$user_list_following = json_decode($user_list_following,true);
+
+		$key = array_search($fuid, $user_list_following);
+		if($key === FALSE)
 		{
-			$this->add_user_list_following($uid,$fuid);
-			$is_shield =1;
+			$user_list_following[] = $fuid;
+			$is_followed = 1;
 		}
 		else
 		{
-			$this->reduce_user_list_following($uid,$fuid,$is_fuid_exist);
-			$is_shield =0;
+			array_splice($user_list_following,$key,1);
+			$is_followed = 0;
 		}
-		return $is_shield;
-	}
+		$user_list_following = json_encode($user_list_following);
 
-	function add_user_list_following($uid,$fuid)
-	{
-
-		$this->user_list_following = substr_replace($this->user_list_following,
-		 								   	 $this->str_fuid,
-		 								     -1,0);
-
-		$data = array("user_list_following" => $this->user_list_following,
-					  "uid" =>$uid);
-
-        $this->db->where("uid", $uid);
-		$this->db->update($this->table, $data); 
-	}		
-
-	function reduce_user_list_following($uid,$fuid,$is_fuid_exist)
-	{
- 		$this->user_list_following = substr_replace($this->user_list_following,
- 											 "",
- 											 $is_fuid_exist,
- 											 strlen($this->str_fuid));
-
- 		$data = array("user_list_following" => $this->user_list_following,
- 			          		   "uid" => $uid);
-
-        $this->db->where("uid", $uid);
-		$this->db->update($this->table, $data); 
-	}
-	
-				
-
-	function is_fuid_exist($uid,$fuid)
-	{
-		$fuid_num = $this->fuid_num($uid,$fuid);
-
-		switch ($fuid_num) {
-			case '0':
-				$is_fuid_exist = FALSE;
-				break;
-			case '1':
-				$is_fuid_exist = strpos( $this->user_list_following ,
-								         $this->str_fuid );
-				if (! $is_fuid_exist)
-					$this->str_fuid = ",".$this->str_fuid;
-				break;				
-			default:
-				$is_fuid_exist = strpos( $this->user_list_following,
-								         $this->str_fuid );
-				break;
-		}
-	
-		return 	$is_fuid_exist;
-	}	
-
-	function fuid_num($uid,$fuid)
-	{
-		$this->db->select("user_list_following");
-		$query = $this->db->get_where($this->table,
-			                          array('uid' => $uid));
-		$userInfo = $query->row_array();
-		$this->user_list_following = $userInfo["user_list_following"];
-
-		$this->str_fuid = "'".$fuid."'";
-
-		if(!$this->user_list_following 
-		  ||$this->user_list_following == "[]")
-		{
-			$this->user_list_following = "[]";
-			$user_list_following = 0; 	  
-		}
-
-		else if(!strrchr(",",$this->user_list_following))
-		{
-			$user_list_following = 1; 
-		}
-		else
-		{
-			$this->str_fuid = ",".$this->str_fuid;
-			$user_list_following  = 2;
-		}
-
-		return $user_list_following;
+		$data = array(
+			"user_list_following" => $user_list_following
+			);
+		$this->db->update($this->table,$data,array('uid' =>$uid));
+		return $is_followed;
 	}
 	
 	//suid: shield_uid
@@ -234,107 +174,36 @@ class User_relation_model extends CI_Model
 
 		return $disgust_list;
 	}
-
-	function update_notice_list($uid,$nid,$is_followed)
+// update notice_list_following
+	function update_notice_list_following($uid,$nid)
 	{
-		$is_nid_exist = $this->is_notice_exist($uid,$nid);
+		$SQL = "SELECT `notice_list_following`
+				FROM (`prefix_user_relation`)
+				WHERE `uid` =  ".$uid;
+		$query = $this->db->query($SQL);
+		$noticeInfo = $query->row_array();
+		$notice_list_following = $noticeInfo['notice_list_following'];
 
-		if($is_followed == 0)
-			$this->add_notice_list_following($uid,$nid);
-		else
-			$this->reduce_notice_list_following($uid,$nid,$is_nid_exist);
-	}
-	/*更新notice_list_following
-	* 向notice_list_following中添加nid，
-	*
-	*/
-	function add_notice_list_following($uid,$nid)
-	{
+		if($notice_list_following == NULL || $notice_list_following == 'null' )
+			$notice_list_following = '[]';
+		$notice_list_following = json_decode($notice_list_following,true);
 
-		$this->notice_list_following = substr_replace($this->notice_list_following,
-		 								   			 $this->str_nid,
-		 										     -1,0);
-
-		$data = array("notice_list_following" => $this->notice_list_following,
-					  "uid" =>$uid);
-
-        $this->db->where("uid", $uid);
-		$this->db->update($this->table, $data); 
-	}		
-	/*更新notice_list_following
-	* 从notice_list_following中移除nid，
-	*
-	*/
-	function reduce_notice_list_following($uid,$nid,$is_nid_exist)
-	{
- 		$this->notice_list_following = substr_replace($this->notice_list_following,
- 													  "",
- 													  $is_nid_exist,
- 													  strlen($this->str_nid));
-
- 		$data = array("notice_list_following" => $this->notice_list_following,
- 			          					"uid" => $uid);
-
-        $this->db->where("uid", $uid);
-		$this->db->update($this->table, $data); 
-	}
-	
-				
-
-	function is_notice_exist($uid,$nid)
-	{
-		$notice_following_num = $this->notice_following_num($uid,$nid);
-
-		switch ($notice_following_num) {
-			case '0':
-				$is_nid_exist = FALSE;
-				break;
-			case '1':
-				$is_nid_exist = strpos( $this->notice_list_following ,
-								        $this->str_nid );
-				if (! $is_nid_exist)
-					$this->str_nid = ",".$this->str_nid;
-				break;				
-			default:
-				$is_nid_exist = strpos( $this->notice_list_following ,
-								        $this->str_nid );
-				break;
-		}
-	
-		return 	$is_nid_exist;
-	}	
-
-	function notice_following_num($uid,$nid)
-	{
-		$this->db->select("notice_list_following");
-		$query = $this->db->get_where($this->table,
-			                          array('uid' => $uid));
-		$userInfo = $query->row_array();
-
-		$this->notice_list_following = $userInfo["notice_list_following"];
-
-		$this->str_nid = "'".$nid."'";
-
-		if(!$this->notice_list_following 
-		  ||$this->notice_list_following == "[]")
+		$key = array_search($nid, $notice_list_following);
+		if($key === FALSE)
 		{
-			$this->notice_list_following = "[]";
-			$notice_list_following = 0; 	//0个关注者  
-		}
-
-		else if(!strrchr(",",$this->notice_list_following))
-		{
-			$notice_list_following = 1; //1个关注者 
+			$notice_list_following[] = $nid;
 		}
 		else
 		{
-			$this->str_nid = ",".$this->str_nid;
-			$notice_list_following = 2;//2个及2个以上关注者 
+			array_splice($notice_list_following,$key,1);
 		}
+		$notice_list_following = json_encode($notice_list_following);
 
-		return $notice_list_following;
+		$data = array(
+			"notice_list_following" => $notice_list_following
+			);
+		$this->db->update($this->table,$data,array('uid' =>$uid));
 	}
-
 
 	function define()
 	{

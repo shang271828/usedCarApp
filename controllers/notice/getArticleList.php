@@ -18,7 +18,7 @@ class GetArticleList extends MY_Controller
 
 		@$this->pageNumber    = $body->pageNumber;
 		@$this->numberPerPage = $body->numberPerPage;
-		@$this->pageType      = $body->pageType;
+		@$this->articleType      = $body->articleType;
 
 		$is_param_ok = $this->article_param_check();
 		
@@ -28,24 +28,24 @@ class GetArticleList extends MY_Controller
 			$article_list = $this->article_model
 								->get_article_list($this->pageNumber,
 										 	      $this->numberPerPage,
-										 	      $this->pageType);
-			// if ($this->pageType == "mainpage")
+										 	      $this->articleType);
+			// if ($this->articleType == "mainpage")
 			// {
 			// 	$total_article_row = $this->article_model
-			// 				   		 	 ->get_total_car_row($this->pageType);
+			// 				   		 	 ->get_total_car_row($this->articleType);
 			// 	$this->output->set_body("total_article_row", $total_article_row);
 			// }
 	 		
 			if (! $article_list)	
 			{
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","null article!");
+				$this->output->set_body("description",NULL_ARTICLE);
 				$this->output->set_body("article_list", $article_list);
 			}
 			else
 			{
 				$this->output->set_body("result",0);
-				$this->output->set_body("description","get article list:".$this->pageType."!");
+				$this->output->set_body("description",GET_ARTICLE);
 				$this->output->set_body("article_list", $article_list);
 			}
 			
@@ -63,12 +63,12 @@ class GetArticleList extends MY_Controller
 	function article_param_check()
 	{
 		$is_param_ok = TRUE;
-		$is_param_missing  = ! ($this->pageNumber&&$this->numberPerPage&&$this->pageType);
+		$is_param_missing  = ! ($this->pageNumber&&$this->numberPerPage&&$this->articleType);
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
 		$is_param_val_error = ($this->pageNumber<1) || ($this->numberPerPage>20);
-		$pageTypeList = array(1=>"tips");
-		$is_param_str_error = ! array_search($this->pageType,$pageTypeList);
+		$articleTypeList = array(1=>"tips");
+		$is_param_str_error = ! array_search($this->articleType,$articleTypeList);
 
 		do
 		{
@@ -76,30 +76,30 @@ class GetArticleList extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",2);
-				$this->output->set_body("description","parameter missing");
+				$this->output->set_body("description",PARAMETER_MISSING);
 				break;
 			}
 			if($is_param_nonnum)
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",3);
-				$this->output->set_body("description","parameter's type is wrong ");
+				$this->output->set_body("description",WRONG_TYPE);
 				break;
 			}
-			if($is_param_val_error)
+			if($is_param_val_error || $is_param_str_error )
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",4);
-				$this->output->set_body("description","parameter's value is wrong ");
+				$this->output->set_body("description",WRONG_VALUE);
 				break;
 			}
-			if($is_param_str_error )
-			{
-				$is_param_ok = FALSE;
-				$this->output->set_body("result",5);
-				$this->output->set_body("description","pageType's value is wrong ");
-				break;
-			}
+			// if($is_param_str_error )
+			// {
+			// 	$is_param_ok = FALSE;
+			// 	$this->output->set_body("result",5);
+			// 	$this->output->set_body("description","articleType's value is wrong ");
+			// 	break;
+			// }
 		}while(FALSE);
 
 	return $is_param_ok;
@@ -116,7 +116,7 @@ class GetArticleList extends MY_Controller
  "body":{  
   "pageNumber"    : "1",  
   "numberPerPage" : "8",
-  "pageType"       : "timeline"
+  "articleType"       : "timeline"
   }
 }
 */

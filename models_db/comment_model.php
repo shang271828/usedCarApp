@@ -22,8 +22,6 @@ class Comment_model extends CI_Model
 		);
 
 		$this->db->insert($this->table,$data);
-		$str = $this->db->last_query();
-		var_dump($str);
 	}
 
 	function get_comment($pageNumber,$numberPerPage,$sortStr)

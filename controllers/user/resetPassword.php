@@ -15,7 +15,7 @@ class ResetPassword extends MY_Controller
 
 		$this->phone      = $body->phone;
 
-		$this->password   = $body->new_password;
+		$this->password   = $body->reset_password;
  
 
 		$is_param_ok = $this->user_param_check();
@@ -23,12 +23,11 @@ class ResetPassword extends MY_Controller
 		{
 			$this->user_model
 				->update_password($this->phone
-							,$this->password
-						
+							     ,$this->password						
 							);
 
 			$this->output->set_body("result",0);
-			$this->output->set_body("description","reset password");
+			$this->output->set_body("description",RESET_PASSWORD);
 		}
 	}
 
@@ -49,7 +48,7 @@ class ResetPassword extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","parameter missing");
+				$this->output->set_body("description",PARAMETER_MISSING);
 				break;
 			}
 
@@ -66,7 +65,7 @@ class ResetPassword extends MY_Controller
   },
  "body":{  
   "phone"        : "12345678901",
-  "new_password" : "9fd98454b511ce20120ecb593ed177e3"
+  "reset_password" : "9fd98454b511ce20120ecb593ed177e3"
   }
 }
 

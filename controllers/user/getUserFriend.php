@@ -31,7 +31,7 @@ class GetUserFriend extends MY_Controller
 			$friend_info = $this->str_to_array($friend_list_initial);
 			
 			$this->output->set_body('result', '0');
-			$this->output->set_body('description', 'get userFriendList!');
+			$this->output->set_body('description', GET_FRIEND_LIST);
 			$this->output->set_body('friend_list',$friend_info);
 		}
 	}
@@ -50,7 +50,7 @@ class GetUserFriend extends MY_Controller
 		{
 			$is_param_ok = FALSE;
 			$this->output->set_body("result",1);
-			$this->output->set_body("description","parameter missing");
+			$this->output->set_body("description",PARAMETER_MISSING);
 		}
 	return $is_param_ok;
 	}

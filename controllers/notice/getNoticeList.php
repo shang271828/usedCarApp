@@ -39,13 +39,15 @@ class GetNoticeList extends MY_Controller
 			if (! $notice_list)	
 			{
 				$this->output->set_body("result",1);
-				$this->output->set_body("description","null notice!");
+				$this->output->set_body("description",NULL_NOTICE);
 				$this->output->set_body("notice_list", $notice_list);
 			}
 			else
 			{
+
 				$this->output->set_body("result",0);
-				$this->output->set_body("description","get notice list:".$this->pageType."!");
+				//$this->output->set_body("description","get notice list:".$this->pageType."!");
+				$this->output->set_body("description",GET_NOTICE);
 				$this->output->set_body("notice_list", $notice_list);
 			}
 			
@@ -76,30 +78,24 @@ class GetNoticeList extends MY_Controller
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",2);
-				$this->output->set_body("description","parameter missing");
+				$this->output->set_body("description",PARAMETER_MISSING);
 				break;
 			}
 			if($is_param_nonnum)
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",3);
-				$this->output->set_body("description","parameter's type is wrong ");
+				$this->output->set_body("description",WRONG_TYPE);
 				break;
 			}
-			if($is_param_val_error)
+			if($is_param_val_error || $is_param_str_error)
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",4);
-				$this->output->set_body("description","parameter's value is wrong ");
+				$this->output->set_body("description",WRONG_VALUE);
 				break;
 			}
-			if($is_param_str_error )
-			{
-				$is_param_ok = FALSE;
-				$this->output->set_body("result",5);
-				$this->output->set_body("description","pageType's value is wrong ");
-				break;
-			}
+			
 		}while(FALSE);
 
 	return $is_param_ok;
