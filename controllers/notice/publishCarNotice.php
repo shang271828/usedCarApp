@@ -46,6 +46,7 @@ class publishCarNotice extends MY_Controller
 			$this->notice_model
 				 ->insert_car_notice($nid,
 				 					 $car_info);	
+				 var_dump($nid);
 			$this->user_timeline_model->insert($nid,"my_publish");
 			$this->output->set_body("result",0);
 			$this->output->set_body("description",PUBLISH_CAR_NOTICE);

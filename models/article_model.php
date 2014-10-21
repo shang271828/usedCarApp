@@ -8,22 +8,33 @@ class Article_model extends CI_model
 		$this->define();
 	}
 
-	function insert_article($uid,														
+	function insert_article($author,														
 							$title,
 							$content	
 					        )
 	{
 		$time = $this->input->sysTime;
 		$SQL = "INSERT INTO `prefix_article` 
-		       ( `a_uid`, `title`, `content`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `user_list_view`, `user_list_follow`, `user_list_praise`) 
-		       VALUES ('".$uid."','".$title."', '".$content."','".$time."' , '0', '0', '0', '[]', '[]', '[]')";
+		       ( `author`, `title`, `content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `user_list_view`, `user_list_follow`, `user_list_praise`) 
+		       VALUES ('".$author."','".$title."', '".$content."','http:\/\/xdream.co\/CI_API\/upload_dir\/ea5520048c4c1464cfb42ac0c9ec646c.png','".$time."' , '0', '0', '0', '[]', '[]', '[]')";
 
-		$this->db->query($SQL);
+		$result = $this->db->query($SQL);
+
+
+		if ($result)
+        {
+           	$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array();
+			return $nid["LAST_INSERT_ID()"];			
+        }
+        else
+        {
+            return $result;
+        }
 
 	}
 
 	
-	function get_article_list($pageNumber,$numberPerPage,$pageType)
+	function get_article_list($pageNumber,$numberPerPage,$pageType = "tips" )
 	{
 		$this->articleNumber  = ($pageNumber-1)*$numberPerPage;
 		$this->numberPerPage = $numberPerPage;
@@ -32,7 +43,10 @@ class Article_model extends CI_model
 		switch ($pageType) 
 		{
 			case "tips":
-				$this->get_tips_list();
+				$SQL = "SELECT `aid`, `title`, `author`, ``,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
+				$SQL .=" FROM (`prefix_article`)";
+				$query = $this->db->query($SQL);
+				$this->articleList = $query->result_array();
 				break;
 			
 			default:
@@ -44,27 +58,74 @@ class Article_model extends CI_model
 
 	function get_article_detail($aid)
 	{
-		$SQL = "SELECT `aid`, `title`, `a_uid`, `content`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`
-				FROM (`prefix_article`)
-				JOIN `prefix_user` ON `uid` = `a_uid`
-				WHERE `aid` =  '".$aid."'"; 
+		//$SQL = "SELECT `aid`, `title`, `author, `content`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`";
+		$SQL = "SELECT `aid`, `title`, `author`, ``,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
+		$SQL .=" FROM (`prefix_article`)";
+		//$SQL .=	"JOIN `prefix_user` ON `uid` = `a_uid`",
+		$SQL .=	"WHERE `aid` =  '".$aid."'"; 
 		$query = $this->db->query($SQL);
-		$this->articleDetail = $query->result_array();
+		$this->articleDetail = $query->row_array();
 
 		return $this->articleDetail;
 	}
 
 	private function get_tips_list()
 	{
-		$SQL ="SELECT `aid`, `title`, `a_uid`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`
-				FROM (`prefix_article`)
-				JOIN `prefix_user` ON `uid` = `a_uid`
-				ORDER BY `time` desc
-				LIMIT ".$this->articleNumber.",".$this->numberPerPage;
+		// $SQL ="SELECT `aid`, `title`, `author`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`
+		// 		FROM (`prefix_article`)
+		// 		JOIN `prefix_user` ON `uid` = `a_uid`
+		// 		ORDER BY `time` desc
+		// 		LIMIT ".$this->articleNumber.",".$this->numberPerPage;
+		$SQL ="SELECT `aid`, `title`, `author`, `content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`
+		 		FROM (`prefix_article`)
+		 		ORDER BY `time` desc
+		 		LIMIT ".$this->articleNumber.",".$this->numberPerPage;
 		$query = $this->db->query($SQL);
 		$this->articleList = $query->result_array();
 			
 	}
+
+	 function update_article($aid, $article)
+    {
+        $this->db->where('aid', $aid);
+        $result = $this->db->update($this->table, $article);
+
+        if ($result)
+        {
+            return $aid;
+        }
+        else
+        {
+            return $result;
+        }
+    }
+
+	function delete_article($aid)
+	{
+		$this->db->where('aid', $aid);
+        $result = $this->db->delete($this->table);
+
+        return $result;
+	}
+
+	function get_total_row($where = null,  $like = null)
+    {
+        if (isset($where))
+        {
+            $this->db->where($where); 
+        }
+        if (isset($like))
+        {
+            $this->db->or_like($like); 
+        }
+        ; $this->db->select('count(aid) as total_row')
+        // ; $this->db->where($where)
+        ; $query 
+            = $this->db->get($this->table)
+        ; return $query->row()->total_row
+        ;
+    }
+
 
 	function define()
 	{
@@ -72,7 +133,7 @@ class Article_model extends CI_model
 		; $this->colomn 
 			= array(
 					'aid'              => "",            
-					'uid'              => "",                     
+					'author'              => "",                     
 					'title'            => "",                 
 					'content'          => "",                  
 					'time'             => "",        

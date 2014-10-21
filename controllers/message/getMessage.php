@@ -15,15 +15,16 @@ class GetMessage extends MY_Controller
 		$body = $this->input->body;
 		$this->pageNumber    = $body->pageNumber;
 		$this->numberPerPage = $body->numberPerPage;
-		
+		$this->pair          = $body->pair;
 
 		 $is_param_ok = $this->message_param_check();
 		
 		if($is_param_ok)
 		{
 			$message_list  = $this->message_model
-							  	->get_message($this->pageNumber,
-											  $this->numberPerPage
+							  	->get_message_list($this->pageNumber,
+											  		$this->numberPerPage,
+											  		$this->pair
 										      );
 			if (! $message_list)	
 			{
@@ -106,8 +107,9 @@ class GetMessage extends MY_Controller
    "token"        : "9fd98454b511ce20120ecb593ed177e3"
   },
  "body":{  
-  "pageNumber"    : "2",  
-  "numberPerPage" : "4"
+  "pageNumber"    : "1",  
+  "numberPerPage" : "20",
+  "pair"          : ["1","2"]
   }
 }
 */

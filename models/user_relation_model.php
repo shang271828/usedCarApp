@@ -74,6 +74,7 @@ class User_relation_model extends CI_Model
 		return $is_followed;
 	}
 	
+
 	//suid: shield_uid
 	function update_disgust_list($uid,$suid)
 	{
@@ -120,7 +121,31 @@ class User_relation_model extends CI_Model
 		$this->db->update($this->table, $data); 
 	}
 	
-				
+	function judge_user_follow($get_uid)
+	{
+		$this->db->select('user_list_following');
+		$this->db->where('uid',$this->input->uid);
+		$query = $this->db->get($this->table);
+		$user_list_following = $query->row_array();
+		$user_list_following = $user_list_following['user_list_following'];
+		if($user_list_following == '[]')
+		{
+			$is_followed = 0;
+		
+		}
+		else
+		{
+			$user_array = json_decode($user_list_following,true);
+			
+			$bool = array_search($get_uid, $user_array);
+			
+			if($bool == false)
+				$is_followed = 0;
+			else
+			$is_followed = 1;
+		}
+		return $is_followed;
+	}			
 
 	function is_suid_exist($uid,$suid)
 	{
@@ -189,7 +214,8 @@ class User_relation_model extends CI_Model
 		$notice_list_following = json_decode($notice_list_following,true);
 
 		$key = array_search($nid, $notice_list_following);
-		if($key === FALSE)
+
+		if($key === FALSE || $key === false)
 		{
 			$notice_list_following[] = $nid;
 		}

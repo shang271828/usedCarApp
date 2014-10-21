@@ -39,12 +39,13 @@ class Register extends CI_Controller
 			}
 			else
 			{
-				; $nid = $this->user_model->addUser($this->userName, 
+				; $uid = $this->user_model->addUser($this->userName, 
 											 $this->password, 
 											 $this->phone,
 											 $this->code)
-				; $this->user_relation_model->addUser($nid); 
-				; $this->user_preference_model->addUser($nid);
+				; $this->user_relation_model->addUser($uid); 
+				; $this->user_preference_model->addUser($uid);
+				; $this->user_state_model->addUser($uid);
 				//; $this->user_alert_model->addUser($nid);
 				; $this->output->set_body('result', '0')
 				; $this->output->set_body('description', USER_ADD)

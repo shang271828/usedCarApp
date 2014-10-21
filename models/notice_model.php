@@ -13,23 +13,20 @@ class Notice_model extends CI_Model
 
 	function insert_normal_notice($title,$content,$img_list,$notice_type)
 	{
-
-		
-
 		// $data = array
 		// (
-  //      		"title"          => $title,
-  //      		"content"        =>	$content,
-  //      		"img_list"		 =>	$img_str,	
-  //      		"notice_type"    => $notice_type,
-
-  //      		"uid"            => $this->input->uid,
-  //      		"time"			 =>	$this->input->sysTime,
-  //      		"coordinate"	 => $this->input->coordinate,
-
-  //      		"counter_view"   =>	0,
-  //      		"counter_follow" => 0,
-  //      		"counter_praise" => 0,
+ 		 //      		"title"          => $title,
+ 		 //      		"content"        =>	$content,
+ 		 //      		"img_list"		 =>	$img_str,	
+ 		 //      		"notice_type"    => $notice_type,
+		
+ 		 //      		"uid"            => $this->input->uid,
+ 		 //      		"time"			 =>	$this->input->sysTime,
+ 		 //      		"coordinate"	 => $this->input->coordinate,
+		
+ 		 //      		"counter_view"   =>	0,
+ 		 //      		"counter_follow" => 0,
+ 		 //      		"counter_praise" => 0,
 		// 	"user_list_view"   => "[]",
 		// 	"user_list_follow" => "[]",			
 		// 	"user_list_praise" => "[]"	
@@ -37,9 +34,11 @@ class Notice_model extends CI_Model
 		// );
 		// $this->db->insert($this->table,$data);
 		// 	$str = $this->db->last_query();
-		// var_dump($str);
+		
 		$img_str = json_encode($img_list);
 		$uid = 			$this->input->uid;
+		if($uid == 0)
+			$uid = 1;
 		$sysTime = 		$this->input->sysTime;
 		$coordinate =   $this->input->coordinate;
 		$SQL  = "INSERT INTO `prefix_notice`
@@ -85,13 +84,14 @@ class Notice_model extends CI_Model
 		// )   ;
 		// 	$this->db->insert("prefix_car_notice",$data);
 		// 	$str = $this->db->last_query();
-		// var_dump($str);
+		
 
 		$SQL = "INSERT INTO `prefix_car_notice` (`nid`, `price` , `market_price`, `save_money` , `location` , `brand` , `recency` , `registration_time`, `speed_box` , `car_number` , `valid_date` , `insurance_date` , `commerce_insurance_date`, `exchange_time` , `mileage` ) 
 				VALUES ('".$nid."', '".$car_notice->price."', '".$car_notice->market_price."', '".$save_money."',
 						 '".$car_notice->location."', '".$car_notice->brand."', '".$car_notice->recency."', '".$car_notice->registration_time."', 
 						 '".$car_notice->speed_box."','".$car_notice->car_number."', '".$car_notice->valid_date."' ,  '".$car_notice->insurance_date."','".$car_notice->commerce_insurance_date."','".$car_notice->exchange_time."', '".$car_notice->mileage."')";
 		$this->db->query($SQL);
+		$this->add_interested($nid,$car_notice);
 
 	}
 
@@ -111,12 +111,97 @@ class Notice_model extends CI_Model
 		// );
 		// $this->db->insert("prefix_comment",$data);
 		// $str = $this->db->last_query();
-		// var_dump($str);
+	
 		$layer =$this->count_layer($p_nid);
 		$r_nid =$this->count_root($p_nid,$layer);
 		$SQL = "INSERT INTO `prefix_comment` (`nid`, `p_nid`, `r_nid`, `layer`, `commentType`) 
 				VALUES ('".$nid."','".$p_nid."','".$r_nid."','".$layer."','".$commentType."')";
 		$this->db->query($SQL);
+	}
+	//如果满足某用户的偏好模型，则将此信息加入他的推送列表
+	function add_interested($nid,$car_notice)
+	{
+		$query = $this->db->get("prefix_user_preference");
+		$preference_array = $query->result_array();
+		foreach ($preference_array as $key => $value) 
+		{
+			$bool = $this->judge_preference($value,$car_notice);
+			if($bool)
+				$this->add_notice_list_interested($value['uid'],$nid);
+		}
+	}
+
+	//判断一条信息是否符合用户偏好
+	function judge_preference($preference,$car_notice)
+	{
+		
+		if (! $preference['brand'] === null)
+		{
+			$brand   = json_encode($preference['brand']);
+			$bool_brand  = !(array_search($car_notice->brand,$brand) === NULL);
+		}
+		else $bool_brand = TRUE;
+
+		if (! $preference['speed_box'] === null)
+		{
+			$bool_speed_box =	$car_notice->speed_box ==  $preference['speed_box'];
+		}
+		else $bool_speed_box = TRUE;
+
+		if (! $preference['car_type'] === null)
+		{
+			$bool_car_type = $car_notice->car_type ==  $preference['car_type'];
+		}
+		else $bool_car_type = TRUE;
+
+		if (! $preference['age'] === null)
+		{
+			$age     = explode("-", $preference['age']);
+			$bool_age 		=	$car_notice->age 	 > $age[0]&&
+							    $car_notice->age 	 < $age[1];
+		}
+		else $bool_age = TRUE;
+
+		if (! $preference['price'] === null)
+		{
+			$price   = explode("-", $preference['price']);
+			$bool_price 	=	$car_notice->price   > $price[0]&&
+							    $car_notice->price 	 < $price[1];
+		}
+		else $bool_price = TRUE;
+
+		if (! $preference['mileage'] === null)
+		{
+			$mileage = explode("-", $preference['mileage']);
+			$bool_mileage   =	$car_notice->mileage > $mileage[0]&&
+							    $car_notice->mileage > $mileage[1];
+		}
+		else $bool_mileage = TRUE;
+
+		return $bool_brand&&$bool_speed_box&&$bool_car_type&&$bool_age&&$bool_price&&$bool_mileage;
+	}
+	//将一条信息id加入某一用户的推送列表
+	function add_notice_list_interested($uid,$nid)
+	{	
+		$this->table_name = "prefix_user_relation";
+		$this->primary_key = "uid";
+		$this->db->select("notice_list_interested");
+		$query = $this->db->get("prefix_user_relation");
+		$array = $query->row_array();
+		$notice_list_interested = $array['notice_list_interested'];
+
+		$interested_array = json_decode($notice_list_interested,true);
+
+		if (array_search($nid, $interested_array) == NULL)
+			$interested_array[] = $nid;
+		$notice_list_interested = json_encode($interested_array);
+
+		$data = array
+		(
+				'uid' => $uid,
+				'notice_list_interested' => $notice_list_interested
+			);
+		$this->add($data,"prefix_user_relation",'uid',$uid);
 	}
 	//计算评论层数
 	private function count_layer($p_nid)
@@ -160,7 +245,7 @@ class Notice_model extends CI_Model
 	}
 
 	//*******************************************************
-	//API:getNoticeList & getNoticeDetail
+	//API:getNoticeList & getNoticeDetail   -2-
 	//****************************************************
 	function get_notice_list($pageNumber,$numberPerPage,$pageType)
 	{
@@ -182,29 +267,59 @@ class Notice_model extends CI_Model
 			case "friendPage":
 				$this->get_friend_page($uid);
 				break;
+			case "collection":
+				$this->get_collection($uid);
+				break;
 			default:
 				echo "error";
 				break;
 		}
 		//$this->counter_view();
+
 		return $this->noticeList;
 	}
 
 	private function get_mainpage()
     {
     	$this->get_car_list();
-    }
+    	foreach ($this->noticeList as &$value) 
+    	{
 
-	private function get_discovery($uid)
+    			$comment_list = $this->get_comment_list($value["nid"]);
+    			$comment_list_3 = array_slice($comment_list,0,3);
+    			$value["comment_list"] = $comment_list_3;
+    		
+    	}
+    }
+    //推送方法1
+	// private function get_discovery($uid)
+	// {
+	// 	$preference = $this->get_preference($uid);
+	// 	$this->get_prefer_car_list($preference);
+	// }	
+    //推送方法2
+    private function get_discovery($uid)
 	{
-		$preference = $this->get_preference($uid);
-		$this->get_prefer_car_list($preference);
+		$interested_list = $this->get_interested_list($uid);
+		
+		$this->get_notice_list_id($interested_list);
+
+
 	}	
 
     private  function get_timeline($uid)
     {
     	$timeline_list = $this->get_timeline_list($uid);
-  
+
+    	foreach ($timeline_list as &$value) 
+    	{
+    		//if(! $value['timeline_type'] == 'my_comment')
+    		//{
+    			$comment_list = $this->get_comment_list($value["nid"]);
+    			$value["comment_list"] = $comment_list;
+    		//}
+    	}
+
     	$this->noticeList = $timeline_list;
     	
     	//
@@ -226,6 +341,59 @@ class Notice_model extends CI_Model
     	//$this->get_sysInfo(); //include follow ,praise ,comment
     }
 
+     private  function get_collection($uid)
+    {
+    	$collection_list = $this->get_collection_list($uid);
+
+		
+		$this->get_notice_list_id($collection_list);
+
+    }
+
+    //
+    function get_interested_list($uid)
+    {
+    	$this->db->select('notice_list_interested');
+    	$query = $this->db->get('prefix_user_relation');
+    	$array = $query->row_array();
+    	
+    	return json_decode($array['notice_list_interested'],true);
+    }
+
+    function get_collection_list($uid)
+    {
+    	$this->db->select('notice_list_following');
+    	$query = $this->db->get('prefix_user_relation');
+    	$array = $query->row_array();
+    	
+    	return json_decode($array['notice_list_following'],true);
+    }
+    //根据输入的nid数组，返回相应的notice列表
+    function get_notice_list_id($nid_array)
+    {
+    	$nid_str = "('".implode("','",$nid_array)."')";
+    	$SQL = "SELECT `prefix_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`, `registration_time`, `speed_box`, `car_number`, `mileage`
+				FROM (`prefix_notice`)
+				JOIN `prefix_car_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
+				JOIN `prefix_user` ON `prefix_notice`.`uid` = `prefix_user`.`uid`
+				WHERE `prefix_car_notice`.`nid` in ".$nid_str."
+				ORDER BY `time` desc";
+		$query = $this->db->query($SQL);
+		$tmp = $query->result_array();
+		$this->total_row = count($tmp);
+	
+    	$SQL = "SELECT `prefix_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`, `registration_time`, `speed_box`, `car_number`, `mileage`
+				FROM (`prefix_notice`)
+				JOIN `prefix_car_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
+				JOIN `prefix_user` ON `prefix_notice`.`uid` = `prefix_user`.`uid`
+				WHERE `prefix_car_notice`.`nid` in ".$nid_str."
+				ORDER BY `time` desc
+				LIMIT ".$this->noticeNumber.",".$this->numberPerPage;
+		$query = $this->db->query($SQL);
+		$car_list = $query->result_array();
+		$this->noticeList = $this->img_decode($car_list);
+    }
+
 	function get_notice_detail($nid)
 	{
 		// $this->db->select("nid,
@@ -243,8 +411,8 @@ class Notice_model extends CI_Model
 
 		// $noticeArray = $query->row_array();
 		// $str = $this->db->last_query();
-		// var_dump($str);
-		$SQL = "SELECT `nid`, `title`, `content`, `img_list`, `uid`, `coordinate`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`
+
+		$SQL = "SELECT `nid`, `title`, `content`, `img_list`, `uid`, `time`,`coordinate`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`
 				FROM (`prefix_notice`)
 				WHERE `nid` =  '".$nid."'";
 		$query = $this->db->query($SQL);
@@ -272,22 +440,10 @@ class Notice_model extends CI_Model
  //    {
  //   	    $this->db->select('count(nid) as total_row');
  //    	// ; $this->db->where($where)
- //    	switch ($pageType) 
-	// 	{
-	// 		case "mainpage":
-	// 			 $query = $this->db->get("prefix_car_notice");
-	// 			break;
-	// 		case "discovery":
+
+	// 	$query = $this->db->get("prefix_car_notice");
 				
-	// 			break;
-	// 		case "timeline":
-	// 			$query = $this->db->get("prefix_comment");
-	// 			break;
-	// 		default:
-	// 			echo "error";
-	// 			break;
-	// 	}   	
-	// 	 return $query->row()->total_row;		
+	// 	return $query->row()->total_row;		
  //    }
     //时间线相关信息
     //取值：my_comment,my_publish,my_prise,my_follow,my_add_friend
@@ -318,8 +474,16 @@ class Notice_model extends CI_Model
   //   	$this->db->limit($this->numberPerPage,$this->noticeNumber);
 		// $query = $this->db->get(); 
 		// $str = $this->db->last_query();
-		// var_dump($str);
-
+		
+    	$SQL = "SELECT `prefix_user_timeline`.`uid`, `username`, `signature`, `avatar_url`, `prefix_user_timeline`.`nid`, `prefix_notice`.`uid`, `timeline_type`, `is_sticky`, `prefix_user_timeline`.`time`, `title`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`
+				FROM (`prefix_user_timeline`)
+				JOIN `prefix_notice` ON `prefix_user_timeline`.`nid`=`prefix_notice`.`nid`
+				JOIN `prefix_user` ON `prefix_user_timeline`.`uid`=`prefix_user`.`uid`
+				WHERE `prefix_user_timeline`.`uid` =  '".$uid."'
+				ORDER BY `time` desc";
+		$query = $this->db->query($SQL);
+    	$tmp = $query->result_array();
+    	$this->total_row = count($tmp);
 		$SQL = "SELECT `prefix_user_timeline`.`uid`, `username`, `signature`, `avatar_url`, `prefix_user_timeline`.`nid`, `prefix_notice`.`uid`, `timeline_type`, `is_sticky`, `prefix_user_timeline`.`time`, `title`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`
 				FROM (`prefix_user_timeline`)
 				JOIN `prefix_notice` ON `prefix_user_timeline`.`nid`=`prefix_notice`.`nid`
@@ -368,7 +532,7 @@ class Notice_model extends CI_Model
 		// $this->db->limit($this->numberPerPage,$this->noticeNumber);
 		// $query = $this->db->get(); 
 		// $str = $this->db->last_query();
-		// var_dump($str);
+		
 
 		$SQL = "SELECT `prefix_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`, `registration_time`, `speed_box`, `car_number`, `mileage`
 				FROM (`prefix_notice`)
@@ -396,7 +560,17 @@ class Notice_model extends CI_Model
 		 				   notice_type,
 		 				   username,
       					   signature,
-      					   avatar_url" );
+      					   avatar_url,
+      					   price,
+   
+ 						   save_money ,      
+	   					   location  ,  
+ 						   brand    ,   	
+ 						   registration_time,
+ 						   speed_box    , 	
+ 						   car_number,    	
+ 						   mileage " );
+
 		$this->db->from($this->table);
 		$this->db->order_by("time", "desc"); 
 		$this->db->join("prefix_car_notice", $this->table.'.nid = prefix_car_notice.nid');
@@ -409,7 +583,7 @@ class Notice_model extends CI_Model
 		$this->db->limit($this->numberPerPage,$this->noticeNumber);
 		$query = $this->db->get(); 
 		// $str = $this->db->last_query();
-		// var_dump($str);
+	
 		$prefer_car_list = $query->result_array();	
 		$this->noticeList = $this->img_decode($prefer_car_list);
 					
@@ -419,6 +593,7 @@ class Notice_model extends CI_Model
 	{
 		$query = $this->db->get_where("prefix_user_preference",array("uid"=>$uid));
 		$array = $query->row_array();
+
 		$preference = array
 		(
 			'brand'   => explode(',', $array['brand']), 
@@ -431,7 +606,9 @@ class Notice_model extends CI_Model
 	private function get_friend_car_list($uid)
 	{
 		$friend_list_initial = $this->get_friend_list($uid);
-		$friend_list_initial = "(".implode(',', $friend_list_initial).")" ;
+
+		$friend_list_initial = json_decode($friend_list_initial,true) ;
+		$friend_list_initial = $this->array_to_str($friend_list_initial);
 		// $this->db->select($this->table.".nid,
 		// 				   title,"
 		//  				   .$this->table.".uid,
@@ -452,8 +629,18 @@ class Notice_model extends CI_Model
 		// $query = $this->db->get(); 
 
 		// $str = $this->db->last_query();
-		// var_dump($str);
+	
 
+		$SQL = "SELECT `prefix_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`
+				FROM (`prefix_notice`)
+				JOIN `prefix_car_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
+				JOIN `prefix_user` ON `prefix_notice`.`uid` = `prefix_user`.`uid`
+
+				WHERE `prefix_notice`.`uid` IN ".$friend_list_initial."
+				ORDER BY `time` desc";
+		$query = $this->db->query($SQL);
+		$tmp = $query->result_array();	
+		$this->total_row = count($tmp);	
 		$SQL = "SELECT `prefix_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`
 				FROM (`prefix_notice`)
 				JOIN `prefix_car_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
@@ -478,7 +665,7 @@ class Notice_model extends CI_Model
 		$query = $this->db->get_where('prefix_user_relation',array('uid'=>$uid));
 		$array = $query->row_array();
 		$friend_list_initial = $array['friend_list_initial'];		
-		$friend_list_initial = explode(',',$friend_list_initial);
+		
 		return $friend_list_initial;
 	}
 	
@@ -500,7 +687,9 @@ class Notice_model extends CI_Model
       					   r_nid
 		 				   " );
 		$this->db->from('prefix_user_timeline');
-		$this->db->order_by("time", "desc"); 
+		$this->db->order_by("counter_praise", "desc");
+		$this->db->order_by("time", "asc"); 
+		
 		$this->db->join($this->table, $this->table.'.nid = prefix_user_timeline.nid');
 		$this->db->join("prefix_comment", 'prefix_user_timeline.nid = prefix_comment.nid');
 		$this->db->join("prefix_user", 'prefix_user_timeline.uid = prefix_user.uid');
@@ -508,9 +697,10 @@ class Notice_model extends CI_Model
 		$this->db->where("r_nid",$nid);
 		$query = $this->db->get(); 
 		$comment_list = $query->result_array();
-
-		$comment_list = $this->img_decode($comment_list);
-
+		// if ($comment_list)
+	
+		// 	$comment_list = $this->img_decode($comment_list);
+		
 		return $comment_list;
 	}
 
@@ -519,7 +709,7 @@ class Notice_model extends CI_Model
 	// 	//调用一次，浏览数+1
 	// 	foreach ($this->noticeList as  &$value) 
 	// 	{
-	// 		var_dump($value["counter_view"]);
+	
 	// 		++ $value["counter_view"] ;
 	// 		$data = array(
 	// 			"counter_view" => $value["counter_view"]) ;
@@ -547,11 +737,13 @@ class Notice_model extends CI_Model
 
 		return $noticeArray;			
 	}
-	private function update_car_notice_detail($noticeArray)
+	function update_car_notice_detail($noticeArray)
 	{
 		$nid = $noticeArray["nid"];
-		$uid = $noticeArray["uid"];
 
+		$uid = $noticeArray["uid"];
+		
+			$uid = 1;
 		$img_list = json_decode($noticeArray["img_list"]);
 
 		$user_info = $this->get_user_info($uid);
@@ -621,7 +813,7 @@ class Notice_model extends CI_Model
 		// 							  array('nid' => $nid));
 		// $car_info = $query->row_array();
 		// $str = $this->db->last_query();
-		// var_dump($str);
+		
 
 		$SQL = "SELECT *
 				FROM (`prefix_car_notice`)
@@ -632,8 +824,121 @@ class Notice_model extends CI_Model
 	}
 
     //*******************************************************
-	//API:searchNotice
+	//API:multiSearchNotice
 	//****************************************************
+
+	function multi_search_notice_list($pageNumber,
+								$numberPerPage,
+								$searchBrand , 
+								$searchPrice , 
+								$searchAge	 , 
+								$searchMileage ,
+								$searchSpeedBox,
+								$searchCarType 
+								)
+	{
+		$this->noticeNumber  = ($pageNumber-1)*$numberPerPage;
+		$this->numberPerPage = $numberPerPage;
+
+			$this->search_str($searchBrand , 
+								$searchPrice , 
+								$searchAge	 ,
+								$searchMileage ,
+								$searchSpeedBox,
+								$searchCarType );
+
+
+		//$this->noticeList = $this->json_UTF8($this->noticeList);
+
+		return $this->noticeList;
+	}
+
+	private function search_str($searchBrand , 
+								$searchPrice , 
+								$searchAge	 ,
+								$searchMileage ,
+								$searchSpeedBox,
+								$searchCarType )
+	{		
+
+		// $this->db->select("prefix_car_notice.nid,
+		// 				   title,"
+		//  				   .$this->table.".uid,
+		//  				   img_list,
+		//  				   counter_view,
+		//  				   counter_follow,
+		//  				   counter_praise,
+		//  				   notice_type,
+		//  				   username,
+  //     					   signature,
+  //     					   avatar_url,
+  //     					   price   ,         
+		// 				   save_money ,      
+		// 				   location  ,  		
+		// 				   brand    ,   								   		
+		// 				   registration_time,
+		// 				   speed_box    , 	
+		// 				   car_number,    	
+		// 				   mileage ,
+		// 				   car_configuration"
+		// 				  );
+
+		// $this->db->from('prefix_car_notice');
+		// $this->db->join($this->table, 
+		// 	            $this->table.'.nid = prefix_car_notice.nid');
+		// $this->db->where("prefix_car_notice.location",$location);
+		// $this->db->where("prefix_car_notice.".$searchType." <=",$value[1]);
+		// $this->db->where("prefix_car_notice.".$searchType." >=",$value[0]);
+		// $this->db->limit($this->numberPerPage,
+		// 				 $this->noticeNumber);
+		// $query = $this->db->get();
+		
+
+		$SQL = "SELECT `prefix_car_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`,`age`, `registration_time`, `speed_box`, `car_number`, `mileage`, `car_configuration`
+				FROM (`prefix_car_notice`)
+				JOIN `prefix_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
+				JOIN `prefix_user` ON `prefix_notice`.`uid` = `prefix_user`.`uid`";
+		$price_value = explode("-", $searchPrice);
+		$SQL .= "WHERE `price`   <=  '".$price_value[1]."'";
+		$SQL .= "AND   `price`     >=  '".$price_value[0]."'";
+		if ($searchBrand != "全部品牌")
+			$SQL .=	"AND `prefix_car_notice`.`brand`  =  '".$searchBrand."'";
+		if ($searchSpeedBox != "")
+			$SQL .=	"AND `prefix_car_notice`.`speed_Box` =  '".$searchSpeedBox."'";
+		if ($searchCarType != "")
+			$SQL .=	"AND `prefix_car_notice`.`car_type` =  '".$searchCarType."'";
+
+		if ($searchAge != "")	
+		{
+			$price_age = explode("-", $searchAge);
+			$SQL .=	"AND `prefix_car_notice`.`age` 	  <=  '".$price_age[1]."'
+					AND `prefix_car_notice`.`age` 	  >=  '".$price_age[0]."'";
+		}	
+			
+		if ($searchMileage != "")
+		{
+			$price_mileage = explode("-", $searchMileage);
+			$SQL .=	"AND `prefix_car_notice`.`mileage` <=  '".$price_mileage[1]."'
+					AND `prefix_car_notice`.`mileage` >=  '".$price_mileage[0]."'";
+		}
+		$query = $this->db->query($SQL);
+		$tmp = $query->result_array();	
+		$this->total_row = count($tmp);	
+
+		$SQL .=	"LIMIT ".$this->noticeNumber.",".$this->numberPerPage;
+		$query = $this->db->query($SQL);
+		$this->noticeList = $query->result_array();
+
+		$i = 0;
+		foreach ($this->noticeList as $value) 
+		{
+			$noticeArray = $this->noticeList[$i];
+			$this->noticeList[$i] = $this->update_car_notice_detail($noticeArray);
+			$i = $i + 1;
+		}		
+	}
+	
+//API:searchNotice
 	function search_notice_list($pageNumber,
 								$numberPerPage,
 								$location,
@@ -642,16 +947,23 @@ class Notice_model extends CI_Model
 	{
 		$this->noticeNumber  = ($pageNumber-1)*$numberPerPage;
 		$this->numberPerPage = $numberPerPage;
+		if ($searchValue == NULL)
+		{
+			$this->get_car_list();
 
-		if ($searchType == "is_recommended" ||
-						   "location" 		||
+		}
+		elseif ($searchType == "is_recommended" ||
 		    $searchType == "brand"    		||
 		    $searchType == "speed_box")
 		    $this->search_single_str($searchType,$searchValue,$location);
-		elseif ($searchType == "price")
+
+		else if ($searchType == "price")
+		{
 			$this->search_complex_str($searchType,$searchValue,$location);
-		
+
+		}
 		//$this->noticeList = $this->json_UTF8($this->noticeList);
+
 		return $this->noticeList;
 	}
 
@@ -691,7 +1003,16 @@ class Notice_model extends CI_Model
 		// 				 $this->noticeNumber);
 		// $query = $this->db->get();
 		// $str = $this->db->last_query();
-		// var_dump($str);
+
+		$SQL = "SELECT `prefix_car_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`, `registration_time`, `speed_box`, `car_number`, `mileage`, `car_configuration`
+				FROM (`prefix_car_notice`)
+				JOIN `prefix_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
+				JOIN `prefix_user` ON `prefix_notice`.`uid` = `prefix_user`.`uid`
+				WHERE `prefix_car_notice`.`location` =  '".$location."'
+				AND `prefix_car_notice`.`".$searchType."` =  '".$searchValue."'";
+		$query = $this->db->query($SQL);
+		$tmp = $query->result_array();	
+		$this->total_row = count($tmp);	
 
 		$SQL = "SELECT `prefix_car_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`, `registration_time`, `speed_box`, `car_number`, `mileage`, `car_configuration`
 				FROM (`prefix_car_notice`)
@@ -747,7 +1068,16 @@ class Notice_model extends CI_Model
 		// $this->db->limit($this->numberPerPage,
 		// 				 $this->noticeNumber);
 		// $query = $this->db->get();
-
+		$SQL = "SELECT `prefix_car_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`, `registration_time`, `speed_box`, `car_number`, `mileage`, `car_configuration`
+				FROM (`prefix_car_notice`)
+				JOIN `prefix_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
+				JOIN `prefix_user` ON `prefix_notice`.`uid` = `prefix_user`.`uid`
+				WHERE `prefix_car_notice`.`location` =  '".$location."'
+				AND `prefix_car_notice`.`".$searchType."` <=  '".$value[1]."'
+				AND `prefix_car_notice`.`".$searchType."` >=  '".$value[0]."'";
+		$query = $this->db->query($SQL);
+		$tmp = $query->result_array();	
+		$this->total_row = count($tmp);	
 		$SQL = "SELECT `prefix_car_notice`.`nid`, `title`, `prefix_notice`.`uid`, `img_list`, `counter_view`, `counter_follow`, `counter_praise`, `notice_type`, `username`, `signature`, `avatar_url`, `price`, `save_money`, `location`, `brand`, `registration_time`, `speed_box`, `car_number`, `mileage`, `car_configuration`
 				FROM (`prefix_car_notice`)
 				JOIN `prefix_notice` ON `prefix_notice`.`nid` = `prefix_car_notice`.`nid`
@@ -778,7 +1108,7 @@ class Notice_model extends CI_Model
 		// $query = $this->db->get_where($this->table,
 		// 	                          array('nid' => $nid));
 		// 	$str = $this->db->last_query();
-		// var_dump($str);
+		
 		$SQL = "SELECT `user_list_praise`, `counter_praise`
 				FROM (`prefix_notice`)
 				WHERE `nid` =  ".$nid;
@@ -868,16 +1198,113 @@ class Notice_model extends CI_Model
  //    $json = urldecode ( json_encode ($json_array) );
  //    return $json;   
 	// }
+	function get_total_row($pageType)
+    {
+    	$uid = $this->input->head->uid;
+
+    	switch ($pageType) 
+		{
+			case "mainpage":
+				$this->db->select('count(nid) as total_row');
+ 			   
+		        $query = $this->db->get("prefix_car_notice");
+				
+		        $this->total_row = $query->row()->total_row;		
+				
+				break;
+			case "discovery":
+				$this->get_discovery($uid);
+				break;
+			case "timeline":
+				$this->get_timeline($uid);
+				break;
+			case "friendPage":
+				$this->get_friend_page($uid);
+				break;
+			case "collection":
+				$this->get_collection($uid);
+				break;
+			case "search":
+				$this->search_notice_list($uid);
+			default:
+				echo "error";
+				break;
+		}
+       
+        return $this->total_row;
+        
+    }
+
+    function get_total_row_search($pageType,
+								  $pageNumber,
+								  $numberPerPage,
+								  $location,
+								  $searchType,
+								  $searchValue)
+
+    {
+
+    	switch ($pageType) 
+		{
+			
+			case "search":
+				$this->search_notice_list(
+										$pageNumber,
+										$numberPerPage,
+										$location,
+										$searchType,
+										$searchValue);
+			break;
+
+			default:
+				echo "error";
+				break;
+		}
+       
+        return $this->total_row;
+        
+    }
+
+    function array_to_str($array)
+    {
+    	$str = '("'.$array[0].'"';
+    	foreach ($array as $key=>$value) 
+    	{
+    		if($key > 0)
+    			$str .= ',"'.$value.'"';
+    	}
+    	$str .=')';
+		
+		return $str;
+    }
 
 	private function img_decode($array)
 	{
 		foreach ($array as &$value) 
     	{
-    		$img_list = json_decode($value["img_list"]);
-    		$value["img_list"] = $img_list;
+    		
+    		if ($value["img_list"] == '[""]')
+    		{
+    			$img_list = array("http://xdream.co/CI_API/upload_dir/225e97394f00e2bf3c42f34e665553c3.jpg");
+    			$value["img_list"] = $img_list;
+    		}
+    		else
+    		{
+    			$img_list = json_decode($value["img_list"]);
+    			$value["img_list"] = $img_list;
+    		}
     	}
     	return $array;
 	}
+
+	function delete_car_notice($nid)
+	{
+		$this->db->where('nid', $nid);
+        $result = $this->db->delete($this->table);
+
+        return $result;
+	}
+
 
 	function define()
 	{
@@ -920,4 +1347,52 @@ CREATE TABLE IF NOT EXISTS `prefix_notice` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 
+delete_car_notice($nid)
+	{
+		$this->db->where('nid', $nid);
+        $result = $this->db->delete($this->table);
+
+        return $result;
+	}
+
+
+	function define()
+	{
+		$this->table  = "prefix_notice";
+		$this->column = array
+		(
+			"nid",
+			"title",
+			"content",
+			"img_list" ,
+			"uid" ,
+			"time",
+			"coordinate",
+			"counter_view",
+			"counter_follow",
+			"counter_praise",
+			"user_list_view",
+			"user_list_follow",
+			"user_list_praise"
+        );
+	}
+}
+
+/****
+CREATE TABLE IF NOT EXISTS `prefix_notice` (
+  `nid` int(30) NOT NULL AUTO_INCREMENT,
+  `title` tinytext,
+  `content` text,
+  `img_list` varchar(512) DEFAULT NULL,
+  `uid` int(11) DEFAULT NULL,
+  `time` datetime DEFAULT NULL,
+  `coordinate` varchar(64) DEFAULT NULL,
+  `counter_view` int(11) DEFAULT NULL,
+  `counter_follow` int(11) DEFAULT NULL,
+  `counter_praise` int(11) DEFAULT NULL,
+  `user_list_follow` text NOT NULL,
+  `user_list_praise` text NOT NULL,
+  `user_list_view` text NOT NULL,
+  PRIMARY KEY (`nid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 */

@@ -29,13 +29,12 @@ class GetArticleList extends MY_Controller
 								->get_article_list($this->pageNumber,
 										 	      $this->numberPerPage,
 										 	      $this->articleType);
-			// if ($this->articleType == "mainpage")
-			// {
-			// 	$total_article_row = $this->article_model
-			// 				   		 	 ->get_total_car_row($this->articleType);
-			// 	$this->output->set_body("total_article_row", $total_article_row);
-			// }
-	 		
+
+			$total_row = $this->article_model
+						   	  ->get_total_row();
+						   	
+			$this->output->set_body("total_row", $total_row);
+
 			if (! $article_list)	
 			{
 				$this->output->set_body("result",1);
@@ -116,7 +115,7 @@ class GetArticleList extends MY_Controller
  "body":{  
   "pageNumber"    : "1",  
   "numberPerPage" : "8",
-  "articleType"       : "timeline"
+  "articleType"       : "tips"
   }
 }
 */

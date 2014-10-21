@@ -27,7 +27,7 @@ class FollowNotice extends MY_Controller
 					 	                  			 $this->nid);
 			$this->user_relation_model
 				 ->update_notice_list_following($this->uid,
-				     	              		  $this->nid);
+				     	              		    $this->nid);
 
 			$this->output->set_body("result",0);
 			if ($is_followed == 1)

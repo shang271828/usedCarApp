@@ -104,3 +104,8 @@ define("PHONE_EXIST","手机号码已注册");
 define("RESET_PASSWORD","重设密码");
 define("SET_PREFERENCE","用户偏好已设置");
 
+//hou
+define('CMS_PATH', 'http://localhost/icms/modules/blog/');
+define('CMS_BASE_URL', 'http://localhost/CI_Completed/index.php/cms/');
+
+

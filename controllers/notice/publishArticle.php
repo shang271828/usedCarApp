@@ -11,16 +11,24 @@ class publishArticle extends MY_Controller
 
 	function index()
 	{	
-		$body = $this->input->body;
-		$this->a_uid         = $body->a_uid;
-		$this->title       = $body->title;
-		$this->content     = $body->content;
+		
+		// $body = $this->input->body;
+		// $this->a_uid         = $body->a_uid;
+		// $this->title       = $body->title;
+		// $this->content     = $body->content;
+		$post = $_POST;
+		
+		$this->author  = $post['author'] ;
+		$this->title   = $post['title']  ;
+		$this->content = $post['content'];
+		$this->image   = $post['image'];
 
 		$is_param_ok = $this->notice_param_check();
 		if($is_param_ok)
 		{
 			$nid = $this->article_model
-				 		->insert_article($this->a_uid    																,$this->title  
+				 		->insert_article($this->author
+		    							,$this->title  
 										,$this->content);
 
 			$this->output->set_body("result",0);
@@ -31,7 +39,7 @@ class publishArticle extends MY_Controller
 
 	function view_test()
 	{	
-		$this->load->view('notice/publish_article_view');
+		$this->load->view('js_test_view');
 	}
 	
 	function notice_param_check()

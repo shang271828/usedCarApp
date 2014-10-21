@@ -12,6 +12,7 @@ class SearchNotice extends MY_Controller
 
 	function index()
 	{
+
 		$body = $this->input->body;
 		
 		@$this->pageNumber     = $body->pageNumber;
@@ -31,6 +32,14 @@ class SearchNotice extends MY_Controller
 										 	         $this->location,
 										 	         $this->searchType,
 										 	         $this->searchValue);
+			$pageType = 'search';
+			$total_row = $this->notice_model
+			 				   		 	 ->get_total_row_search($pageType,
+																$this->pageNumber,
+																$this->numberPerPage,
+																$this->location,
+																$this->searchType,
+																$this->searchValue);
 	 		
 			if (! $notice_list)	
 			{
@@ -42,6 +51,7 @@ class SearchNotice extends MY_Controller
 			{
 				$this->output->set_body("result",0);
 				$this->output->set_body("description",GET_NOTICE);
+				$this->output->set_body("total_row", $total_row);
 				$this->output->set_body("notice_list", $notice_list);
 			}
 		}
@@ -58,8 +68,7 @@ class SearchNotice extends MY_Controller
 		$is_param_ok = TRUE;
 		$is_param_missing  = ! ($this->pageNumber
 							  &&$this->numberPerPage
-							  &&$this->searchType
-			 				  &&$this->searchValue);
+							  &&$this->searchType);
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
 		$typeList = array(1=>"price",

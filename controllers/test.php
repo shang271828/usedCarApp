@@ -1,58 +1,43 @@
 <?php
-class Test extends MY_Controller
+class test extends CI_Controller
 {
-
 	function __construct()
 	{
-        header("Content-Type:text/html;charset=utf-8");
-		parent ::__construct();
-		$this->load->database();
-        $this->load->model("notice_model");
-        $this->load->model("user_timeline_model");
-        //$this->load->library('JSON_lib');
-
+		header("Content-type: text/html; charset=utf-8");
+		parent :: __construct();
+		; $this->load->helper('url')
+		; $this->load->model('user_model')
+		; $this->load->model('article_model')
+		; $this->load->library('javascript')
+		//; include("Snoopy.php")
+		;
 	}
 
 	function index()
-    {
-       $testJSON=array('name'=>'中文字符串','value'=>'test');  
-    //echo json_encode($testJSON);  
-    foreach ( $testJSON as $key => $value ) {  
-        $testJSON[$key] = urlencode ( $value );  
-    }  
-    echo urldecode ( json_encode ( $testJSON ) );  
-    }
+	{
+		//$this->load->view('js_test_view');
+		//构造字符串
+		echo '这里是微信后台端口~~';
 
-    function array_serialize()
-    {
-        $stooges = array('Moe','Larry','Curly');
-        $new = serialize($stooges);
-        print_r($new);echo "<br />";
-        print_r(unserialize($new));
-    }
+ 		// $url = "http://www.baidu.com";
+ 		
+ 		// $snoopy = new Snoopy;
+ 		// $snoopy->fetch($url); //获取所有内容
+ 		// var_dump($snoopy->results) ; //显示结果
+ 		// //可选以下
+ 		// $snoopy->fetchtext($url)  ;//获取文本内容（去掉html代码）
+ 		// var_dump($snoopy->results) ;
+ 		// $snoopy->fetchlinks($url) ;//获取链接
+ 		// var_dump($snoopy->results) ;
+ 		// $snoopy->fetchform($url)  ;//获取表单
+ 		// var_dump($snoopy->results) ;
 
-    function obj_serialize()
-    {
-        $obj = new StdClass;
-        $obj->{"name"} = "尚";
-        $obj->{"age"}  = "24";
-        $new = serialize($obj);
-        print_r($new);echo "<br />";
-        print_r(unserialize($new));
-        $this->obj_json($obj);
-    }
+	}
 
-    function obj_json($obj)
-    {
-        $json = json_encode($obj);
-        print_r($json);
-         print_r(json_decode($json));
-    }
-    function new_item()
-    {
-    	$this->str1 = "einstain";
-    	var_dump($this->str1);
-    	$this->change($this->str1) ; 
+	function insert()
+	{
+		$article = $this->article_model->get_article_detail('2');
+		var_dump($article);
+	}
 
-    }
 }

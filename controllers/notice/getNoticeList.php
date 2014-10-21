@@ -29,12 +29,14 @@ class GetNoticeList extends MY_Controller
 								->get_notice_list($this->pageNumber,
 										 	      $this->numberPerPage,
 										 	      $this->pageType);
-			// if ($this->pageType == "mainpage")
-			// {
-			// 	$total_notice_row = $this->notice_model
-			// 				   		 	 ->get_total_car_row($this->pageType);
-			// 	$this->output->set_body("total_notice_row", $total_notice_row);
-			// }
+			
+			
+			 	$total_row = $this->notice_model
+			 				   		 	 ->get_total_row($this->pageType);
+			 	$total_row = $total_row-1;
+			 	
+			 	$this->output->set_body("total_row",$total_row );
+				
 	 		
 			if (! $notice_list)	
 			{
@@ -68,8 +70,8 @@ class GetNoticeList extends MY_Controller
 		$is_param_missing  = ! ($this->pageNumber&&$this->numberPerPage&&$this->pageType);
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
-		$is_param_val_error = ($this->pageNumber<1) || ($this->numberPerPage>20);
-		$pageTypeList = array(1=>"mainpage",2=>"discovery",3=>"timeline",4=>"friendPage");
+		$is_param_val_error = ($this->pageNumber<1) || ($this->numberPerPage>50);
+		$pageTypeList = array(1=>"mainpage",2=>"discovery",3=>"timeline",4=>"friendPage",5=>"collection");
 		$is_param_str_error = ! array_search($this->pageType,$pageTypeList);
 
 		do

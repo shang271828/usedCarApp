@@ -54,7 +54,6 @@ class GetArticleDetail extends MY_Controller
 		$is_param_ok = TRUE;
 		$is_param_missing  = ! ($this->aid);
 
-
 		do
 		{
 			if ($is_param_missing)

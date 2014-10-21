@@ -35,9 +35,15 @@ class MY_Output extends CI_Output
                         {
                             foreach ($value_3 as $key_4 => &$value_4) 
                             {
-                        
-                                ;$value_3[$key_4] = urlencode ( $value_4)
-                                ;  
+                                if(is_array($value_4))
+                                {
+                                    foreach ($value_4 as $key_5 => &$value_5) 
+                                    {
+                                        ;$value_4[$key_5] = urlencode ( $value_5)
+                                        ;  
+                                    }
+                                   
+                                }
                             }
                         }
                         else

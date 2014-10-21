@@ -16,9 +16,8 @@ class PostUserTel extends MY_Controller
 		$head = $this->input->head;
 
 		$this->tel_dir     = $body->tel_dir;
-		$this->do_type     = $body->do_type;				
+		$this->action     = $body->action;				
 		$this->uid         = $head->uid;
-
 
 		$is_param_ok = $this->user_param_check();
 
@@ -27,7 +26,7 @@ class PostUserTel extends MY_Controller
 			$this->user_model
 			 	->add_user_tel($this->uid,
 							   $this->tel_dir,
-							   $this->do_type );
+							   $this->action );
 
 			$this->output->set_body('result', '0');
 			$this->output->set_body('description', IS_DONE);
@@ -64,7 +63,7 @@ class PostUserTel extends MY_Controller
 	"body":
 	{        
 	"tel_dir"     :["18537727752","15803820735","13521722086"],
-	"do_type"     :"delete"
+	"action"     :"delete"
 	} 
 }
 */

@@ -14,25 +14,22 @@ class SendMessage extends MY_Controller
 	function index()
 	{
 		$body = $this->input->body;
-		var_dump($body);
-		@$this->receive_uid = $body->receive_uid;
-		@$this->receive_nid = $body->receive_nid;
-		@$this->content   	= $body->content;
-		@$img_array   	    = $body->img_list;
-		@$this->messageType = $body->messageType;
-		
-		$this->img_list = $img_array[0].','.$img_array[1];
-		var_dump($this->img_list);
+
+		$this->destination_list = $body->destination_list;
+		$this->title       		= 'title';
+		$this->content 	   		= $body->content;
+		$this->img_list    	   	= $body->img_list;
+
 		$is_param_ok = $this->param_check();
 		
 		if($is_param_ok)
 		{
 			$this->message_model
-			  ->insert_message($this->receive_uid,
-							$this->receive_nid,
-							$this->content ,  	
-							$this->img_list ,  
-							$this->messageType);
+			  ->insert_message($this->destination_list	,
+								$this->title       		,
+								$this->content 	   		,	
+								$this->img_list     	   		 
+							);
 			$this->output->set_body('result', 0);
 			$this->output->set_body('description', 'message sent!');
 		}
@@ -50,11 +47,9 @@ class SendMessage extends MY_Controller
 	   
 		do
 		{
-			 $is_param_missing = !($this->receive_uid											
-								  &&$this->receive_nid		
-								  &&$this->content   			
-								  &&$this->img_list 	
-								  &&$this->messageType	
+			 $is_param_missing = !( $this->destination_list										
+								  &&$this->title       			
+								  &&$this->content 	   				   	   		
 				                   ); 
 			if( $is_param_missing )
 			{
@@ -65,13 +60,13 @@ class SendMessage extends MY_Controller
 				
 			}
 
-			if(strlen($this->content)<6) 
-			{	
-				$is_param_ok = false;
-				$this->output->set_body('result', '2');
-				$this->output->set_body('description', 'content length  error! too short!');
-				break;
-			}
+			// if(strlen($this->content)<6) 
+			// {	
+			// 	$is_param_ok = false;
+			// 	$this->output->set_body('result', '2');
+			// 	$this->output->set_body('description', 'content length  error! too short!');
+			// 	break;
+			// }
 
 		}while(false);
 		return $is_param_ok;		
@@ -81,16 +76,15 @@ class SendMessage extends MY_Controller
 /*
 {
  "head": {  
-   "uid"  : "1", 
+    "uid"  : "1", 
    "time"  : "2014-08-03 03:08:05", 
    "token" : "9fd98454b511ce20120ecb593ed177e3"
   },
- "body":{
-  "receive_uid"     : "2",
-  "receive_nid"     : "2",
+ "body":{  
   "content"         : "my_message",
-  "img_list"        :  ["http:\/\/xdream.co\/CI_API\/application\/upload_dir\/3.jpg","http:\/\/xdream.co\/CI_API\/application\/upload_dir\/4.jpg"],
-  "messageType"     : "private"
+  "img_list"        : ["http://xdream.co/CI_API/upload_dir/1303bcfae0b6c8f859bcc2aafcb2ee23.jpg","http://xdream.co/CI_API/upload_dir/225e97394f00e2bf3c42f34e665553c3.jpg"],
+  "destination_list":["2","3"]
   }
 }
+
 */

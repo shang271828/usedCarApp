@@ -15,6 +15,12 @@ class MY_Upload extends CI_Upload {
         ;
     }
     
+    function set_upload_dir($path)
+    {
+        ; $this->config['upload_path'] = $path
+        ; $this->initialize($this->config)
+        ;
+    }
 
   
     function & fetch_img_accord_json($img_list_json)
