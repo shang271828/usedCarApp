@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
-class MultiSearchNotice extends MY_Controller
+class SearchNotice extends MY_Controller
 {
 	function __construct()
 	{
@@ -17,31 +17,29 @@ class MultiSearchNotice extends MY_Controller
 		
 		@$this->pageNumber     = $body->pageNumber;
 		@$this->numberPerPage  = $body->numberPerPage;
-
-		 $this->searchBrand  	= $body->searchBrand  	;
-		 $this->searchPrice  	= $body->searchPrice  	;
-		 $this->searchAge	   = $body->searchAge	;
-		 $this->searchMileage  = $body->searchMileage 	;
-		 $this->searchSpeedBox = $body->searchSpeedBox;
-		 $this->searchCarType  = $body->searchCarType;
-
+		$searchStr = explode(":", $body->searchStr);
+		$this->location = $body->location;
+		@$this->searchType     = $searchStr[0];
+		@$this->searchValue    = $searchStr[1];
 
 		$is_param_ok = $this->notice_param_check();
 		
 		if($is_param_ok)
 		{
 			$notice_list = $this->notice_model
-								->multi_search_notice_list(
-										 	         $this->pageNumber    
-										 	        , $this->numberPerPage 
-													, $this->searchBrand  
-													, $this->searchPrice  
-													, $this->searchAge	  
-													, $this->searchMileage 
-													, $this->searchSpeedBox
-										 	        , $this->searchCarType 
-
-										 	         );
+								->search_notice_list($this->pageNumber,
+										 	         $this->numberPerPage,
+										 	         $this->location,
+										 	         $this->searchType,
+										 	         $this->searchValue);
+			$pageType = 'search';
+			$total_row = $this->notice_model
+			 				  ->get_total_row_search($pageType,
+													$this->pageNumber,
+													$this->numberPerPage,
+													$this->location,
+													$this->searchType,
+													$this->searchValue);
 	 		
 			if (! $notice_list)	
 			{
@@ -53,6 +51,7 @@ class MultiSearchNotice extends MY_Controller
 			{
 				$this->output->set_body("result",0);
 				$this->output->set_body("description",GET_NOTICE);
+				$this->output->set_body("total_row", $total_row);
 				$this->output->set_body("notice_list", $notice_list);
 			}
 		}
@@ -61,7 +60,7 @@ class MultiSearchNotice extends MY_Controller
 
 	function view_test()
 	{	
-		$this->load->view('notice/multi_search_notice_view');
+		$this->load->view('notice/search_notice_view');
 	}
 
 	function notice_param_check()
@@ -69,16 +68,16 @@ class MultiSearchNotice extends MY_Controller
 		$is_param_ok = TRUE;
 		$is_param_missing  = ! ($this->pageNumber
 							  &&$this->numberPerPage
-						);
+							  &&$this->searchType);
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
-		// $typeList = array(1=>"price",
-		// 				  2=>"speed_box",
-		// 				  3=>"is_recommended",
-		// 				  4=>"brand");
-		// $is_param_val_error = ! array_search($this->searchType,$typeList)
-		// 					  || ($this->pageNumber<1) 
-		//                       || ($this->numberPerPage>20);
+		$typeList = array(1=>"price",
+						  2=>"speed_box",
+						  3=>"is_recommended",
+						  4=>"brand");
+		$is_param_val_error = ! array_search($this->searchType,$typeList)
+							  || ($this->pageNumber<1) 
+		                      || ($this->numberPerPage>20);
 
 		do
 		{
@@ -90,10 +89,10 @@ class MultiSearchNotice extends MY_Controller
 					$this->output->set_body("description",PARAMETER_MISSING."pageNumber");
 				elseif (!$this->numberPerPage) 
 					$this->output->set_body("description",PARAMETER_MISSING."numberPerPage");
-				// elseif (!$this->searchType)
-				// 	$this->output->set_body("description",PARAMETER_MISSING."searchType");
-				// elseif(!$this->searchValue)
-				// 	$this->output->set_body("description",PARAMETER_MISSING."searchValue");
+				elseif (!$this->searchType)
+					$this->output->set_body("description",PARAMETER_MISSING."searchType");
+				elseif(!$this->searchValue)
+					$this->output->set_body("description",PARAMETER_MISSING."searchValue");
 				//$this->output->set_body("description","parameter missing");
 				break;
 			}
@@ -107,13 +106,13 @@ class MultiSearchNotice extends MY_Controller
 				$this->output->set_body("description",WRONG_TYPE);
 				break;
 			}
-			// if($is_param_val_error)
-			// {
-			// 	$is_param_ok = FALSE;
-			// 	$this->output->set_body("result",4);
-			// 	$this->output->set_body("description",WRONG_VALUE);
-			// 	break;
-			// }
+			if($is_param_val_error)
+			{
+				$is_param_ok = FALSE;
+				$this->output->set_body("result",4);
+				$this->output->set_body("description",WRONG_VALUE);
+				break;
+			}
 
 		}while(FALSE);
 
@@ -131,12 +130,8 @@ class MultiSearchNotice extends MY_Controller
  "body":{  
   "pageNumber"    : "1",  
   "numberPerPage" : "2",
-  "searchBrand"    : "Benz",
-  "searchPrice"   : "2-5",
-  "searchAge" :"1-3",
-  "searchMileage" :"0-5",
-  "searchSpeedBox" :"auto",
-  "searchCarType" :""
+  "location" : "杭州",
+  "searchStr"    : "brand:Benz"
   }
 }
 */

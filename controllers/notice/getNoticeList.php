@@ -18,7 +18,9 @@ class GetNoticeList extends MY_Controller
 
 		@$this->pageNumber    = $body->pageNumber;
 		@$this->numberPerPage = $body->numberPerPage;
-		@$this->pageType      = $body->pageType;
+		$this->pageType 	  = $body->pageType;
+
+
 
 		$is_param_ok = $this->notice_param_check();
 		
@@ -37,7 +39,6 @@ class GetNoticeList extends MY_Controller
 			 	
 			 	$this->output->set_body("total_row",$total_row );
 				
-	 		
 			if (! $notice_list)	
 			{
 				$this->output->set_body("result",1);

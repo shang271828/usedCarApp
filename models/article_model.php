@@ -43,7 +43,7 @@ class Article_model extends CI_model
 		switch ($pageType) 
 		{
 			case "tips":
-				$SQL = "SELECT `aid`, `title`, `author`, ``,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
+				$SQL = "SELECT `aid`, `title`, `author`, `summary`,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
 				$SQL .=" FROM (`prefix_article`)";
 				$query = $this->db->query($SQL);
 				$this->articleList = $query->result_array();
@@ -59,7 +59,7 @@ class Article_model extends CI_model
 	function get_article_detail($aid)
 	{
 		//$SQL = "SELECT `aid`, `title`, `author, `content`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`";
-		$SQL = "SELECT `aid`, `title`, `author`, ``,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
+		$SQL = "SELECT `aid`, `title`, `author`, `summary`,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
 		$SQL .=" FROM (`prefix_article`)";
 		//$SQL .=	"JOIN `prefix_user` ON `uid` = `a_uid`",
 		$SQL .=	"WHERE `aid` =  '".$aid."'"; 

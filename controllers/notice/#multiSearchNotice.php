@@ -15,38 +15,33 @@ class SearchNotice extends MY_Controller
 
 		$body = $this->input->body;
 		
-		$this->pageNumber     = $body->pageNumber;
-		$this->numberPerPage  = $body->numberPerPage;
-		
-		if (property_exists ( $body, 'searchValue'))
-			$this->searchValue  = $body->searchValue		;
-		else						
-			$this->searchValue  = '0';
+		@$this->pageNumber     = $body->pageNumber;
+		@$this->numberPerPage  = $body->numberPerPage;
 
-		if (property_exists ( $body, 'filterValue'))
-		{
-			$this->filterValue = $body->filterValue ;
-	
-		}
-		else						
-			$this->filterValue = '0';
+		 $this->searchBrand  	= $body->searchBrand  	;
+		 $this->searchPrice  	= $body->searchPrice  	;
+		 $this->searchAge	   = $body->searchAge	;
+		 $this->searchMileage  = $body->searchMileage 	;
+		 $this->searchSpeedBox = $body->searchSpeedBox;
+		 $this->searchCarType  = $body->searchCarType;
+		 $this->searchValue    = $body->searchValue;
 
-		if (property_exists ( $body, 'sortValue'))
-			$this->sortValue = $body->sortValue			;
-		else						
-			$this->sortValue = '0';
 
 		$is_param_ok = $this->notice_param_check();
 		
 		if($is_param_ok)
 		{
 			$notice_list = $this->notice_model
-								->search_notice_list(
+								->multi_search_notice_list(
 										 	         $this->pageNumber    
 										 	        , $this->numberPerPage 
+													, $this->searchBrand  
+													, $this->searchPrice  
+													, $this->searchAge	  
+													, $this->searchMileage 
+													, $this->searchSpeedBox
+										 	        , $this->searchCarType 
 										 	        , $this->searchValue 
-										 	        , $this->filterValue
-										 	        , $this->sortValue
 										 	         );
 	 		
 			if (! $notice_list)	
@@ -96,9 +91,15 @@ class SearchNotice extends MY_Controller
 					$this->output->set_body("description",PARAMETER_MISSING."pageNumber");
 				elseif (!$this->numberPerPage) 
 					$this->output->set_body("description",PARAMETER_MISSING."numberPerPage");
-
+				// elseif (!$this->searchType)
+				// 	$this->output->set_body("description",PARAMETER_MISSING."searchType");
+				// elseif(!$this->searchValue)
+				// 	$this->output->set_body("description",PARAMETER_MISSING."searchValue");
+				//$this->output->set_body("description","parameter missing");
 				break;
 			}
+
+
 
 			if($is_param_nonnum)
 			{
@@ -107,7 +108,13 @@ class SearchNotice extends MY_Controller
 				$this->output->set_body("description",WRONG_TYPE);
 				break;
 			}
-
+			// if($is_param_val_error)
+			// {
+			// 	$is_param_ok = FALSE;
+			// 	$this->output->set_body("result",4);
+			// 	$this->output->set_body("description",WRONG_VALUE);
+			// 	break;
+			// }
 
 		}while(FALSE);
 
@@ -125,16 +132,12 @@ class SearchNotice extends MY_Controller
  "body":{  
   "pageNumber"    : "1",  
   "numberPerPage" : "2",
-  "searchValue"   : "杭州",
-  "filterValue"   :{
-					  "brand"    : "Benz",
-					  "price"   : "2-5",
-					  "age" :"1-3",
-					  "mileage" :"0-5",
-					  "speedBox" :"auto",  	
-					  "carType" :""	
-  					},
-  	"sortValue"    : "price"
+  "searchBrand"    : "Benz",
+  "searchPrice"   : "2-5",
+  "searchAge" :"1-3",
+  "searchMileage" :"0-5",
+  "searchSpeedBox" :"auto",
+  "searchCarType" :""
   }
 }
 */

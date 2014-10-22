@@ -21,58 +21,28 @@ class MY_Output extends CI_Output
     }
 
 
-    function set_body($name, $value_1)
+    function set_body($name, $value = 0)
     {
-        if (is_array($value_1))
-        {
-            foreach ( $value_1 as $key_2 => &$value_2 ) 
-            {  
-                if(is_array($value_2))
-                {
-                    foreach ($value_2 as $key_3 => &$value_3) 
-                    {
-                        if(is_array($value_3))
-                        {
-                            foreach ($value_3 as $key_4 => &$value_4) 
-                            {
-                                if(is_array($value_4))
-                                {
-                                    foreach ($value_4 as $key_5 => &$value_5) 
-                                    {
-                                        ;$value_4[$key_5] = urlencode ( $value_5)
-                                        ;  
-                                    }
-                                   
-                                }
-                            }
-                        }
-                        else
-                        {
-                            ;$value_2[$key_3] = urlencode ( $value_3 )
-                            ;  
-                        }
-                    }
-                
-                }
-                else
-                {
-                    ;$value_1[$key_2] = urlencode ( $value_2 )
-                    ;  
-                }
-                
-            } 
-        ; $this->body->$name = $value_1;
-        ; 
+        
+        $this->json_utf8($value);
+        $this->body->$name = $value;
+    }
 
+    function json_utf8(&$array)
+    {
+        if(is_array($array))
+        {
+            foreach ( $array as &$value ) 
+            {
+                $this->json_utf8($value);
+            }
         }
         else
         {
-        ; $this->body->$name = urlencode($value_1)
-        ;
+            $array = urlencode ( $array );
         }
+
     }
-
-
 
     
     private function set_return_head()

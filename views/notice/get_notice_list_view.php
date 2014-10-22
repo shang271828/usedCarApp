@@ -6,7 +6,7 @@
 
 
 <?php echo form_open_multipart('notice/getNoticeList');?>
-
+<?php echo '1'.$this->benchmark->memory_usage();?>
 <textarea name="json_package" cols="100" rows="25"></textarea>
 
 <br/>
