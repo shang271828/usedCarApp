@@ -76,7 +76,7 @@ define("PRAISE_CANCEL", "已取消点赞");
 
 //publishCarNotice API
 define("PUBLISH_CAR_NOTICE","二手车信息已发布");
-
+define("EDIT_CAR_NOTICE","二手车信息已编辑");
 //publishCommentNotice API
 define("PUBLISH_COMMENT_NOTICE","评论信息已发布");
 

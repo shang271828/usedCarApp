@@ -1,5 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Message_model extends MY_model
+class Message_model extends CI_model
 {
 	function __construct()
 	{
@@ -9,7 +9,6 @@ class Message_model extends MY_model
 	}
 
 	function insert_message($destination_list,
-							$title,							
 							$content    ,
 							$img_list = '[]'  								
 					        )
@@ -17,7 +16,6 @@ class Message_model extends MY_model
 		$img_str = json_encode($img_list);
 		$destination_str = json_encode($destination_list);
 		$data = array(
-					'title'       		=>$title,
 					'destination_list'  =>$destination_str,
 					'content'			=>$content,
 					'img_list'			=>$img_str,
@@ -32,6 +30,27 @@ class Message_model extends MY_model
 
 	}
 
+	function insert_system_message($destination_list,
+							$content    ,
+							$img_list = '[]'  								
+					        )
+	{
+		$img_str = json_encode($img_list);
+		$destination_str = json_encode($destination_list);
+		$data = array(
+					'destination_list'  =>$destination_str,
+					'content'			=>$content,
+					'img_list'			=>$img_str,
+					'is_fetched'        =>'0',		
+					'uid'		        =>'1',
+					'time'				=>$this->input->sysTime,
+					'coordinate'		=>$this->input->coordinate					
+				);
+		 $this->db->insert($this->table, $data);
+		$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array();
+		return $nid["LAST_INSERT_ID()"];
+
+	}
 
 	function get_message_list($pageNumber,$numberPerPage,$pair)
 	{

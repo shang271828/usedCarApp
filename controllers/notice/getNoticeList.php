@@ -20,8 +20,6 @@ class GetNoticeList extends MY_Controller
 		@$this->numberPerPage = $body->numberPerPage;
 		$this->pageType 	  = $body->pageType;
 
-
-
 		$is_param_ok = $this->notice_param_check();
 		
 		if($is_param_ok)

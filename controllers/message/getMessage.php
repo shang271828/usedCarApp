@@ -25,7 +25,7 @@ class GetMessage extends MY_Controller
 							  	->get_message_list($this->pageNumber,
 											  		$this->numberPerPage,
 											  		$this->pair
-										      );
+										      		);
 			if (! $message_list)	
 			{
 				$this->output->set_body("result",1);

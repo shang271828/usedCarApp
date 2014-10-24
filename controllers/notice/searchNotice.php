@@ -17,7 +17,11 @@ class SearchNotice extends MY_Controller
 		
 		$this->pageNumber     = $body->pageNumber;
 		$this->numberPerPage  = $body->numberPerPage;
-		
+		if (property_exists ( $body, 'location'))
+			$this->location  = $body->location;
+		else						
+			$this->location  = '杭州';
+
 		if (property_exists ( $body, 'searchValue'))
 			$this->searchValue  = $body->searchValue		;
 		else						
@@ -44,6 +48,7 @@ class SearchNotice extends MY_Controller
 								->search_notice_list(
 										 	         $this->pageNumber    
 										 	        , $this->numberPerPage 
+										 	        , $this->location
 										 	        , $this->searchValue 
 										 	        , $this->filterValue
 										 	        , $this->sortValue
