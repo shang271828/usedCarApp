@@ -33,7 +33,7 @@ class Rest_lib
 		$this->ServerIP = $params["ServerIP"];
 		$this->ServerPort = $params["ServerPort"];
 		$this->SoftVersion = $params["SoftVersion"];
-    $this->Handle = fopen($this->Filename, 'a');
+    //$this->Handle = fopen($this->Filename, 'a');
 	}
 
    /**
@@ -62,11 +62,11 @@ class Rest_lib
     * 
     * @param log 日志内容
     */
-    function showlog($log){
-      if($this->enabeLog){
-         fwrite($this->Handle,$log."\n");  
-      }
-    }
+    // function showlog($log){
+    //   if($this->enabeLog){
+    //      fwrite($this->Handle,$log."\n");  
+    //   }
+    // }
     
     /**
      * 发起HTTPS请求

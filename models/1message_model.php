@@ -19,7 +19,7 @@ class Message_model extends CI_model
 					'destination_list'  =>$destination_str,
 					'content'			=>$content,
 					'img_list'			=>$img_str,
-					'is_fetched'        =>'0',	
+					'is_fetched'        =>'0',		
 					'uid'		        =>$this->input->uid,
 					'time'				=>$this->input->sysTime,
 					'coordinate'		=>$this->input->coordinate					
@@ -52,19 +52,27 @@ class Message_model extends CI_model
 
 	}
 
-
-
 	function get_message_list($pageNumber,$numberPerPage,$pair)
 	{
 		$messageNumber = ($pageNumber-1)*$numberPerPage;
 
 		$uid = $this->input->uid;
 		$match = '"'.$uid.'"';
+		// $this->db->select("mid,			              
+		//                	  destination_list,
+		// 			      content	,	
+		//  			      img_list	,			 				   		
+		//  			      ".$this->table.".uid	,
+		//  			      username,
+		//  			      signature,
+  //  					      avatar_url,	      
+		//  			      time	,		
+		// 			      coordinate "
+		// 			  );	
+		// $this->db->from($this->table); 	
+		// $this->db->join('prefix_user',"prefix_user.uid=".$this->table.".uid");
 
-
-		$SQL = "SELECT `mid`, `destination_list`, `content`, `img_list`, 
-						`prefix_message`.`uid`, `username`, `signature`, 
-						`avatar_url`, `time`, `coordinate`
+		$SQL = "SELECT `mid`, `destination_list`, `content`, `img_list`, `prefix_message`.`uid`, `username`, `signature`, `avatar_url`, `time`, `coordinate`
 				FROM (`prefix_message`)
 				JOIN `prefix_user` ON `prefix_user`.`uid`=`prefix_message`.`uid`";
 		
@@ -72,21 +80,34 @@ class Message_model extends CI_model
 
 		if(is_array($pair))
 		{
+			// $this->db->order_by("time", "asc"); 
 
 			$pair_bracket = array('["'.$pair[0].'"]','["'.$pair[1].'"]');
+			// if ($pair[0] > $pair[1])
+			// {
+			// 	$tmp = $pair[0];
+			// 	$pair[0] = $pair[1];
+			// 	$pair[1] = $tmp;
+			// }
+			// $array_f = array($this->table.'.uid'=>$pair[0],'destination_list'=>$pair_bracket[1]);
+			// $array_s = array($this->table.'.uid'=>$pair[1],'destination_list'=>$pair_bracket[0]);
+			// // $array_f = array($this->table.'.uid'=>'1','destination_list'=>'2');
+			// // $array_s = array($this->table.'.uid'=>'2','destination_list'=>'1');
+			// $this->db->where($array_f);
+			// $this->db->or_where($array_s); 
 			
 			$SQL .= " AND ((`prefix_message`.`uid` =  '".$pair[0]."' AND `destination_list` =  '".$pair_bracket[1]."')
 					 OR (`prefix_message`.`uid` =   '".$pair[1]."'  AND `destination_list` =  '".$pair_bracket[0]."'))";
 					
 			$SQL .= " ORDER BY `time` asc ";
-		}
+	}
 		else
 		{
 			$SQL .= " ORDER BY `time` desc ";
 			switch ($pair) 
 			{
 			case '全部':
-				
+				//$SQL .= "AND `destination_list` = [".$match. "]";
 				
 				break;
 			case 'all':

@@ -40,19 +40,69 @@ class Article_model extends CI_model
 		$this->numberPerPage = $numberPerPage;
 		$uid = $this->input->head->uid;
 
-		switch ($pageType) 
-		{
-			case "tips":
 				$SQL = "SELECT `aid`, `title`, `author`, `summary`,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
 				$SQL .=" FROM (`prefix_article`)";
+
+		$LIMIT = "ORDER BY `time` desc
+		 		LIMIT ".$this->articleNumber.",".$this->numberPerPage;
+
+		switch ($pageType) 
+		{
+			case 'all':
+				$SQL .= $LIMIT;	
+				$query = $this->db->query($SQL);
+				$this->articleList = $query->result_array();
+				break;
+
+			case 'trends':
+				$SQL .= " WHERE article_type = 'trends'";
+				$SQL .= $LIMIT;	
+				$query = $this->db->query($SQL);
+				$this->articleList = $query->result_array();
+				break;
+
+			case 'new_cars':
+				$SQL .= "WHERE article_type = 'new_cars'";	
+				$SQL .= $LIMIT;
+				$query = $this->db->query($SQL);
+				$this->articleList = $query->result_array();
+				break;
+
+			case 'guide':
+				$SQL .= "WHERE article_type = 'guide'";
+				$SQL .= $LIMIT;
 				$query = $this->db->query($SQL);
 				$this->articleList = $query->result_array();
 				break;
 			
+			case 'car_tips':
+				$SQL .= "WHERE article_type = 'car_tips'";	
+				$SQL .= $LIMIT;
+				$query = $this->db->query($SQL);
+				$this->articleList = $query->result_array();
+				break;
+
+			case 'dailys':
+				$SQL .= "WHERE article_type = 'dailys'";	
+				$SQL .= $LIMIT;
+				$query = $this->db->query($SQL);
+				$this->articleList = $query->result_array();
+				break;
+
+			case 'car_life':
+				$SQL .= "WHERE article_type = 'car_life'";	
+				$SQL .= $LIMIT;
+				$query = $this->db->query($SQL);
+				$this->articleList = $query->result_array();
+				break;
+
 			default:
 				echo "error";
 				break;
 		}
+
+		
+		//$this->articleList = $this->img_decode($this->articleList);
 		return $this->articleList;
 	}
 
@@ -126,6 +176,26 @@ class Article_model extends CI_model
         ;
     }
 
+     function img_decode($array)
+	{
+		foreach ($array as &$value) 
+    	{
+    		
+    		if ($value["image"] == '[""]')
+    		{
+    			$img_list = array("http://xdream.co/CI_API/upload_dir/225e97394f00e2bf3c42f34e665553c3.jpg");
+    			$value["image"] = $img_list;
+    		}
+    		else
+    		{
+   
+    			$img_list = json_decode($value["image"]);
+    	
+    			$value["image"] = $img_list;
+    		}
+    	}
+    	return $array;
+	}
 
 	function define()
 	{

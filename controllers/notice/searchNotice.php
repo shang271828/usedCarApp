@@ -133,7 +133,7 @@ class SearchNotice extends MY_Controller
   "searchValue"   : "杭州",
   "filterValue"   :{
 					  "brand"    : "Benz",
-					  "price"   : "2-5",
+					  "price"   : "2-50",
 					  "age" :"1-3",
 					  "mileage" :"0-5",
 					  "speedBox" :"auto",  	

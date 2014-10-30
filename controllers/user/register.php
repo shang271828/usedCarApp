@@ -11,6 +11,7 @@ class Register extends CI_Controller
 		; $this->load->model('user_model')
 		; $this->load->model('user_relation_model')
 		; $this->load->model('user_preference_model')
+		;	$this->load->model('invitation_code_model')
 		//; $this->load->model('user_alert_model')
 		;
 	}
@@ -18,21 +19,20 @@ class Register extends CI_Controller
 	function index()
 	{
 		$body = $this->input->body;
-		; @$this->userName        = $body->userName
-		; @$this->password        = $body->password
-		; @$this->phone	   		  = $body->phone
-		; @$this->code     		  = $body->code
-		;
+		; $this->userName         = $body->userName
+		; $this->password         = $body->password
+		; $this->phone	   		  = $body->phone
+		; $this->code     		  = $body->code
+		; $this->invitation_code  = $body->invitation_code
 		; $is_param_ok = $this->register_param_check();
 		if($is_param_ok)
 		{
-			//; $this->sysCode = $this->user_model->get_captcha($this->phone)
-			//; $is_code_error = !($this->code == $this->sysCode) 
-			; $is_code_error = !($this->code == "1234") 
+			; $this->sysCode = $this->user_model->get_captcha($this->phone)
+			; $is_code_error = !($this->code == $this->sysCode) 
+			// ; $is_code_error = !($this->code == "1234") 
 			;
 			if($is_code_error)
 			{
-
 				; $this->output->set_body('result', '4')
 				; $this->output->set_body('description', CAPTCHA_ERROR)
 				; //function end
@@ -45,7 +45,16 @@ class Register extends CI_Controller
 											 $this->code)
 				; $this->user_relation_model->addUser($uid); 
 				; $this->user_preference_model->addUser($uid);
-				; $this->user_state_model->addUser($uid);
+				//; $this->user_state_model->addUser($uid);
+				; $this->invitation_code_model->updateCode($this->invitation_code)
+				;
+				for ($i=0;$i<3;$i++)
+				{
+					$code_array[] = $this->invitation_code_model->addCode($this->input->uid);
+				}
+				//; $this->message_model->send()
+				//;
+
 				//; $this->user_alert_model->addUser($nid);
 				; $this->output->set_body('result', '0')
 				; $this->output->set_body('description', USER_ADD)
@@ -62,14 +71,15 @@ class Register extends CI_Controller
 	private function register_param_check()
 	{
 		$is_param_ok = true;
-
+		$init_code = array('DYKTPE','XHOZGJ','BBIEDX','JTHWJW','HTZQXR');
 		do
 		{
 			; $is_param_missing = !($this->userName
 								  &&$this->password
 								  &&$this->phone)
 			; 
-			
+			; $is_non_invitation = !$this->invitation_code
+			;
 			if( $is_param_missing )
 			{
 				; $is_param_ok = false
@@ -103,6 +113,27 @@ class Register extends CI_Controller
 				; $this->output->set_body('description', PHONE_EXIST)
 				; break
 				; //function end
+			}
+			if($is_non_invitation)
+			{
+				; $is_param_ok = false
+				; $this->output->set_body('result', '4')
+				; $this->output->set_body('description', '未被邀请')
+				; break
+				; //function end
+			}
+			; $is_code_wrong = 		!(array_search($this->invitation_code, $init_code))				
+									&&
+									$this->invitation_code_model
+									->is_code_wrong($this->invitation_code)
+			;
+			if($is_code_wrong)
+			{
+				; $is_param_ok = false
+				; $this->output->set_body('result', '5')
+				; $this->output->set_body('description', '邀请码错误')
+				; break
+				; //function end
 			}	
 
 		}while(false)
@@ -123,7 +154,8 @@ class Register extends CI_Controller
   "userName"      : "hou",  
   "password"      : "4",
   "phone"         : "123",
-  "code"          : "1234"
+  "code"          : "1234",
+  "invitation_code": "DYKTPE"
   }
 }
 */

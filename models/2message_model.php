@@ -1,5 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Message_model extends CI_model
+class Message_model extends MY_model
 {
 	function __construct()
 	{
@@ -9,6 +9,7 @@ class Message_model extends CI_model
 	}
 
 	function insert_message($destination_list,
+							$title,							
 							$content    ,
 							$img_list = '[]'  								
 					        )
@@ -16,10 +17,11 @@ class Message_model extends CI_model
 		$img_str = json_encode($img_list);
 		$destination_str = json_encode($destination_list);
 		$data = array(
+					'title'       		=>$title,
 					'destination_list'  =>$destination_str,
 					'content'			=>$content,
 					'img_list'			=>$img_str,
-					'is_fetched'        =>'0',	
+					'is_fetched'        =>'0',		
 					'uid'		        =>$this->input->uid,
 					'time'				=>$this->input->sysTime,
 					'coordinate'		=>$this->input->coordinate					
@@ -30,92 +32,59 @@ class Message_model extends CI_model
 
 	}
 
-	function insert_system_message($destination_list,
-							$content    ,
-							$img_list = '[]'  								
-					        )
-	{
-		$img_str = json_encode($img_list);
-		$destination_str = json_encode($destination_list);
-		$data = array(
-					'destination_list'  =>$destination_str,
-					'content'			=>$content,
-					'img_list'			=>$img_str,
-					'is_fetched'        =>'0',		
-					'uid'		        =>'1',
-					'time'				=>$this->input->sysTime,
-					'coordinate'		=>$this->input->coordinate					
-				);
-		 $this->db->insert($this->table, $data);
-		$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array();
-		return $nid["LAST_INSERT_ID()"];
-
-	}
-
-
 
 	function get_message_list($pageNumber,$numberPerPage,$pair)
 	{
 		$messageNumber = ($pageNumber-1)*$numberPerPage;
 
-		$uid = $this->input->uid;
-		$match = '"'.$uid.'"';
-
-
-		$SQL = "SELECT `mid`, `destination_list`, `content`, `img_list`, 
-						`prefix_message`.`uid`, `username`, `signature`, 
-						`avatar_url`, `time`, `coordinate`
-				FROM (`prefix_message`)
-				JOIN `prefix_user` ON `prefix_user`.`uid`=`prefix_message`.`uid`";
 		
-		$SQL .= "WHERE (`prefix_message`.`uid` =  ".$uid." OR `destination_list`  LIKE '".'%'.$match.'%'."')";
+		$this->db->select("mid,			              
+		               	  destination_list,
+					      content	,	
+		 			      img_list	,			 				   		
+		 			      ".$this->table.".uid	,
+		 			      username,
+		 			      signature,
+   					      avatar_url,	      
+		 			      time	,		
+					      coordinate "
+					  );	
+		$this->db->from($this->table); 	
+		$this->db->join('prefix_user',"prefix_user.uid=".$this->table.".uid");
 
-		if(is_array($pair))
+		switch ($pair) 
 		{
-
-			$pair_bracket = array('["'.$pair[0].'"]','["'.$pair[1].'"]');
-			
-			$SQL .= " AND ((`prefix_message`.`uid` =  '".$pair[0]."' AND `destination_list` =  '".$pair_bracket[1]."')
-					 OR (`prefix_message`.`uid` =   '".$pair[1]."'  AND `destination_list` =  '".$pair_bracket[0]."'))";
-					
-			$SQL .= " ORDER BY `time` asc ";
-		}
-		else
-		{
-			$SQL .= " ORDER BY `time` desc ";
-			switch ($pair) 
-			{
-			case '全部':
-				
-				
-				break;
 			case 'all':
-				
-				//$SQL .= "AND `destination_list` = [".$match. "]";
+				$this->db->order_by("time", "desc"); 
+				$this->db->where('destination_list','["'.$this->input->uid.'"]');
 				break;
+
 			case 'sys':
-				
-				//$SQL .= "AND `destination_list` = [".$match. "]";
+				$this->db->order_by("time", "desc"); 
+				$this->db->where('destination_list','["02"]');
 				break;
 
 			case 'register':
-				
-				//$SQL .= "AND `destination_list` = [".$match. "]";
+				$this->db->order_by("time", "desc"); 
+				$this->db->where('destination_list','["01"]');
 				break;
+
 			
 			default:
-				
+				$this->db->order_by("time", "asc"); 
+				$pair_bracket = array('["'.$pair[0].'"]','["'.$pair[1].'"]');
+				$array_f = array($this->table.'.uid'=>$pair[0],'destination_list'=>$pair_bracket[1]);
+				$array_s = array($this->table.'.uid'=>$pair[1],'destination_list'=>$pair_bracket[0]);
+	
+				$this->db->where($array_f);
+				$this->db->or_where($array_s); 
 				break;
-			}
 		}
-
-		$query = $this->db->query($SQL);
-		$tmp = $query->result_array();	
-		$this->total_row = count($tmp);	
-		$SQL .= " LIMIT ".$messageNumber.",".$numberPerPage;
-
-		$query = $this->db->query($SQL);
-
+		
+    	
+		$this->db->limit($numberPerPage,$messageNumber);
+		$query = $this->db->get();
+	
 		$messageList = $query->result_array();
 		
 		$messageList = $this->str_decode($messageList,'img_list');
@@ -123,11 +92,7 @@ class Message_model extends CI_model
 		$this->read_message($messageList);
 		return $messageList;
 	}
-	function get_total_row($pair)
-	{
-		$this->get_message_list(1,20,$pair);
-		return $this->total_row;
-	}
+
 
 	function get_message_detail($mid)
 	{
@@ -208,6 +173,8 @@ class Message_model extends CI_model
 					)
 		;
 	}
+
+	
 }
 
 

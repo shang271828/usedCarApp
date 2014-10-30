@@ -35,7 +35,8 @@ class MY_Input extends CI_Input
 
 		//////**head**/////
 		; $this->uid  	  = & $json_package->head->uid
-		; $this->userTime = & $json_package->head->userTime
+		
+		; $this->userTime = & $json_package->head->time
 		; $this->token    = & $json_package->head->token
 
 		/////**optional input**/////
@@ -70,7 +71,7 @@ class MY_Input extends CI_Input
 	private function debug_input()
 	{
 		$uid    	 = "1";
-		$userTime    = "14-09-3005 00:45:05";
+		$userTime    = "2014-10-28 13:52:05";
 		$password    = "123456";
 		$token       = md5($uid
 							.substr($userTime,0,-6) // '14-08-30 20:'

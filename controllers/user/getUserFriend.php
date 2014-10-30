@@ -24,15 +24,14 @@ class GetUserFriend extends MY_Controller
 		if($is_param_ok)
 		{
 			$friend_list = $this->user_relation_model
-							    ->get_friend_list($this->get_uid);
+							    ->get_friend_info($this->get_uid);
 							   
-			$friend_list_initial = $friend_list->{"friend_list_initial"};
-			var_dump($friend_list_initial);
-			$friend_info = $this->str_to_array($friend_list_initial);
+
 			
+			//$friend_list_initial = json_decode($friend_list_initial);
 			$this->output->set_body('result', '0');
 			$this->output->set_body('description', GET_FRIEND_LIST);
-			$this->output->set_body('friend_list',$friend_info);
+			$this->output->set_body('friend_list',$friend_list);
 		}
 	}
 
@@ -55,13 +54,7 @@ class GetUserFriend extends MY_Controller
 	return $is_param_ok;
 	}
 
-	function str_to_array($friend_list)
-	{
-		$array  = explode(',', $friend_list);
-
-		return $array;
-	}
-
+	
 
 }
 /*

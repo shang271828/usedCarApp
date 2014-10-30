@@ -159,7 +159,7 @@ class publishCarNotice extends MY_Controller
             "insurance_date": "",
             "commerce_insurance_date": "",
             "exchange_time": "1",
-            "car_configuration": "",
+            "car_configuration": ["abs"],
             "sell_state":"2"
         }
     }

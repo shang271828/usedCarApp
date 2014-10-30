@@ -12,12 +12,13 @@ class SetUserPreference extends MY_Controller
 	function index()
 	{	
 		$body = $this->input->body;
-		$this->price     = $body->price;
-		$this->mileage   = $body->mileage;
-		$this->brand     = $body->brand;
-		$this->age       = $body->age;
-		$this->car_type  = $body->car_type;
-		$this->speed_box = $body->speed_box;
+		$this->price      = $body->price;
+		$this->mileage    = $body->mileage;
+		$this->brand      = $body->brand;
+		$this->age        = $body->age;
+		$this->car_type   = $body->car_type;
+		$this->speed_box  = $body->speed_box;
+		$this->avatar_url = $body->avatar_url;
 		
 
 		$is_param_ok = $this->user_param_check();
@@ -29,7 +30,8 @@ class SetUserPreference extends MY_Controller
 						,$this->brand    
 						,$this->age      
 						,$this->car_type 
-						,$this->speed_box						
+						,$this->speed_box	
+						,$this->avatar_url					
 						);
 
 			$this->output->set_body("result",0);
@@ -74,7 +76,8 @@ class SetUserPreference extends MY_Controller
 "age" : "1-4",
 "car_type":"",
 "brand"  : "Benz",
-"speed_box":""
+"speed_box":"",
+"avatar_url":""
 
   }
 }

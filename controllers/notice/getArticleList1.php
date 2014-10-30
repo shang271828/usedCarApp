@@ -32,13 +32,7 @@ class GetArticleList extends MY_Controller
 
 			$total_row = $this->article_model
 						   	  ->get_total_row();
-			$img_list = array("http://xdream.co/CI_API/upload_dir/ea5520048c4c1464cfb42ac0c9ec646c.png",
-						"http://xdream.co/CI_API/upload_dir/ea5520048c4c1464cfb42ac0c9ec646c.png",
-						"http://xdream.co/CI_API/upload_dir/ea5520048c4c1464cfb42ac0c9ec646c.png");
-			//$img_list = json_encode($img_list);
-
-			$aid_list = array("3","4","5");			
-			//$aid_list = json_encode($aid_list);   	
+						   	
 			$this->output->set_body("total_row", $total_row);
 
 			if (! $article_list)	
@@ -52,8 +46,6 @@ class GetArticleList extends MY_Controller
 				$this->output->set_body("result",0);
 				$this->output->set_body("description",GET_ARTICLE);
 				$this->output->set_body("article_list", $article_list);
-				$this->output->set_body("img_list", $img_list);
-				$this->output->set_body("aid_list", $aid_list);
 			}
 			
 			//$this->load->view("output_view");
@@ -74,17 +66,7 @@ class GetArticleList extends MY_Controller
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
 		$is_param_val_error = ($this->pageNumber<1) || ($this->numberPerPage>20);
-		
-		$articleTypeList = array(
-									1=>"all",
-									2=>"trends",
-									3=>"new_cars",
-									4=>'guide',
-									5=>"car_tips",
-									6=>"dailys",
-									7=>"car_life"
-								);
-
+		$articleTypeList = array(1=>"tips");
 		$is_param_str_error = ! array_search($this->articleType,$articleTypeList);
 
 		do

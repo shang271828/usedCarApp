@@ -103,7 +103,7 @@ class MY_Output extends CI_Output
 
         //default set
         $this->sysCode  = 0; // no error
-        $this->userCode = 1; // Connection time-out!
+        $this->userCode = 0; // no error
         $this->APICode  = 0; // no error
 
 
@@ -137,7 +137,7 @@ class MY_Output extends CI_Output
         }
         else
         {
-            ; $this->set_content_type('application/json')
+            ; $this->set_content_type('application/json;charset=utf-8')
             ;
         }
         //header("Content-Type:text/html;charset=utf-8");

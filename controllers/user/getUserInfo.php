@@ -10,7 +10,8 @@ class GetUserInfo extends MY_Controller
 		$this->load->helper("form");
 		$this->load->model('user_model');
 		$this->load->model('user_relation_model');	
-		$this->load->model('message_model');	
+		$this->load->model('message_model');
+		$this->load->model('notice_model');	
 	}
 
 	function index()
@@ -29,6 +30,8 @@ class GetUserInfo extends MY_Controller
 							 				->judge_user_follow($this->get_uid);
 			$userInfo['unread_message_num'] = $this->message_model	
 													->get_unread_message_num($this->get_uid);	 
+			$userInfo['total_num'] = $this->notice_model	
+													->get_total_notice_num($this->get_uid);	 
 			$this->output->set_body('result', '0');
 			$this->output->set_body('description', GET_USERINFO);
 			$this->output->set_body('userInfo',$userInfo);

@@ -15,7 +15,10 @@ class GetMessage extends MY_Controller
 		$body = $this->input->body;
 		$this->pageNumber    = $body->pageNumber;
 		$this->numberPerPage = $body->numberPerPage;
-		$this->pair          = $body->pair;
+		if (property_exists ( $body, 'pair'))
+			$this->pair  = $body->pair;
+		else						
+			$this->pair  = '全部';
 
 		 $is_param_ok = $this->message_param_check();
 		
@@ -24,6 +27,10 @@ class GetMessage extends MY_Controller
 			$message_list  = $this->message_model
 							  	->get_message_list($this->pageNumber,
 											  		$this->numberPerPage,
+											  		$this->pair
+										      		);
+			$total_row = $this->message_model
+							  	->get_total_row(
 											  		$this->pair
 										      		);
 			if (! $message_list)	
@@ -36,6 +43,7 @@ class GetMessage extends MY_Controller
 			{
 				$this->output->set_body("result",0);
 				$this->output->set_body("description","get message list!");
+				$this->output->set_body("total_row", $total_row);
 				$this->output->set_body("message_list", $message_list);
 			}			
 		}
@@ -103,8 +111,8 @@ class GetMessage extends MY_Controller
 {
  "head":{  
    "uid"          : "1",  
-   "time"         : "2014-08-03 03:08:05", 
-   "token"        : "9fd98454b511ce20120ecb593ed177e3"
+   "time"         : "2014-10-30 11:18:05", 
+   "token"        : "6fdfd8d5fdbd1ea45f063387d9a4c38c"
   },
  "body":{  
   "pageNumber"    : "1",  

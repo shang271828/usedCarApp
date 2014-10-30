@@ -23,6 +23,7 @@ define('DIR_WRITE_MODE', 0777);
 | File Stream Modes
 |--------------------------------------------------------------------------
 |
+
 | These modes are used when working with fopen()/popen()
 |
 */

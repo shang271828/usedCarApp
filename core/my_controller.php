@@ -46,6 +46,7 @@ class MY_Controller extends CI_Controller
 
 	private function is_uid_exist()
 	{
+
 		; $this->load->model('user_model')
 		; return 
 			$this->user_model
@@ -58,7 +59,8 @@ class MY_Controller extends CI_Controller
 	private function is_time_ok()
 	{
 		; $userTimeStamp = strtotime($this->input->userTime);	
-	 	; $nowTimeStamp  = strtotime("now");
+	 	; $nowTimeStamp  = strtotime($this->input->sysTime);
+
 		; $timeDiff   = $nowTimeStamp - $userTimeStamp;    
 		; $timeRange  = 300;								
 		; return ( ($timeDiff < $timeRange)
@@ -69,13 +71,16 @@ class MY_Controller extends CI_Controller
 
 	private function is_token_Ok()
 	{
+
 		; $timeStr = substr($this->input->userTime,0,-6) // example: '2019-11-09 09'
-		; $controlToken 
-			= md5($this->input->uid
-					.$timeStr
-					.$this->input->password)
-	    ; 
-	    ; return ($controlToken === $this->input->token)
+		; $this->load->model('user_model')
+		; return $this->user_model->compare_user($timeStr,$this->input->token)
+		// ; $controlToken 
+		// 	= md5($this->input->uid
+		// 			.$timeStr
+		// 			.$this->input->password)
+	 //    ; 
+	 //    ; return ($controlToken === $this->input->token)
 	    ;		
 	}
 	function debug_var($var)

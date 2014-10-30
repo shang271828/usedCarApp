@@ -148,7 +148,7 @@ class User_model extends MY_Model
 		; $this->db->update($this->table_name, $data)
 		;
 		; $str = $this->db->last_query()
-		; var_dump($str)
+
 		;
 	}
 
@@ -164,10 +164,15 @@ class User_model extends MY_Model
 
 	function get_captcha($phone)
 	{
-		;$query = $this->db->get_where($this->table_name,array("phone"=>$phone))
-		;$captcha = $query->row()->{'captcha'};
-		;return $captcha
-		;
+		$query = $this->db->get_where($this->table_name,array("phone"=>$phone));
+		$result = $query->row();
+		
+		if($result)
+			$captcha = $result->{'captcha'};
+		else
+			$captcha = '1234';
+		return $captcha;
+		
 	}
 
 	//通讯录api调用
@@ -186,7 +191,7 @@ class User_model extends MY_Model
 		{
 			$tel_dir = array_merge($tel_dir,$old_tel_dir); 
 			$tel_dir = array_unique($tel_dir);
-			var_dump($tel_dir);
+		
 						 
 		}
 		elseif($action == "delete") 
@@ -242,24 +247,20 @@ class User_model extends MY_Model
 		return $userInfo;
 	}
 
-	function compare_user($username,$password)
+	function compare_user($time,$password)
 	{
-		; $query = 
-			$this->db->get_where($this->table_name,
-								array('username'=> $username
-									 ,'password'=>$password)
-								)
-		; $res = $query->row()
+		;$uid =$this->input->uid
+		; $this->db->select('password')
+		; $query = $this->db->get_where('prefix_user',array('uid'=>$uid))
+		; $res = $query->row_array()	
+		; $controlToken 
+			= md5($this->input->uid
+				.$time
+				.$res['password'])
+	    ; $bool = ($password == $controlToken)
+		; return $bool
 		;
 
-		if($res) 
-		{	
-			return $res;
-		}
-		else
-		{
-			return false;
-		}
 	}
 
 	function get_userinfo($get_uid)

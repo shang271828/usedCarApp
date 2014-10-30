@@ -29,13 +29,27 @@ class User_relation_model extends CI_Model
 		;
 		
 	}
+	function get_friend_info($get_uid)
+	{
+		$friend_list = $this->get_friend_list($get_uid);
 
+		$this->db->select('uid,username,avatar_url');
+		$this->db->where_in('uid',$friend_list);
+
+		$query = $this->db->get('prefix_user');
+
+		$friendInfo = $query->result_array();
+		return $friendInfo;
+
+	}
 	function get_friend_list($get_uid)
 	{
-		$this->db->select("friend_list_initial,friend_list_secondary");
+		$this->db->select("friend_list_initial");
 		$query = $this->db->get_where($this->table,array("uid"=>$get_uid));
 		
-		$friend_list = $query->row();
+		$friend_list = $query->row_array();
+
+		$friend_list = json_decode($friend_list['friend_list_initial']);
 		return $friend_list;
 	}
 

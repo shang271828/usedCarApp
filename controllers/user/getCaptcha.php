@@ -7,19 +7,22 @@ class GetCaptcha extends MY_Controller
 						
 	function __construct()
 	{
-		;parent :: __construct()
-		;$this->load->database()
-		;$this->load->helper("form")
-		
-		; $this->load->model('user_model')
-		;
+		parent :: __construct();
+		$this->load->database();
+		$this->load->helper("form");
+		$this->load->model('user_model'
+
 	}
 
 	function index()
 	{
+		//unit test
+	
+ 			
+
 		// work code
 
-		$body = $this->input->body;
+		//$body = $this->input->body;
 		; @$this->phone	 = $body->phone
 		;
 
