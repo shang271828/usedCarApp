@@ -29,129 +29,175 @@ class Message_model extends CI_model
 		return $nid["LAST_INSERT_ID()"];
 
 	}
-
-	function insert_system_message($destination_list,
-							$content    ,
-							$img_list = '[]'  								
-					        )
+	function get_message($pageNumber,$numberPerPage,$pair)
 	{
-		$img_str = json_encode($img_list);
-		$destination_str = json_encode($destination_list);
-		$data = array(
-					'destination_list'  =>$destination_str,
-					'content'			=>$content,
-					'img_list'			=>$img_str,
-					'is_fetched'        =>'0',		
-					'uid'		        =>'1',
-					'time'				=>$this->input->sysTime,
-					'coordinate'		=>$this->input->coordinate					
-				);
-		 $this->db->insert($this->table, $data);
-		$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array();
-		return $nid["LAST_INSERT_ID()"];
-
-	}
-
-
-
-	function get_message_list($pageNumber,$numberPerPage,$pair)
-	{
-		$messageNumber = ($pageNumber-1)*$numberPerPage;
-
-		$uid = $this->input->uid;
-		$match = '"'.$uid.'"';
-
-
-		$SQL = "SELECT `mid`, `destination_list`, `content`, `img_list`, 
-						`prefix_message`.`uid`, `username`, `signature`, 
-						`avatar_url`, `time`, `coordinate`
-				FROM (`prefix_message`)
-				JOIN `prefix_user` ON `prefix_user`.`uid`=`prefix_message`.`uid`";
-		
-		$SQL .= "WHERE (`prefix_message`.`uid` =  ".$uid." OR `destination_list`  LIKE '".'%'.$match.'%'."')";
-
+		$this->messageNumber = ($pageNumber-1)*$numberPerPage;
+		$this->numberPerPage = $numberPerPage;
 		if(is_array($pair))
 		{
 
-			$pair_bracket = array('["'.$pair[0].'"]','["'.$pair[1].'"]');
-			
-			$SQL .= " AND ((`prefix_message`.`uid` =  '".$pair[0]."' AND `destination_list` =  '".$pair_bracket[1]."')
-					 OR (`prefix_message`.`uid` =   '".$pair[1]."'  AND `destination_list` =  '".$pair_bracket[0]."'))";
-					
-			$SQL .= " ORDER BY `time` asc ";
+			$this->get_message_detail($pair);
 		}
-		else
+		elseif($pair == 'sys')
 		{
-			$SQL .= " ORDER BY `time` desc ";
-			switch ($pair) 
-			{
-			case '全部':
-				
-				
-				break;
-			case 'all':
-				
-				//$SQL .= "AND `destination_list` = [".$match. "]";
-				break;
-			case 'sys':
-				
-				//$SQL .= "AND `destination_list` = [".$match. "]";
-				break;
-
-			case 'register':
-				
-				//$SQL .= "AND `destination_list` = [".$match. "]";
-				break;
-			
-			default:
-				
-				break;
-			}
+			$this->get_sys_message();
 		}
+		elseif ($pair == 'all') 
+		{
+			$this->get_message_list();
+		}
+		return $this->message;
+	}
 
-		$query = $this->db->query($SQL);
-		$tmp = $query->result_array();	
-		$this->total_row = count($tmp);	
-		$SQL .= " LIMIT ".$messageNumber.",".$numberPerPage;
+	function get_message_detail($pair)
+	{		
+		$uid = $this->input->uid;
+		$match = '"'.$uid.'"';
 
-		$query = $this->db->query($SQL);
-
-		$messageList = $query->result_array();
+		$SQL  = $this->select_sql;
+		$SQL .=	"FROM (`prefix_message`)
+				JOIN `prefix_user` ON `prefix_user`.`uid`=`prefix_message`.`uid`";
 		
+		$SQL .= "WHERE (`prefix_message`.`uid` =  ".$uid." 
+						OR `destination_list`  LIKE '".'%'.$match.'%'."')";
+		
+		$pair_bracket = array('["'.$pair[0].'"]','["'.$pair[1].'"]');
+		
+		$SQL .= " AND ((`prefix_message`.`uid` = '".$pair[0]."' AND `destination_list` =  '".$pair_bracket[1]."')
+				  OR (`prefix_message`.`uid`   = '".$pair[1]."'  AND `destination_list` =  '".$pair_bracket[0]."'))";
+				
+		$SQL .= " ORDER BY `time` desc ";
+
+		$query  = $this->db->query($SQL);
+		$tmp 	= $query->result_array();	
+		$this->total_row = count($tmp);	
+	
+		$SQL .= " LIMIT ".$this->messageNumber.",".$this->numberPerPage;
+
+		$query = $this->db->query($SQL);
+		$messageList = $query->result_array();
+
 		$messageList = $this->str_decode($messageList,'img_list');
 		$messageList = $this->str_decode($messageList,'destination_list');
+
 		$this->read_message($messageList);
-		return $messageList;
+
+		$this->message = $messageList;
 	}
+
+	function get_sys_message()
+	{
+		$SQL  = $this->select_sql;
+		$SQL .=	"FROM (`prefix_message`)
+				JOIN `prefix_user` ON `prefix_user`.`uid`=`prefix_message`.`uid`";
+		
+		$SQL .= "WHERE (`prefix_message`.`uid` = 7)";
+
+		$query  = $this->db->query($SQL);
+		$tmp 	= $query->result_array();	
+		$this->total_row = count($tmp);	
+	
+		$SQL .= " LIMIT ".$this->messageNumber.",".$this->numberPerPage;
+		$query = $this->db->query($SQL);
+		$messageList = $query->result_array();
+		$messageList = $this->str_decode($messageList,'img_list');		
+		$messageList = $this->str_decode($messageList,'destination_list');
+
+		$this->read_message($messageList);
+		$this->message = $messageList;
+	}
+
+	function get_message_list()
+	{		
+		$uid = $this->input->uid;
+		$match = '"'.$uid.'"';
+
+		$SQL  = "SELECT `mid`, `destination_list`, `content`, `img_list`, 
+								`prefix_message`.`uid`,`time`, `coordinate`";
+		$SQL .=	"FROM (`prefix_message`)";
+		
+		$SQL .= "WHERE (`prefix_message`.`uid` =  ".$uid." 
+						 OR `destination_list`  LIKE '".'%'.$match.'%'."')";
+
+		$SQL .= "AND `prefix_message`.`uid` != 7";
+		$SQL .= " ORDER BY `time` desc ";	
+	
+		//$SQL .= " LIMIT ".$this->messageNumber.",".$this->numberPerPage;
+		$query = $this->db->query($SQL);
+		$messageList = $query->result_array();
+		$messageList = $this->get_list($messageList);
+	
+		$this->total_row = count($messageList);
+
+		$messageList = $this->str_decode($messageList,'img_list');		
+		$messageList = $this->str_decode($messageList,'destination_list');
+		
+		$this->message = $messageList;
+	}
+	private function add_userinfo($uid)
+	{
+		$SQL ="SELECT `username`,`signature`,`avatar_url`
+				FROM prefix_user
+				WHERE uid =".$uid;
+		$query = $this->db->query($SQL);
+		$tmp = $query->row_array();
+		return $tmp;
+	}
+	//返回最新的一条私信
+
+	private function get_list($messageList)
+	{
+		$uid = $this->input->head->uid;
+		foreach ($messageList as $message) 
+		{
+			$host_uid = $message['uid'];
+			if($message['destination_list'] != '["all"]')
+			{
+
+				$destination_list = json_decode($message['destination_list']);
+				foreach ($destination_list as  $value) 
+				{
+					if($uid == $host_uid)
+						$pair = $value;
+					else
+						$pair = $host_uid;
+				}
+				
+				$userinfo = $this->add_userinfo($pair);
+				$message['username']   = $userinfo['username'];
+				$message['signature']  = $userinfo['signature'];
+				$message['avatar_url'] = $userinfo['avatar_url'];
+				$tmp[$pair] = $message;
+			}		
+		}
+		$tmp = $this->array_key_unique($tmp);
+		return $tmp;
+			
+	}
+
+	//消除重复键值
+	private function array_key_unique($array)
+	{
+		$tmp = array();
+		foreach ($array as $key => $value) 
+		{
+			
+			if(!in_array($key, $tmp))
+			{
+				$return_array[] = $value;
+			}
+			$tmp[] = $key;
+		}
+		return $return_array;
+	}
+	
 	function get_total_row($pair)
 	{
-		$this->get_message_list(1,20,$pair);
+		$this->get_message(1,20,$pair);
 		return $this->total_row;
 	}
 
-	function get_message_detail($mid)
-	{
-		//$SQL = "SELECT `mid`, `title`, `destination_list, `content`, `time`, `counter_view`, `counter_follow`, `counter_praise`, `username`, `signature`, `avatar_url`";
-		$SQL = "SELECT `mid`, `title`, `destination_list`, `content`, `time`";
-		$SQL .=" FROM (`prefix_message`)";
-		//$SQL .=	"JOIN `prefix_user` ON `uid` = `a_uid`",
-		$SQL .=	"WHERE `mid` =  '".$mid."'"; 
-		$query = $this->db->query($SQL);
-		$this->messageDetail = $query->row_array();
 
-		return $this->messageDetail;
-	}
-	// function update_img_list($messageList)
-	// {
-	// 	$i = 0;
-	// 	foreach ($messageList as $value) 
-	// 	{
-	// 		$img_array   = explode(",", $value["img_list"]);
-	// 		$messageList[$i]["img_list"] = $img_array;
-	// 		$i = $i + 1;
-	// 	}
-	// 	return $messageList;
-	// }
 	function read_message($messageList)
 	{
 		$data = array('is_fetched'=>'1');
@@ -164,9 +210,13 @@ class Message_model extends CI_model
 	function get_unread_message_num($uid)
 	{
 		$this->db->select("is_fetched");
-		$this->db->where('is_fetched','0');
+		$SQL = 'SELECT `is_fetched`
+				FROM (prefix_message)
+				WHERE `is_fetched`= 0
+				AND(`destination_list`= \'["'.$uid.'"]\'
+					OR `destination_list`= \'["sys"]\' )';
 
-		$query = $this->db->get($this->table);		
+		$query = $this->db->query($SQL);		
 		$messageList = $query->result_array();
 
 		return count($messageList);
@@ -194,6 +244,9 @@ class Message_model extends CI_model
 	function define()
 	{
 		; $this->table = 'prefix_message'
+		; $this->select_sql = "SELECT `mid`, `destination_list`, `content`, `img_list`, 
+								`prefix_message`.`uid`, `username`, `signature`, 
+								`avatar_url`, `time`, `coordinate`"
 		; $this->colomn 
 			= array(
 					 'mid'

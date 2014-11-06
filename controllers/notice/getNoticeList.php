@@ -16,8 +16,8 @@ class GetNoticeList extends MY_Controller
 		//unite test
 		$body = $this->input->body;
 
-		@$this->pageNumber    = $body->pageNumber;
-		@$this->numberPerPage = $body->numberPerPage;
+		$this->pageNumber     = $body->pageNumber;
+		$this->numberPerPage  = $body->numberPerPage;
 		$this->pageType 	  = $body->pageType;
 
 		$is_param_ok = $this->notice_param_check();
@@ -29,13 +29,18 @@ class GetNoticeList extends MY_Controller
 								->get_notice_list($this->pageNumber,
 										 	      $this->numberPerPage,
 										 	      $this->pageType);
-			
-			
-			 	$total_row = $this->notice_model
-			 				   		 	 ->get_total_row($this->pageType);
-			 	$total_row = $total_row-1;
-			 	
-			 	$this->output->set_body("total_row",$total_row );
+			//简化location
+			foreach ($notice_list as  &$value) 
+			{
+				$tmp = explode(' ', $value['car_location']);
+				$value['car_location'] = $tmp[1];
+			}
+			//获得总信息条数
+			 $total_row = $this->notice_model
+			 			   		 	 ->get_total_row($this->pageType);
+			 
+			 
+			 $this->output->set_body("total_row",$total_row );
 				
 			if (! $notice_list)	
 			{
@@ -50,13 +55,9 @@ class GetNoticeList extends MY_Controller
 				//$this->output->set_body("description","get notice list:".$this->pageType."!");
 				$this->output->set_body("description",GET_NOTICE);
 				$this->output->set_body("notice_list", $notice_list);
-			}
-			
-			//$this->load->view("output_view");
-
+			}			
 		}
 	}
-
 
 	function view_test()
 	{	

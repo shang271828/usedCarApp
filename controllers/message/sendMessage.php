@@ -16,9 +16,12 @@ class SendMessage extends MY_Controller
 		$body = $this->input->body;
 
 		$this->destination_list = $body->destination_list;
-		$this->title       		= 'title';
 		$this->content 	   		= $body->content;
-		$this->img_list    	   	= $body->img_list;
+
+		if (property_exists ( $body, 'img_list'))
+			$this->img_list  = $body->img_list;
+
+		
 
 		$is_param_ok = $this->param_check();
 		
@@ -26,7 +29,6 @@ class SendMessage extends MY_Controller
 		{
 			$this->message_model
 			  ->insert_message($this->destination_list	,
-								$this->title       		,
 								$this->content 	   		,	
 								$this->img_list     	   		 
 							);
@@ -48,7 +50,7 @@ class SendMessage extends MY_Controller
 		do
 		{
 			 $is_param_missing = !( $this->destination_list										
-								  &&$this->title       			
+								       			
 								  &&$this->content 	   				   	   		
 				                   ); 
 			if( $is_param_missing )
@@ -57,8 +59,15 @@ class SendMessage extends MY_Controller
 				$this->output->set_body('result', '1');
 				$this->output->set_body('description', 'parameter error!');
 				break;
-				
 			}
+			if(!is_array($this->img_list))	
+			{
+				$is_param_ok = false;
+				$this->output->set_body('result', '1');
+				$this->output->set_body('description', 'parameter error!');
+				break;
+			}
+		
 
 			// if(strlen($this->content)<6) 
 			// {	
@@ -83,7 +92,7 @@ class SendMessage extends MY_Controller
  "body":{  
   "content"         : "my_message",
   "img_list"        : ["http://xdream.co/CI_API/upload_dir/1303bcfae0b6c8f859bcc2aafcb2ee23.jpg","http://xdream.co/CI_API/upload_dir/225e97394f00e2bf3c42f34e665553c3.jpg"],
-  "destination_list":["2","3"]
+  "destination_list":["2"]
   }
 }
 

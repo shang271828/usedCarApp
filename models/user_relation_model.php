@@ -11,16 +11,6 @@ class User_relation_model extends CI_Model
 
 	function addUser($uid)
 	{
-		// ; $data 
-		// 	= array(
-		// 			'uid'  => $uid
-		// 			,'friend_list_initial'    => "[]"
-		// 			,'friend_list_secondary'  => "[]"
-		// 			,'notice_list_following'  => "[]"									
-		// 			,'user_list_following'	  => "[]"		
-		// 			,'disgust_list'			  => "[]"
-		// 			)
-		// ; $this->db->insert($this->table, $data)
 
 		; $SQL = "INSERT INTO `prefix_user_relation` (`uid`, 
 			`friend_list_initial`, `friend_list_secondary`, `notice_list_following`,`user_list_following`, `disgust_list`) 
@@ -29,28 +19,133 @@ class User_relation_model extends CI_Model
 		;
 		
 	}
-	function get_friend_info($get_uid)
+
+	function insert_friend($phone_list)
 	{
-		$friend_list = $this->get_friend_list($get_uid);
+		$friend_list_initial =  array();
 
-		$this->db->select('uid,username,avatar_url');
-		$this->db->where_in('uid',$friend_list);
+		foreach ($phone_list as $value) 
+		{
+			$uid = $this->is_phone_exist($value);
 
-		$query = $this->db->get('prefix_user');
+			if ($uid && !is_numeric(array_search($uid, $friend_list_initial)))
+				$friend_list_initial[] = $uid;
+		}
+		//如果一度人脉存在，则根据一度人脉判断相应的二度人脉
+		if($friend_list_initial)
+		{
+			$friend_list_secondary = $this->friend_list_secondary($friend_list_initial); //创建二度人脉
 
-		$friendInfo = $query->result_array();
-		return $friendInfo;
+			$friend_list_initial   = json_encode($friend_list_initial);
+			$friend_list_secondary = json_encode($friend_list_secondary);		
+		}
+
+		$data = array("friend_list_initial"  =>$friend_list_initial,
+					  "friend_list_secondary"=>$friend_list_secondary);
+
+		$this->db->where('uid', $this->input->uid);
+		$this->db->update($this->table,$data);
+	}
+
+	private function friend_list_secondary($uid_list)
+	{
+
+		$uid_str = "('".implode("','", $uid_list)."')";
+		$SQL = "SELECT `friend_list_initial` FROM `prefix_user_relation`
+				where `uid` in ".$uid_str;
+		$query = $this->db->query($SQL);
+		$friend_list = $query->result_array();
+		$friend_list_secondary  = array();
+		foreach ($friend_list as  $value) 
+		{
+			$friend_list_initial = json_decode($value["friend_list_initial"]);
+
+			foreach ( $friend_list_initial as  $value) 
+			{
+
+				if (!is_numeric(array_search($value, $friend_list_secondary))
+					&& !is_numeric(array_search($value,$uid_list)))
+					$friend_list_secondary[] = $value;
+			}
+			 
+		}
+
+		return $friend_list_secondary;
 
 	}
-	function get_friend_list($get_uid)
+
+	private function is_phone_exist($phone)
+	{ 
+		; $sql = "SELECT `uid` FROM `prefix_user` 
+					WHERE phone ='".$phone."'";
+
+		; $query =
+			$this->db->query($sql);
+		; $result = $query->row();
+
+		; 
+		if($result)
+			$uid = $result->uid;
+		else
+			$uid = FALSE;
+		return $uid;
+	}
+
+	function get_friend_initial_info($get_uid)
+	{
+		$friend_list_initial = $this->get_friend_list_initial($get_uid);
+		$this->db->select('uid,username,avatar_url');
+		if($friend_list_initial)
+		{
+			$this->db->where_in('uid',$friend_list_initial);
+			$query = $this->db->get('prefix_user');
+	
+			$friendInfo = $query->result_array();
+		}
+		else
+			$friendInfo = '[]';
+		
+		return $friendInfo;
+	}
+
+	function get_friend_secondary_info($get_uid)
+	{
+		$friend_list_secondary = $this->get_friend_list_secondary($get_uid);
+		$this->db->select('uid,username,avatar_url');
+		if($friend_list_secondary)
+		{
+			$this->db->where_in('uid',$friend_list_secondary);
+	
+			$query = $this->db->get('prefix_user');
+	
+			$friendInfo = $query->result_array();
+		}
+		else
+			$friendInfo = '[]';
+		return $friendInfo;
+	}
+
+	private function get_friend_list_initial($get_uid)
 	{
 		$this->db->select("friend_list_initial");
 		$query = $this->db->get_where($this->table,array("uid"=>$get_uid));
 		
 		$friend_list = $query->row_array();
 
-		$friend_list = json_decode($friend_list['friend_list_initial']);
-		return $friend_list;
+		$friend_list_initial = json_decode($friend_list['friend_list_initial']);
+	
+		return $friend_list_initial;
+	}
+
+	private function get_friend_list_secondary($get_uid)
+	{
+		$this->db->select("friend_list_secondary");
+		$query = $this->db->get_where($this->table,array("uid"=>$get_uid));
+		
+		$friend_list = $query->row_array();
+	
+		$friend_list_secondary = json_decode($friend_list['friend_list_secondary']);
+		return $friend_list_secondary;
 	}
 
 	//fuid: follow_uid

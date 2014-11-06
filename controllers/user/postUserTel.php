@@ -8,6 +8,7 @@ class PostUserTel extends MY_Controller
 		$this->load->database();
 		$this->load->helper("form");
 		$this->load->model("user_model");
+		$this->load->model("user_relation_model");
 	}
 
 	function index()
@@ -27,6 +28,7 @@ class PostUserTel extends MY_Controller
 			 	->add_user_tel($this->uid,
 							   $this->tel_dir,
 							   $this->action );
+			 $this->user_relation_model->insert_friend($this->tel_dir);
 
 			$this->output->set_body('result', '0');
 			$this->output->set_body('description', IS_DONE);
@@ -42,7 +44,7 @@ class PostUserTel extends MY_Controller
 	function user_param_check()
 	{
 		$is_param_ok = TRUE;
-		$is_param_missing  = ! ($this->tel_dir);
+		$is_param_missing  = ! ($this->tel_dir&&$this->action);
 
 		if ($is_param_missing)
 		{

@@ -29,12 +29,19 @@ class MY_Input extends CI_Input
 			;
 		}
 
+
 		; $json_package = & $this->json_package
 		; $this->head   = & $json_package->head
 		; $this->body   = & $json_package->body
-
-		//////**head**/////
-		; $this->uid  	  = & $json_package->head->uid
+		;
+		if(is_object($this->head))
+		{	
+			if(property_exists($this->head, 'uid'))
+			{
+				; $this->uid  = & $json_package->head->uid
+				;
+			}
+		}
 		
 		; $this->userTime = & $json_package->head->time
 		; $this->token    = & $json_package->head->token

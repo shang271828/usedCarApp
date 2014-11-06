@@ -13,6 +13,15 @@ class MY_Controller extends CI_Controller
 			; $this->verify_user()
 			;
 		}
+
+		if(property_exists($this->input->head, 'userName'))
+		{
+			;$this->userName = $this->input->head->userName
+			;$this->input->head->uid = 
+									  $this->user_model->get_uid($this->userName)
+			;
+		}
+
 	}
 
 	private function verify_user()

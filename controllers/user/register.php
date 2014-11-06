@@ -1,6 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Register extends CI_Controller
+class Register extends MY_Controller
 {
 						
 	function __construct()
@@ -18,18 +18,30 @@ class Register extends CI_Controller
 
 	function index()
 	{
-		$body = $this->input->body;
+		; $body = $this->input->body
 		; $this->userName         = $body->userName
 		; $this->password         = $body->password
 		; $this->phone	   		  = $body->phone
 		; $this->code     		  = $body->code
-		; $this->invitation_code  = $body->invitation_code
-		; $is_param_ok = $this->register_param_check();
+		;
+		// if (property_exists ( $body, 'invitation_code'))
+		// {
+		// 	; $this->invitation_code  = $body->invitation_code
+		// 	;
+		// }
+		// else	
+		// {					
+		// 	; $this->invitation_code  = 'BRYCFJ'
+		// 	;
+		// }
+		
+		; $is_param_ok = $this->register_param_check()
+		;
 		if($is_param_ok)
 		{
-			; $this->sysCode = $this->user_model->get_captcha($this->phone)
-			; $is_code_error = !($this->code == $this->sysCode) 
-			// ; $is_code_error = !($this->code == "1234") 
+			// ; $this->sysCode = $this->user_model->get_captcha($this->phone)
+			// ; $is_code_error = !($this->code == $this->sysCode) 
+			; $is_code_error = !($this->code == "1234") 
 			;
 			if($is_code_error)
 			{
@@ -40,18 +52,18 @@ class Register extends CI_Controller
 			else
 			{
 				; $uid = $this->user_model->addUser($this->userName, 
-											 $this->password, 
-											 $this->phone,
-											 $this->code)
+											 		$this->password, 
+											 		$this->phone,
+											 		$this->code)
 				; $this->user_relation_model->addUser($uid); 
 				; $this->user_preference_model->addUser($uid);
 				//; $this->user_state_model->addUser($uid);
-				; $this->invitation_code_model->updateCode($this->invitation_code)
+				//; $this->invitation_code_model->updateCode($this->invitation_code)
 				;
-				for ($i=0;$i<3;$i++)
-				{
-					$code_array[] = $this->invitation_code_model->addCode($this->input->uid);
-				}
+				// for ($i=0;$i<3;$i++)
+				// {
+				// 	$code_array[] = $this->invitation_code_model->addCode($this->input->uid);
+				// }
 				//; $this->message_model->send()
 				//;
 
@@ -67,19 +79,18 @@ class Register extends CI_Controller
 		$this->load->view('user/register_view');
 	}
 
-	
 	private function register_param_check()
 	{
 		$is_param_ok = true;
-		$init_code = array('DYKTPE','XHOZGJ','BBIEDX','JTHWJW','HTZQXR');
+		//$init_code = array('DYKTPE','XHOZGJ','BBIEDX','JTHWJW','HTZQXR');
 		do
 		{
 			; $is_param_missing = !($this->userName
 								  &&$this->password
 								  &&$this->phone)
 			; 
-			; $is_non_invitation = !$this->invitation_code
-			;
+			// ; $is_non_invitation = !$this->invitation_code
+			// ;
 			if( $is_param_missing )
 			{
 				; $is_param_ok = false
@@ -114,27 +125,27 @@ class Register extends CI_Controller
 				; break
 				; //function end
 			}
-			if($is_non_invitation)
-			{
-				; $is_param_ok = false
-				; $this->output->set_body('result', '4')
-				; $this->output->set_body('description', '未被邀请')
-				; break
-				; //function end
-			}
-			; $is_code_wrong = 		!(array_search($this->invitation_code, $init_code))				
-									&&
-									$this->invitation_code_model
-									->is_code_wrong($this->invitation_code)
-			;
-			if($is_code_wrong)
-			{
-				; $is_param_ok = false
-				; $this->output->set_body('result', '5')
-				; $this->output->set_body('description', '邀请码错误')
-				; break
-				; //function end
-			}	
+			// if($is_non_invitation)
+			// {
+			// 	; $is_param_ok = false
+			// 	; $this->output->set_body('result', '4')
+			// 	; $this->output->set_body('description', '未被邀请')
+			// 	; break
+			// 	; //function end
+			// }
+			// ; $is_code_wrong = 		!(array_search($this->invitation_code, $init_code))				
+			// 						&&
+			// 						$this->invitation_code_model
+			// 						->is_code_wrong($this->invitation_code)
+			// ;
+			// if($is_code_wrong)
+			// {
+			// 	; $is_param_ok = false
+			// 	; $this->output->set_body('result', '5')
+			// 	; $this->output->set_body('description', '邀请码错误')
+			// 	; break
+			// 	; //function end
+			// }	
 
 		}while(false)
 

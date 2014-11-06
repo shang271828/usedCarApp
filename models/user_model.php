@@ -51,6 +51,15 @@ class User_model extends MY_Model
 		;
 		return $result->is_phone_exist;
 	}
+
+	function get_uid($username)
+	{
+		$this->db->select('uid');
+		$this->db->where('username',$username);
+		$query = $this->db->get($this->table_name);
+		$result = $query->row_array();
+		return $result['uid'];
+	}
 	function addUser($userName, $password, $phone,$code ,$level = 3)
 	{
 		$time = $this->input->sysTime;
@@ -65,7 +74,7 @@ class User_model extends MY_Model
 		// 			)
 		// ; $this->db->insert($this->table_name, $data)
 		// ; $str = $this->db->last_query()
-		// ; var_dump($str);
+
 
 		; $SQL = "INSERT INTO `prefix_user` (`username`, `password`, `phone`, `captcha`, `register_time`,`level`) 
 				  VALUES ('".$userName."', '".$password."', '".$phone."', '".$code."', '".$time."', '".$level."')";
@@ -112,7 +121,7 @@ class User_model extends MY_Model
 
 		// ; $this->db->update($this->table_name, $data)
 		// ; $str = $this->db->last_query();
-		// ; var_dump($str);
+
 		; $SQL = "UPDATE `prefix_user` 
 				  SET `password` = '".$password."' 
 				  WHERE `phone` =  '".$phone."'"
@@ -130,7 +139,7 @@ class User_model extends MY_Model
 
 		// ; $this->db->update($this->table_name, $data)
 		// ; $str = $this->db->last_query();
-		// ; var_dump($str);
+
 		; $SQL = "UPDATE `prefix_user` 
 				  SET `password` = '".$password."' 
 				  WHERE `uid` =  '".$uid."'"
@@ -176,6 +185,7 @@ class User_model extends MY_Model
 	}
 
 	//通讯录api调用
+	//$tel_dir为json数组
 	function add_user_tel($uid,$tel_dir,$action)
 	{
 		$this->table_name  = "prefix_user_tel";
@@ -184,25 +194,27 @@ class User_model extends MY_Model
 		$query = $this->db->get("prefix_user_tel");
 		$old_tel_dir = $query->row_array();
 		$old_tel_dir = $old_tel_dir['tel'];
-		
-		$old_tel_dir = unserialize($old_tel_dir);
 
-		if ($action == "add")
+		if (!$old_tel_dir )
 		{
-			$tel_dir = array_merge($tel_dir,$old_tel_dir); 
-			$tel_dir = array_unique($tel_dir);
+			$old_tel_dir = json_decode($old_tel_dir,TRUE);
+
+			if ($action == "add")
+			{
+				$tel_dir = array_merge($tel_dir,$old_tel_dir); 
+				$tel_dir = array_unique($tel_dir);										 
+			}
+			elseif($action == "delete") 
+			{				
+				$tel_dir = array_diff($old_tel_dir,$tel_dir);			
+			}
+		}
+			$tel_dir = json_encode($tel_dir);
 		
-						 
-		}
-		elseif($action == "delete") 
-		{				
-			$tel_dir = array_diff($old_tel_dir,$tel_dir);			
-		}
-		$tel_dir = serialize($tel_dir);
 		$data = array(
 					    "uid" => $uid,
 					    "tel" => $tel_dir
-						);	
+					  );	
 		$this->add($data,"prefix_user_tel","uid",$uid); 
 	}
 
@@ -215,7 +227,7 @@ class User_model extends MY_Model
 	// 				  	          array('uid'=> $uid));
 	// 	$phone_dir = $query->row()->{'phone_dir'};
 	// 	// $phone_dir ='{"shang":"13705185091","f":"11"}';
-	// 	 var_dump($phone_dir);
+
 	// 	// // $phone_dir = array('shang' => '13705185091', 
 	// 	// // 					'f'=>'11');
 	// 	// // $phone_dir =json_encode($phone_dir);
@@ -228,22 +240,49 @@ class User_model extends MY_Model
 
 	function select_userinfo($get_uid)
 	{
-		$this->db->select('username,signature,avatar_url,login_state,notice_list_following,user_list_following');
+
+		$this->db->select('username,signature,user_location,user_age,
+						user_car,avatar_url,notice_list_following,user_list_following');
 		$this->db->from($this->table_name);
-		$this->db->join('prefix_user_state', 
-						$this->table_name.'.uid = prefix_user_state.uid');
+		// $this->db->join('prefix_user_state', 
+		// 				$this->table_name.'.uid = prefix_user_state.uid');
 		$this->db->join('prefix_user_relation', 
 						$this->table_name.'.uid = prefix_user_relation.uid');
-		$this->db->where("prefix_user_state.uid",$get_uid);
+
+		$this->db->where($this->table_name.".uid",$get_uid);
 		$query = $this->db->get();
 		$userInfo = $query->row_array();
+	
 		$notice_list_following = json_decode($userInfo['notice_list_following'],true);
 		$user_list_following = json_decode($userInfo['user_list_following'],true);
 		$userInfo['follow_notice_num'] = count($notice_list_following);
-		$userInfo['user_follow_num'] = count($user_list_following);
+		$userInfo['user_follow_num']   = count($user_list_following);
 		unset($userInfo['notice_list_following']);
 		unset($userInfo['user_list_following']);
 
+		return $userInfo;
+	}
+	function all_userinfo($get_uid)
+	{
+		$this->db->select('username,signature,user_location,user_age,
+							user_car,avatar_url,
+							friend_list_initial,friend_list_secondary,
+						notice_list_following,user_list_following,
+						notice_list_interested');
+		$this->db->from($this->table_name);
+		// $this->db->join('prefix_user_state', 
+		// 				$this->table_name.'.uid = prefix_user_state.uid');
+		$this->db->join('prefix_user_relation', 
+						$this->table_name.'.uid = prefix_user_relation.uid');
+
+		$this->db->where($this->table_name.".uid",$get_uid);
+		$query = $this->db->get();
+		$userInfo = $query->row_array();
+		$userInfo['notice_list_following'] = json_decode($userInfo['notice_list_following'],true);
+		$userInfo['user_list_following'] = json_decode($userInfo['user_list_following'],true);
+		$userInfo['friend_list_initial'] = json_decode($userInfo['friend_list_initial'],true);
+		$userInfo['friend_list_secondary'] = json_decode($userInfo['friend_list_secondary'],true);
+		$userInfo['notice_list_interested'] = json_decode($userInfo['notice_list_interested'],true);
 		return $userInfo;
 	}
 

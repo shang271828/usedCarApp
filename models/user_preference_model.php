@@ -29,56 +29,21 @@ class User_preference_model extends CI_Model
 
 
 
-	function insert($price,
-					$mileage,
-					$brand,
-					$age,		
-					$car_type,  
-					$speed_box,
-					$avatar_url
-					)
+	function insert($userInfo)
 	{
-		// $this->db->select("uid");
-		// $query = $this->db->get($this->table);
-		// $uid_list = $query->row_array();
-		
-		// $str = $this->db->last_query();
-		// var_dump($str);
-		// $SQL = "SELECT `uid`
-		// 		FROM (`prefix_user_preference`)";
-		// $query = $this->db->query($SQL);
-		// $query = $query->result_array();
-		
-		// 	$uid_list[] = $row['uid'];
 
-		//$uid_list = $query->result_array() ;
 		$uid = $this->input->head->uid;
 
-		// $data = array
-		// (
-		// 	"uid"        => $uid,
-  //      		"price"      => $price,
-  //      		"mileage"    =>	$mileage,
-  //      		"brand"		 =>	$brand,
-  //      		"age"        => $age,
-  //      		"car_type"   =>$car_type,
-  //      		"speed_box"  =>$speed_box
-		// );
-
-		// $search = array_search($uid,$uid_list);
-
-		// if (!($search === FALSE))
-		// {
-			// $this->db->where("uid",$uid);
-			// $this->db->update($this->table,$data);
 			$SQL = "UPDATE `prefix_user_preference` 
-					SET `uid` = '".$uid."', `price` = '".$price."', `mileage` = '".$mileage."', 
-					`brand` = '".$brand."', `age` = '".$age."', `car_type` = '".$car_type."', 
-					`speed_box` = '".$speed_box."' 
+					SET `uid` = '".$uid."', `price` = '".$userInfo->price."', `mileage` = '".$userInfo->mileage."', 
+					`brand` = '".$userInfo->brand."', `age` = '".$userInfo->age."', `car_type` = '".$userInfo->car_type."', 
+					`speed_box` = '".$userInfo->speed_box."' 
 					WHERE `uid` = '".$uid."'";
 			$this->db->query($SQL);
 			$SQL = "UPDATE `prefix_user`
-					SET `avatar_url` = '".$avatar_url."'
+					SET `avatar_url` = '".$userInfo->avatar_url."', `user_age` = '".$userInfo->user_age."',
+					`user_car` = '".$userInfo->user_car."', `location` = '".$userInfo->location."',
+					`gender` = '".$userInfo->gender."'
 					WHERE `uid` = '".$uid."'";
 			$this->db->query($SQL);
 
@@ -87,7 +52,7 @@ class User_preference_model extends CI_Model
 		// else
 		// // 	$this->db->insert($this->table,$data);
 		// // $str = $this->db->last_query();
-		// // var_dump($str);
+
 
 		// $SQL = "INSERT INTO `prefix_user_preference` 
 		// 		(`uid`, `price`, `mileage`, `brand`, `age`, `car_type`, `speed_box`) 

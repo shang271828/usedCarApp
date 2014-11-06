@@ -16,9 +16,15 @@ class publishCommentNotice extends MY_Controller
 		$body = $this->input->body;
 		@$this->title       = $body->title;
 		@$this->content     = $body->content;
-		@$this->img_list    = $body->img_list;
 		@$this->p_nid       = $body->p_nid  ;
-		@$this->commentType = $body->commentType;
+		if (property_exists ( $body, 'img_list'))
+			$this->img_list  = $body->img_list;
+		else						
+			$this->img_list  = '[]';
+		if (property_exists ( $body, 'commentType'))
+			$this->commentType  = $body->commentType;
+		else						
+			$this->commentType  = 'public';
 	
 
 		$is_param_ok = $this->notice_param_check();

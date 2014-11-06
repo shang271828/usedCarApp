@@ -87,7 +87,8 @@ class MY_Output extends CI_Output
                 . $this->userCode
                 . $this->APICode
         ; $this->head->returnDescription = urlencode($description)
-        ;        
+        ; $this->head->sysTime = date('Y-m-d H:i:s')
+        ;       
     }
 
     private function define()

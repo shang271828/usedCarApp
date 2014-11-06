@@ -18,21 +18,21 @@ class GetMessage extends MY_Controller
 		if (property_exists ( $body, 'pair'))
 			$this->pair  = $body->pair;
 		else						
-			$this->pair  = '全部';
+			$this->pair  = 'all';
 
 		 $is_param_ok = $this->message_param_check();
 		
 		if($is_param_ok)
 		{
 			$message_list  = $this->message_model
-							  	->get_message_list($this->pageNumber,
-											  		$this->numberPerPage,
-											  		$this->pair
-										      		);
+							  	->get_message($this->pageNumber,
+											  $this->numberPerPage,
+											  $this->pair
+										      );
 			$total_row = $this->message_model
 							  	->get_total_row(
-											  		$this->pair
-										      		);
+											  	$this->pair
+										      	);
 			if (! $message_list)	
 			{
 				$this->output->set_body("result",1);

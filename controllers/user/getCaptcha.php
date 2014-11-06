@@ -10,7 +10,7 @@ class GetCaptcha extends MY_Controller
 		parent :: __construct();
 		$this->load->database();
 		$this->load->helper("form");
-		$this->load->model('user_model'
+		$this->load->model('user_model');
 
 	}
 
@@ -22,10 +22,10 @@ class GetCaptcha extends MY_Controller
 
 		// work code
 
-		//$body = $this->input->body;
+		  $body = $this->input->body
 		; @$this->phone	 = $body->phone
+		; 
 		;
-
 		; $is_param_ok = $this->captcha_param_check();
 		if($is_param_ok)
 		{

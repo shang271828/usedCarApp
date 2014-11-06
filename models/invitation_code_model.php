@@ -8,13 +8,13 @@ class Invitation_code_model extends CI_Model
 		$this->define();
 	}
 
-	function addCode($uid)
+	function addCode($uid,$code_type = 1)
 	{
 		// $this->db->insert($this->table,$data);
 		$code = $this->generate_password();
 		$SQL = "INSERT INTO `prefix_invitation_code` 
 		(`host_uid`, `send_uid`, `invitation_code`, `is_used`,`code_type`) 
-				VALUES (".$uid.", '',  '".$code."','0','1')";
+				VALUES (".$uid.", '',  '".$code."','0','".$code_type."')";
 		$this->db->query($SQL);
 		return $code;
 	}

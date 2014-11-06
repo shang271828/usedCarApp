@@ -15,30 +15,48 @@ class PraiseNotice extends MY_Controller
 	function index()
 	{
 	    $body = $this->input->body;
-		$this->uid = $this->input->head->uid;
+
 		$this->nid = $body->nid;
-		
+		$this->do_type  = $body->do_type;
+
 		$is_param_ok = $this->notice_param_check();
 
 		if($is_param_ok)
 		{
-		
-			$is_praised = $this->notice_model
-					 			->update_praise_list($this->uid,
-					 	                  			 $this->nid);
-					 			
-			$this->output->set_body("result",0);
-			if ($is_praised == 1)
+			if($this->do_type == 'worth')
 			{
-				$this->user_timeline_model->insert($this->nid,"my_praise");
-		 	   	$this->output->set_body("description",PRAISE);
-		 	}
+				$is_praised = $this->notice_model
+					 			   ->update_praise_list($this->nid);
+					 			
+				$this->output->set_body("result",0);
+				if ($is_praised == 1)
+				{
+					$this->user_timeline_model->insert($this->nid,"my_praise");
+		 		   	$this->output->set_body("description",PRAISE);
+		 		}
+	
+		 		else
+		 		{
+		 			$this->output->set_body("description",PRAISE_CANCEL);
+		 		}
+			}
 
-		 	else
-		 	{
-		 		//$this->user_timeline_model->insert($this->nid,"my_praise_canceled");
-		 		$this->output->set_body("description",PRAISE_CANCEL);
-		 	}
+			elseif($this->do_type == 'worthless')
+			{
+				$is_worthless = $this->notice_model
+					 			   ->update_worthless_list($this->nid);
+					 			
+				$this->output->set_body("result",0);
+				if ($is_worthless == 1)
+				{
+		 		   	$this->output->set_body('description','不值');
+		 		}
+		 		else
+		 		{
+		 			$this->output->set_body('description','不值取消');
+		 		}
+			}
+			
 		}
 	}
 	
@@ -50,7 +68,7 @@ class PraiseNotice extends MY_Controller
 	function notice_param_check()
 	{
 		$is_param_ok      = TRUE;
-		$is_param_missing = ! ($this->uid&&$this->nid);
+		$is_param_missing = ! ($this->nid&&$this->do_type);
 		if ($is_param_missing)
 		{
 			$is_param_ok = FALSE;

@@ -23,15 +23,17 @@ class GetUserFriend extends MY_Controller
 
 		if($is_param_ok)
 		{
-			$friend_list = $this->user_relation_model
-							    ->get_friend_info($this->get_uid);
+			$friend_initial_info   = $this->user_relation_model
+							    	->get_friend_initial_info($this->get_uid);
 							   
-
+			$friend_secondary_info = $this->user_relation_model
+							    	->get_friend_secondary_info($this->get_uid);
 			
 			//$friend_list_initial = json_decode($friend_list_initial);
 			$this->output->set_body('result', '0');
 			$this->output->set_body('description', GET_FRIEND_LIST);
-			$this->output->set_body('friend_list',$friend_list);
+			$this->output->set_body('friend_initial_list',$friend_initial_info);
+			$this->output->set_body('friend_secondary_list',$friend_secondary_info);
 		}
 	}
 
