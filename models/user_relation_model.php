@@ -13,8 +13,11 @@ class User_relation_model extends CI_Model
 	{
 
 		; $SQL = "INSERT INTO `prefix_user_relation` (`uid`, 
-			`friend_list_initial`, `friend_list_secondary`, `notice_list_following`,`user_list_following`, `disgust_list`) 
-				  VALUES (".$uid.", '[]', '[]', '[]', '[]','[]')";
+			`friend_list_initial`, `friend_list_secondary`, 
+			`notice_list_following`,`user_list_following`, 
+			`notice_list_interested`,`user_list_following`, 
+			`disgust_list`) 
+				  VALUES (".$uid.", '[]', '[]', '[]','[]','[]','[]','[]')";
 		; $this->db->query($SQL);
 		;
 		
@@ -131,8 +134,8 @@ class User_relation_model extends CI_Model
 		$query = $this->db->get_where($this->table,array("uid"=>$get_uid));
 		
 		$friend_list = $query->row_array();
-
-		$friend_list_initial = json_decode($friend_list['friend_list_initial']);
+		if($friend_list)
+			$friend_list_initial = json_decode($friend_list['friend_list_initial']);
 	
 		return $friend_list_initial;
 	}

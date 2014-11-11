@@ -29,6 +29,28 @@ class Message_model extends CI_model
 		return $nid["LAST_INSERT_ID()"];
 
 	}
+
+	function insert_system_message(
+									$content    ,
+									$img_list = '[]'  								
+					        		)
+	{
+		$img_str = json_encode($img_list);
+
+		$data = array(
+					'destination_list'  =>'["sys"]',
+					'content'			=>$content,
+					'img_list'			=>$img_str,
+					'is_fetched'        =>'0',		
+					'uid'		        =>'7',
+					'time'				=>$this->input->sysTime,
+					'coordinate'		=>$this->input->coordinate					
+				);
+		$this->db->insert($this->table, $data);
+		$nid = $this->db->query("SELECT LAST_INSERT_ID()")->row_array();
+		return $nid["LAST_INSERT_ID()"];
+	}
+
 	function get_message($pageNumber,$numberPerPage,$pair)
 	{
 		$this->messageNumber = ($pageNumber-1)*$numberPerPage;
@@ -120,12 +142,13 @@ class Message_model extends CI_model
 						 OR `destination_list`  LIKE '".'%'.$match.'%'."')";
 
 		$SQL .= "AND `prefix_message`.`uid` != 7";
-		$SQL .= " ORDER BY `time` desc ";	
+
+		$SQL .= " ORDER BY `time` asc ";	
 	
-		//$SQL .= " LIMIT ".$this->messageNumber.",".$this->numberPerPage;
 		$query = $this->db->query($SQL);
 		$messageList = $query->result_array();
-		$messageList = $this->get_list($messageList);
+		if($messageList)
+			$messageList = $this->get_list($messageList);
 	
 		$this->total_row = count($messageList);
 
@@ -141,6 +164,7 @@ class Message_model extends CI_model
 				WHERE uid =".$uid;
 		$query = $this->db->query($SQL);
 		$tmp = $query->row_array();
+
 		return $tmp;
 	}
 	//返回最新的一条私信
@@ -148,29 +172,37 @@ class Message_model extends CI_model
 	private function get_list($messageList)
 	{
 		$uid = $this->input->head->uid;
-		foreach ($messageList as $message) 
+		foreach ($messageList as $key=> $message) 
 		{
 			$host_uid = $message['uid'];
 			if($message['destination_list'] != '["all"]')
 			{
-
+				
 				$destination_list = json_decode($message['destination_list']);
+				
 				foreach ($destination_list as  $value) 
 				{
-					if($uid == $host_uid)
+					if ($value == $uid)
+						unset($messageList[$key]);
+					elseif($uid == $host_uid)
 						$pair = $value;
 					else
 						$pair = $host_uid;
 				}
-				
+				//添加id=$pair对应的用户信息
 				$userinfo = $this->add_userinfo($pair);
+
 				$message['username']   = $userinfo['username'];
 				$message['signature']  = $userinfo['signature'];
 				$message['avatar_url'] = $userinfo['avatar_url'];
 				$tmp[$pair] = $message;
 			}		
 		}
-		$tmp = $this->array_key_unique($tmp);
+
+		if($tmp)
+			$tmp = $this->array_key_unique($tmp);
+		else 
+			$tmp = '';
 		return $tmp;
 			
 	}
@@ -178,6 +210,7 @@ class Message_model extends CI_model
 	//消除重复键值
 	private function array_key_unique($array)
 	{
+		
 		$tmp = array();
 		foreach ($array as $key => $value) 
 		{
@@ -188,6 +221,7 @@ class Message_model extends CI_model
 			}
 			$tmp[] = $key;
 		}
+		
 		return $return_array;
 	}
 	

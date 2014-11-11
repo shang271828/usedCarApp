@@ -35,21 +35,25 @@ class User_model extends MY_Model
 					  			  array('username'=> $userName));		
 		$userInfo = $query->row_array();
 		return $userInfo;
-
 	}
 	function is_phone_exist($phone)
 	{ 
-		; $sql = "SELECT EXISTS (
-							SELECT `username` FROM `".$this->table_name."` 
-							WHERE phone ='".$phone."'
-							) 
-						AS 	`is_phone_exist`";
+		; $sql = "SELECT `username`,`phone` 
+				  FROM `".$this->table_name."` 
+				  WHERE phone ='".$phone."'";
 
 		; $query =
 			$this->db->query($sql);
-		; $result = $query->row();
-		;
-		return $result->is_phone_exist;
+		; 
+		; $result = $query->row_array();
+		; 
+		// 电话号码匹配且username不为空时返回true，
+		// 否则返回false
+		if($result)
+			$bool = !(!$result['username']);
+		else
+			$bool = false;
+		return $bool;
 	}
 
 	function get_uid($username)
@@ -58,8 +62,12 @@ class User_model extends MY_Model
 		$this->db->where('username',$username);
 		$query = $this->db->get($this->table_name);
 		$result = $query->row_array();
-		return $result['uid'];
+		if($result)
+			return $result['uid'];
+		else
+			return 'error';
 	}
+
 	function addUser($userName, $password, $phone,$code ,$level = 3)
 	{
 		$time = $this->input->sysTime;
@@ -231,21 +239,20 @@ class User_model extends MY_Model
 	// 	// // $phone_dir = array('shang' => '13705185091', 
 	// 	// // 					'f'=>'11');
 	// 	// // $phone_dir =json_encode($phone_dir);
-	// 	// // var_dump($phone_dir);
+
 	// 	$phone_dir =json_decode($phone_dir);
 
-	// 	var_dump($phone_dir);
+
 
 	// }
 
 	function select_userinfo($get_uid)
 	{
 
-		$this->db->select('username,signature,user_location,user_age,
-						user_car,avatar_url,notice_list_following,user_list_following');
+		$this->db->select('prefix_user.uid,username,gender,signature,user_location,user_age,
+						user_car,avatar_url,notice_list_following,user_list_following,user_list_follower');
 		$this->db->from($this->table_name);
-		// $this->db->join('prefix_user_state', 
-		// 				$this->table_name.'.uid = prefix_user_state.uid');
+
 		$this->db->join('prefix_user_relation', 
 						$this->table_name.'.uid = prefix_user_relation.uid');
 
@@ -255,10 +262,13 @@ class User_model extends MY_Model
 	
 		$notice_list_following = json_decode($userInfo['notice_list_following'],true);
 		$user_list_following = json_decode($userInfo['user_list_following'],true);
+		$user_list_follower = json_decode($userInfo['user_list_follower'],true);
 		$userInfo['follow_notice_num'] = count($notice_list_following);
 		$userInfo['user_follow_num']   = count($user_list_following);
+		$userInfo['follower_num']      = count($user_list_following);
 		unset($userInfo['notice_list_following']);
 		unset($userInfo['user_list_following']);
+		unset($userInfo['user_list_follower']);
 
 		return $userInfo;
 	}

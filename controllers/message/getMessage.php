@@ -7,6 +7,7 @@ class GetMessage extends MY_Controller
 		$this->load->database();
 		$this->load->helper("form");
 		$this->load->model("message_model");
+		
 		$this->load->model("user_alert_model");
 	}
 

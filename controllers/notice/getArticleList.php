@@ -1,8 +1,7 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
-class GetArticleList extends MY_Controller
+class GetArticleList extends CI_Controller
 {
-
 	function __construct()
 	{
 		parent ::__construct();

@@ -26,16 +26,16 @@ class GetUserInfo extends MY_Controller
 		{
 			$userInfo = $this->user_model
 							 ->select_userinfo($this->get_uid);
-			if($this->get_uid == $this->input->uid)
-			{
+			// if($this->get_uid == $this->input->uid)
+			// {
 			
-				$userInfo['is_followed'] = $this->user_relation_model
+				$userInfo['is_followed'] =     $this->user_relation_model
 								 				->judge_user_follow($this->get_uid);
 				$userInfo['unread_message_num'] = $this->message_model	
 														->get_unread_message_num($this->get_uid);	 
-				$userInfo['publish_num'] = $this->notice_model	
+				$userInfo['publish_num'] =     $this->notice_model	
 													->get_publish_notice_num($this->get_uid);
-			}	 
+			// }	 
 			$this->output->set_body('result', '0');
 			$this->output->set_body('description', GET_USERINFO);
 			$this->output->set_body('userInfo',$userInfo);

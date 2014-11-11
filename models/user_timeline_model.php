@@ -8,22 +8,12 @@ class User_timeline_model extends CI_Model
 		$this->define();
 	}
 
-	function insert($nid,$timeline_type)
+	function insert($uid,$nid,$timeline_type)
 	{
-		$uid = $this->input->head->uid;
 		$time = $this->input->sysTime;
-		// $data = array
-		// (
-		// 	"uid"      		=> $this->input->head->uid,
-  //      		"nid"      		=> $nid,
-  //      		"timeline_type" => $timeline_type,
-  //      		"is_sticky" 	=> "0",
-  //      		"time"			=> $this->input->sysTime
-		// );
-		// $this->db->insert($this->table,$data);
-		// $str = $this->db->last_query();
-		// var_dump($str);
-		$SQL ="INSERT INTO `prefix_user_timeline` (`uid`, `nid`, `timeline_type`, `is_sticky`, `time`) 
+
+		$SQL ="INSERT INTO `prefix_user_timeline` 
+				(`uid`, `nid`, `timeline_type`, `is_sticky`, `time`) 
 			   VALUES ('".$uid."', '".$nid."', '".$timeline_type."', '0', '".$time."')";
 		$this->db->query($SQL);
 	}

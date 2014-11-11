@@ -1,5 +1,5 @@
 <?php
-class GetNoticeDetail extends MY_Controller
+class GetNoticeDetail extends CI_Controller
 {
 
 	function __construct()

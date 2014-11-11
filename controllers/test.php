@@ -9,9 +9,11 @@ class test extends CI_Controller
 		; $this->load->model('user_model')
 		; $this->load->model('invitation_code_model')
 		; $this->load->model('user_relation_model')
+		; $this->load->model('share_model')
 		; $this->load->model('menu_model')
 		; $this->load->model('topic_model')
 		; $this->load->model('message_model')
+		; $this->load->model('notice_model')
 		; $this->load->library('javascript')
 		//; include("Snoopy.php")
 		;
@@ -21,7 +23,10 @@ class test extends CI_Controller
 	{
 		// $uid_list = ['1','2','3'];
 		// $this->user_relation_model->friend_list_secondary($uid_list);
-		$this->message_model->get_sys_message();
+		
+		//$tmp = $this->share_model->insert_share('2','share_friend');
+		$this->notice_model->get_notice_type(2);
+
 
 
 	}
@@ -35,7 +40,7 @@ class test extends CI_Controller
 	function invitation_code()
 	{
 
-		for ($i=0; $i < 50 ; $i++) 
+		for ($i=0; $i < 100 ; $i++) 
 		{ 
 			$this->invitation_code_model->addCode('7',0);
 

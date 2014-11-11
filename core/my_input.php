@@ -41,33 +41,60 @@ class MY_Input extends CI_Input
 				; $this->uid  = & $json_package->head->uid
 				;
 			}
+			if(property_exists($this->head, 'time'))
+			{
+				; $this->userTime = & $json_package->head->time
+				;
+			}
+			if(property_exists($this->head, 'token'))
+			{
+				; $this->token    = & $json_package->head->token
+				;
+			}
+			if(property_exists($this->head, 'terminal'))
+			{
+				; $this->terminal    = & $json_package->head->terminal
+				;
+			}
+			else
+			{
+				; $this->terminal = 'unknown'
+				;
+			}
+			if(property_exists($this->head, 'coordinate'))
+			{
+				; $this->coordinate    = & $json_package->head->coordinate
+				;
+			}
+			else
+			{
+				; $this->coordinate = '0,0'
+				;
+			}
+
+	
 		}
-		
-		; $this->userTime = & $json_package->head->time
-		; $this->token    = & $json_package->head->token
+
 
 		/////**optional input**/////
-		; $this->terminal   = & $json_package->head->terminal
-		; $this->coordinate = & $json_package->head->coordinate
-		;
-		; $this->verify()
-		; 
-		;
+
+		// ; $this->verify()
+		// ; 
+		// ;
 	}
 
-	private function verify()
-	{
-		if(!$this->terminal)
-		{
-			; $this->terminal = 'unknown'
-			;
-		}
-		if(!$this->coordinate)
-		{
-			; $this->coordinate = '0,0'
-			;
-		}
-	}
+	// private function verify()
+	// {
+	// 	if(!$this->terminal)
+	// 	{
+	// 		; $this->terminal = 'unknown'
+	// 		;
+	// 	}
+	// 	if(!$this->coordinate)
+	// 	{
+			
+	// 	}
+	// }
 
 	private function sys_input()
 	{

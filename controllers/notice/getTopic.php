@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
-class GetTopic extends MY_Controller
+class GetTopic extends CI_Controller
 {
 	function __construct()
 	{
@@ -22,7 +22,8 @@ class GetTopic extends MY_Controller
 		if (property_exists ($body, 'numberPerPage'))
 			$this->numberPerPage  = $body->numberPerPage;
 		else						
-			$this->numberPerPage  = '2';
+			$this->numberPerPage  = '3';
+
 
 
 		$is_param_ok = $this->notice_param_check();
@@ -42,14 +43,24 @@ class GetTopic extends MY_Controller
 			// 
 			foreach ($topic_list as $key => &$value) 
 			{
-				$notice_list = $this->notice_model
+				$tmp = $this->notice_model
 									->get_notice_list_nid($value['notice_list']);
+				//编辑推荐车辆信息
+				foreach ($tmp as $key => $notice) 
+				{
+					$tmp_array['nid']        = $notice['nid'];
+					$tmp_array['title']        = $notice['title'];
+					$tmp_array['reason']       = '推荐理由：性能卓越，外观酷炫';
+					$tmp_array['brand']        = $notice['brand'];
+					$tmp_array['price']        = $notice['price'];
+					$tmp_array['image']        = $notice['img_list'][0];
+					$tmp_array['car_location'] = $notice['car_location'];
+					$notice_list[] = $tmp_array;
+				}
 				$value['notice_list'] = $notice_list;
 
 			}
-			
-			//$this->output->set_body("total_row",$total_row );
-				
+
 			if (! $topic_list)	
 			{
 				$this->output->set_body("result",1);
@@ -61,7 +72,7 @@ class GetTopic extends MY_Controller
 				$this->output->set_body("result",0);
 				$this->output->set_body("description",'获得话题信息');
 				$this->output->set_body("topic_list", $topic_list);
-			}			
+			}		
 		}
 	}
 
@@ -69,6 +80,32 @@ class GetTopic extends MY_Controller
 	{	
 		$this->load->view('notice/get_topic_view');
 	}
+
+	// function verify_user()
+	// {
+
+	// 	if(!$this->is_time_ok())
+	// 	{
+	// 		; $this->output->set_user_code(1)
+	// 		; exit()
+	// 		;			
+	// 	}
+
+	// 	; $this->output->set_user_code(0)
+	// 	; // through user verification
+	// }
+
+	// private function is_time_ok()
+	// {
+	// 	; $userTimeStamp = strtotime($this->input->userTime);	
+	//  	; $nowTimeStamp  = strtotime($this->input->sysTime);
+
+	// 	; $timeDiff   = $nowTimeStamp - $userTimeStamp;    
+	// 	; $timeRange  = 300;								
+	// 	; return ( ($timeDiff < $timeRange)
+	// 			&& ($timeDiff > -$timeRange))
+	// 	;
+	// }
 
 	function notice_param_check()
 	{

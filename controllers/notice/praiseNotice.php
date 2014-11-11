@@ -23,37 +23,55 @@ class PraiseNotice extends MY_Controller
 
 		if($is_param_ok)
 		{
-			if($this->do_type == 'worth')
+			if($this->do_type == 'praise')
 			{
-				$is_praised = $this->notice_model
+				$is_done = $this->notice_model
 					 			   ->update_praise_list($this->nid);
 					 			
 				$this->output->set_body("result",0);
-				if ($is_praised == 1)
+				if ($is_done == 1)
 				{
-					$this->user_timeline_model->insert($this->nid,"my_praise");
-		 		   	$this->output->set_body("description",PRAISE);
+					//$this->user_timeline_model->insert($this->nid,"my_praise");
+		 		   	$this->output->set_body("description",'已点赞！');
 		 		}
 	
 		 		else
 		 		{
-		 			$this->output->set_body("description",PRAISE_CANCEL);
+		 			$this->output->set_body("description",'已取消');
+		 		}
+			}
+			elseif ($this->do_type == 'worth')
+			{
+				$is_done = $this->notice_model
+					 			   ->update_worth_list($this->nid);
+					 			
+				$this->output->set_body("result",0);
+				if ($is_done == 1)
+				{
+					$this->user_timeline_model->insert($this->nid,"4");
+		 		   	$this->output->set_body("description",'觉得你的车值');
+		 		}
+	
+		 		else
+		 		{
+		 			$this->output->set_body("description",'已取消');
 		 		}
 			}
 
 			elseif($this->do_type == 'worthless')
 			{
-				$is_worthless = $this->notice_model
+				$is_done = $this->notice_model
 					 			   ->update_worthless_list($this->nid);
 					 			
 				$this->output->set_body("result",0);
-				if ($is_worthless == 1)
+				if ($is_done == 1)
 				{
-		 		   	$this->output->set_body('description','不值');
+					$this->user_timeline_model->insert($this->nid,"5");
+		 		   	$this->output->set_body('description','觉得你的车不值');
 		 		}
 		 		else
 		 		{
-		 			$this->output->set_body('description','不值取消');
+		 			$this->output->set_body('description','已取消');
 		 		}
 			}
 			
@@ -88,7 +106,8 @@ class PraiseNotice extends MY_Controller
    "token"        : "9fd98454b511ce20120ecb593ed177e3"
   },
  "body":{    
-   "nid"          : "1"
+   "nid"          : "1",
+   "do_type"      : "worth"
   }
 }
 */

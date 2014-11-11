@@ -1,6 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Register extends MY_Controller
+class Register extends CI_Controller
 {
 						
 	function __construct()
@@ -12,6 +12,7 @@ class Register extends MY_Controller
 		; $this->load->model('user_relation_model')
 		; $this->load->model('user_preference_model')
 		;	$this->load->model('invitation_code_model')
+		; $this->load->model('message_model')
 		//; $this->load->model('user_alert_model')
 		;
 	}
@@ -19,21 +20,21 @@ class Register extends MY_Controller
 	function index()
 	{
 		; $body = $this->input->body
-		; $this->userName         = $body->userName
-		; $this->password         = $body->password
-		; $this->phone	   		  = $body->phone
-		; $this->code     		  = $body->code
+		; $this->userName   = $body->userName
+		; $this->password   = md5($body->password)
+		; $this->phone	   	= $body->phone
+		; $this->code     	= $body->code
 		;
-		// if (property_exists ( $body, 'invitation_code'))
-		// {
-		// 	; $this->invitation_code  = $body->invitation_code
-		// 	;
-		// }
-		// else	
-		// {					
-		// 	; $this->invitation_code  = 'BRYCFJ'
-		// 	;
-		// }
+		if (property_exists ( $body, 'invitation_code'))
+		{
+			; $this->invitation_code  = $body->invitation_code
+			;
+		}
+		else	
+		{					
+			; $this->invitation_code  = '111111'
+			;
+		}
 		
 		; $is_param_ok = $this->register_param_check()
 		;
@@ -58,19 +59,30 @@ class Register extends MY_Controller
 				; $this->user_relation_model->addUser($uid); 
 				; $this->user_preference_model->addUser($uid);
 				//; $this->user_state_model->addUser($uid);
-				//; $this->invitation_code_model->updateCode($this->invitation_code)
-				;
-				// for ($i=0;$i<3;$i++)
-				// {
-				// 	$code_array[] = $this->invitation_code_model->addCode($this->input->uid);
-				// }
-				//; $this->message_model->send()
-				//;
-
-				//; $this->user_alert_model->addUser($nid);
-				; $this->output->set_body('result', '0')
-				; $this->output->set_body('description', USER_ADD)
-				;
+				$code_type = $this->invitation_code_model
+								  ->judge_code_type($this->invitation_code);
+				if(is_numeric($code_type))
+				{
+					; $this->invitation_code_model->updateCode($this->invitation_code,
+															   $uid)
+					;
+					if($code_type = '1')
+					{
+				
+						;$code_array = $this->invitation_code_model->getCode($uid)
+						;
+						; $content = "您额外获得了".count($code_array)."个邀请码，分别为"
+										.$code_array[0].','.$code_array[1].','.$code_array[2];
+						; $this->message_model->insert_system_message($content)
+						;
+					}
+	
+					//; $this->user_alert_model->addUser($nid)
+					; $this->output->set_body('result', '0')
+					; $this->output->set_body('description', USER_ADD)
+					;
+				}
+				
 			}
 		}
 	}
@@ -89,8 +101,7 @@ class Register extends MY_Controller
 								  &&$this->password
 								  &&$this->phone)
 			; 
-			// ; $is_non_invitation = !$this->invitation_code
-			// ;
+		
 			if( $is_param_missing )
 			{
 				; $is_param_ok = false
@@ -125,27 +136,28 @@ class Register extends MY_Controller
 				; break
 				; //function end
 			}
-			// if($is_non_invitation)
-			// {
-			// 	; $is_param_ok = false
-			// 	; $this->output->set_body('result', '4')
-			// 	; $this->output->set_body('description', '未被邀请')
-			// 	; break
-			// 	; //function end
-			// }
-			// ; $is_code_wrong = 		!(array_search($this->invitation_code, $init_code))				
-			// 						&&
-			// 						$this->invitation_code_model
-			// 						->is_code_wrong($this->invitation_code)
-			// ;
-			// if($is_code_wrong)
-			// {
-			// 	; $is_param_ok = false
-			// 	; $this->output->set_body('result', '5')
-			// 	; $this->output->set_body('description', '邀请码错误')
-			// 	; break
-			// 	; //function end
-			// }	
+			; $is_non_invitation = !$this->invitation_code
+			;
+			if($is_non_invitation)
+			{
+				; $is_param_ok = false
+				; $this->output->set_body('result', '4')
+				; $this->output->set_body('description', '未被邀请')
+				; break
+				; //function end
+			}
+			; $is_code_wrong = 
+									$this->invitation_code_model
+									->is_code_wrong($this->invitation_code)
+			;
+			if($is_code_wrong)
+			{
+				; $is_param_ok = false
+				; $this->output->set_body('result', '5')
+				; $this->output->set_body('description', '邀请码错误')
+				; break
+				; //function end
+			}	
 
 		}while(false)
 
@@ -166,7 +178,7 @@ class Register extends MY_Controller
   "password"      : "4",
   "phone"         : "123",
   "code"          : "1234",
-  "invitation_code": "DYKTPE"
+  "invitation_code": "XNCXLY"
   }
 }
 */

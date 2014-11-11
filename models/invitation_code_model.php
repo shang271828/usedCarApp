@@ -8,26 +8,81 @@ class Invitation_code_model extends CI_Model
 		$this->define();
 	}
 
-	function addCode($uid,$code_type = 1)
+	function addCode($uid,$code_type = 0)
 	{
 		// $this->db->insert($this->table,$data);
 		$code = $this->generate_password();
-		$SQL = "INSERT INTO `prefix_invitation_code` 
-		(`host_uid`, `send_uid`, `invitation_code`, `is_used`,`code_type`) 
-				VALUES (".$uid.", '',  '".$code."','0','".$code_type."')";
-		$this->db->query($SQL);
+		$is_code_exist = $this->is_code_exist($code);
+
+		if(!$is_code_exist)
+		{
+			$SQL = "INSERT INTO `prefix_invitation_code` 
+			(`host_uid`, `send_uid`, `invitation_code`, `is_used`,`code_type`) 
+					VALUES (".$uid.", '',  '".$code."','0','".$code_type."')";
+			$this->db->query($SQL);
+		}
 		return $code;
 	}
 
-	function updateCode($code)
+	function judge_code_type($invitation_code)
+	{
+		$SQL = "SELECT `code_type`
+				FROM `prefix_invitation_code`
+				WHERE `invitation_code` = '".$invitation_code."'";
+		$query  = $this->db->query($SQL);
+		$result = $query->row_array();
+	
+
+		return $result;
+
+	}
+
+	function updateCode($uid,$code)
 	{
 		$data = array(
-               'send_uid' => $this->input->uid,
-               'is_used' => 1,
+			   'host_uid'   => $uid,
+               'send_uid'   => $this->input->uid,
+               'is_used'    => 1,
                'code_layer' => 1
             );
 		$this->db->where('invitation_code',$code);
 		$this->db->update('prefix_invitation_code', $data); 
+	}
+
+	function getCode($host_uid)
+	{
+		$SQL = "SELECT  `invitation_code`				
+				FROM `prefix_invitation_code`
+				WHERE `is_used` = 0
+				AND `code_type` = 1
+				ORDER BY RAND()
+				LIMIT 3";				
+		$query = $this->db->query($SQL);
+		$result = $query->result_array();
+	
+		$code_str = '(';
+		foreach ($result as  $key=>$value) 
+		{
+			$code_array[] = $value['invitation_code'];
+			$code_str    .= '"'.$value['invitation_code'].'"';
+			if($key != 2)
+				$code_str .= ',';
+		}
+		$code_str .=  ')';
+
+		$SQL = "UPDATE `prefix_invitation_code` 
+				SET host_uid = ".$host_uid."
+				,is_used  = 1
+				WHERE `invitation_code` IN ".$code_str;
+		$this->db->query($SQL);
+		return $code_array;
+
+		// $SQL = "SELECT `invitation_code`,`host_uid` ,`is_used`
+		// 		FROM `prefix_invitation_code`
+		// 		WHERE `invitation_code` IN ".$code_str;
+		// $query = $this->db->query($SQL);
+		// var_dump($query->result_array());
+		
 	}
 
 	function generate_password( $length = 6 ) 
@@ -57,12 +112,20 @@ class Invitation_code_model extends CI_Model
 				 WHERE `invitation_code` ='".$code."'";
 		$query = $this->db->query($SQL);
 
-		$result = $query->row();
-
-		$bool = $result->host_uid;
-		return !$bool;
+		$result = $query->row_array();
+		if($result)
+			$bool = !$result['host_uid'];
+		else
+			$bool = true;
+		return $bool;
 	}
 
+
+	//管理员函数
+	function set_value()
+	{
+		
+	}
 	function define()
 	{
 		$this->table_name  = "prefix_invitation_code";

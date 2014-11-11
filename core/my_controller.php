@@ -7,21 +7,28 @@ class MY_Controller extends CI_Controller
 
 		; $this->load->library('upload')
 		;
-
+		;$unverify = FALSE
+		;
+	
+		if(property_exists($this->input->body, 'pageType'))
+		{
+			if($this->input->body->pageType == 'mainpage')
+			{
+				$unverify = TRUE;
+			}
+		}
+		if($this->input->head->uid == '7')
+		{
+			$unverify = TRUE;
+		}
 		if(!IS_DEBUG)
 		{
-			; $this->verify_user()
-			;
-		}
-
-		if(property_exists($this->input->head, 'userName'))
-		{
-			;$this->userName = $this->input->head->userName
-			;$this->input->head->uid = 
-									  $this->user_model->get_uid($this->userName)
-			;
-		}
-
+			if(!$unverify)
+			{
+				; $this->verify_user()
+				;
+			}
+		}	
 	}
 
 	private function verify_user()
@@ -63,7 +70,7 @@ class MY_Controller extends CI_Controller
 					$this->input->uid
 					)
 		;
-	}
+	}	
 
 	private function is_time_ok()
 	{

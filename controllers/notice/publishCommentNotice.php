@@ -48,7 +48,7 @@ class publishCommentNotice extends MY_Controller
 					 						$this->p_nid  ,
 											$this->commentType
 					 						);	
-			$this->user_timeline_model->insert($nid,"my_comment");
+			$this->user_timeline_model->insert($nid,"6");
 			$this->output->set_body("result",0);
 			$this->output->set_body("description",PUBLISH_COMMENT_NOTICE);
 		}

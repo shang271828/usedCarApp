@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
-class SearchNotice extends MY_Controller
+class SearchNotice extends CI_Controller
 {
 	function __construct()
 	{
@@ -12,7 +12,6 @@ class SearchNotice extends MY_Controller
 
 	function index()
 	{
-
 		$body = $this->input->body;
 		
 		$this->pageNumber     = $body->pageNumber;
@@ -23,7 +22,7 @@ class SearchNotice extends MY_Controller
 			$this->location  = '杭州';
 
 		if (property_exists ( $body, 'searchValue'))
-			$this->searchValue  = $body->searchValue		;
+			$this->searchValue  = $body->searchValue;
 		else						
 			$this->searchValue  = '0';
 

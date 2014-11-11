@@ -2,7 +2,7 @@
 
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class GetCaptcha extends MY_Controller
+class GetCaptcha extends CI_Controller
 {
 						
 	function __construct()
@@ -31,7 +31,7 @@ class GetCaptcha extends MY_Controller
 		{
 			// input ok!
 			; $this->code  = rand(1000,9999)
-			; $is_send = $this->send_sms($this->phone,array($this->code,'2'),"1")
+			; $is_send = $this->send_sms($this->phone,array($this->code,'2'),"7004")
 
 			; $is_phone_exist 
 				= $this->user_model->is_phone_exist($this->phone)
@@ -45,7 +45,7 @@ class GetCaptcha extends MY_Controller
 			}
 			else
 			{
-				if ($is_phone_exist)
+				if (!$is_phone_exist)
 				{			
 					; $this->user_model->addCaptcha($this->phone,
 											 		$this->code)
@@ -111,7 +111,7 @@ class GetCaptcha extends MY_Controller
 		//请求地址
 		//沙盒环境（用于应用开发调试）：sandboxapp.cloopen.com
 		//生产环境（用户应用上线使用）：app.cloopen.com
-		$serverIP='sandboxapp.cloopen.com';
+		$serverIP='app.cloopen.com';
 		
 		
 		//请求端口，生产环境和沙盒环境一致
@@ -130,24 +130,24 @@ class GetCaptcha extends MY_Controller
 		$this->rest_lib->setAccount($accountSid,$accountToken);
      	$this->rest_lib->setAppId($appId);
 
-     	//echo "Sending TemplateSMS to $to <br/>";
+     	echo "Sending TemplateSMS to $to <br/>";
      	$result = $this->rest_lib->sendTemplateSMS($to,$datas,$tempId);
 
      	if($result == NULL ) {
-     	   // echo "result error!";
+     	   echo "result error!";
      	    break;
      	}
      	if($result->statusCode!=0) {
-     	   // echo "error code :" . $result->statusCode . "<br>";
-     	   // echo "error msg :"  . $result->statusMsg  . "<br>";
+     	   echo "error code :" . $result->statusCode . "<br>";
+     	   echo "error msg :"  . $result->statusMsg  . "<br>";
      	   $is_send = 0;
      	    //TODO 添加错误处理逻辑
      	}else{
-     	   // echo "Sendind TemplateSMS success!<br/>";
+     	   echo "Sending TemplateSMS success!<br/>";
      	    //获取返回信息code
      	    $smsmessage = $result->TemplateSMS;
-     	   // echo "dateCreated:"  .$smsmessage->dateCreated."<br/>";
-     	   //  echo "smsMessageSid:".$smsmessage->smsMessageSid."<br/>";
+     	   echo "dateCreated:"  .$smsmessage->dateCreated."<br/>";
+     	    echo "smsMessageSid:".$smsmessage->smsMessageSid."<br/>";
      	    //TODO 添加成功处理逻辑
      	     $is_send = 1;    	     
      	}

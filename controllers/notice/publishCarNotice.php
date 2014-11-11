@@ -16,6 +16,7 @@ class publishCarNotice extends MY_Controller
 	function index()
 	{	
 		$body = $this->input->body;
+
 		if (property_exists ( $body, 'nid'))
 			$this->nid  = $body->nid;
 		else						
@@ -41,7 +42,10 @@ class publishCarNotice extends MY_Controller
 					 ->insert_car_notice($nid,
 					 					 $car_info);	
 					
-				$this->user_timeline_model->insert($nid,"my_publish");
+				$this->user_timeline_model
+					 					->insert($this->input->head->uid,
+							  					$nid,
+							  					"2");
 				/* 用户发布二手车信息推送功能 */
 				$head = $this->input->head;
 				$uid  = $head->uid;
@@ -81,24 +85,24 @@ class publishCarNotice extends MY_Controller
 	{
 
 		$friend_list = $this->user_relation_model
-							    ->get_friend_list($uid);
+							    ->get_friend_initial_info($uid);
 							   
-		$friend_list_initial = $friend_list->{"friend_list_initial"};
-		$friend_info = json_decode(($friend_list_initial));
+		// $friend_list_initial = $friend_list->{"friend_list_initial"};
+		// $friend_info = json_decode(($friend_list_initial));
 
-		$content = json_encode(
-								array(
-										$uid,
-										$nid,
-										$this->content
-									)
-								);		
+		// $content = json_encode(
+		// 						array(
+		// 								$uid,
+		// 								$nid,
+		// 								$this->content
+		// 							)
+		// 						);		
 
-		$this->message_model
-			  ->insert_system_message($friend_info,
-								$content 	   		,	
-								$this->img_list     	   		 
-							);
+		// $this->message_model
+		// 	  ->insert_system_message($friend_info,
+		// 						$content 	   		,	
+		// 						$this->img_list     	   		 
+		// 					);
 	}
 
 	/* 功能模块结束 */
@@ -107,7 +111,9 @@ class publishCarNotice extends MY_Controller
 	{
 		$is_param_ok = TRUE;
 		
-		$is_param_missing = ! ($this->title && $this->content && $this->img_list);
+		$is_param_missing = ! ($this->title 
+							&& $this->content
+							&& $this->img_list);
 		
 		do
 		{
@@ -129,6 +135,8 @@ class publishCarNotice extends MY_Controller
 		}while(FALSE);
 		return $is_param_ok;
 	}
+
+
 }
 /*
 {

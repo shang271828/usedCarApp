@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
-class GetNoticeList extends MY_Controller
+class Inform extends MY_Controller
 {
 
 	function __construct()
@@ -18,13 +18,8 @@ class GetNoticeList extends MY_Controller
 
 		$this->pageNumber     = $body->pageNumber;
 		$this->numberPerPage  = $body->numberPerPage;
-		$this->pageType 	  = $body->pageType;
-	
-		if (property_exists ( $body, 'get_uid'))
-			$this->get_uid  = $body->get_uid;
-		else						
-			$this->get_uid  = $this->input->head->uid;
-
+		$this->pageType       = 'inform';
+		$this->get_uid        = $this->input->head->uid;
 		$is_param_ok = $this->notice_param_check();
 		
 		if($is_param_ok)
@@ -35,26 +30,9 @@ class GetNoticeList extends MY_Controller
 										 	      $this->numberPerPage,
 										 	      $this->pageType,
 										 	      $this->get_uid);
-			//简化location
-			if($this->pageType != 'timeline')
-			{
-				if(is_array($notice_list))
-				{
-					foreach ($notice_list as  &$value) 
-					{
-						if($value['car_location'])
-						{
-							$tmp = explode(' ', $value['car_location']);
-							if(count($tmp)>1)
-								$value['car_location'] = $tmp[1];
-						}
-					}
-				}
-				
-			}
 			//获得总信息条数
 			 $total_row = $this->notice_model
-			 			   	   ->get_total_row($this->pageType);
+			 			   		 	 ->get_total_row($this->pageType);
 			 
 			 
 			 $this->output->set_body("total_row",$total_row );
@@ -63,33 +41,31 @@ class GetNoticeList extends MY_Controller
 			{
 				$this->output->set_body("result",1);
 				$this->output->set_body("description",NULL_NOTICE);
-				$this->output->set_body("notice_list", $notice_list);
+				$this->output->set_body("inform_list", $notice_list);
 			}
 			else
 			{
 
 				$this->output->set_body("result",0);
 				//$this->output->set_body("description","get notice list:".$this->pageType."!");
-				$this->output->set_body("description",GET_NOTICE);
-				$this->output->set_body("notice_list", $notice_list);
+				$this->output->set_body("description", GET_NOTICE);
+				$this->output->set_body("inform_list", $notice_list);
 			}			
 		}
 	}
 
 	function view_test()
 	{	
-		$this->load->view('notice/get_notice_list_view');
+		$this->load->view('message/inform_view');
 	}
 
 	function notice_param_check()
 	{
 		$is_param_ok = TRUE;
-		$is_param_missing  = ! ($this->pageNumber&&$this->numberPerPage&&$this->pageType);
+		$is_param_missing  = ! ($this->pageNumber&&$this->numberPerPage);
 		$is_param_nonnum   = ! (is_integer($this->pageNumber+0)
 			                  &&is_integer($this->numberPerPage+0));
 		$is_param_val_error = ($this->pageNumber<1) || ($this->numberPerPage>50);
-		$pageTypeList = array(1=>"mainpage",2=>"discovery",3=>"timeline",4=>"friendPage",5=>"collection");
-		$is_param_str_error = ! array_search($this->pageType,$pageTypeList);
 
 		do
 		{
@@ -107,7 +83,7 @@ class GetNoticeList extends MY_Controller
 				$this->output->set_body("description",WRONG_TYPE);
 				break;
 			}
-			if($is_param_val_error || $is_param_str_error)
+			if($is_param_val_error)
 			{
 				$is_param_ok = FALSE;
 				$this->output->set_body("result",4);
@@ -130,9 +106,7 @@ class GetNoticeList extends MY_Controller
   },
  "body":{  
   "pageNumber"    : "1",  
-  "numberPerPage" : "8",
-  "pageType"       : "timeline",
-"get_uid":"2"
+  "numberPerPage" : "8"
   }
 }
 */

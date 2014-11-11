@@ -16,23 +16,27 @@ class publishNormalNotice extends MY_Controller
 		$body = $this->input->body;
 		@$this->title   = $body->title;
 		@$this->content = $body->content;
-		@$this->img_list = $body->img_list;
+		if (property_exists ( $body, 'img_list'))
+			$this->img_list  = $body->img_list;
+		else						
+			$this->img_list  = '[]';
 
 		$is_param_ok = $this->notice_param_check();
 		if($is_param_ok)
 		{
 			$nid = $this->notice_model
 				        ->insert_normal_notice($this->title
-										,$this->content
-										,$this->img_list
-										,"normal_notice"
-										);
+											  ,$this->content
+											  ,$this->img_list
+											  ,"normal_notice"
+											  );
 
-			$this->user_timeline_model->insert($nid,'my_publish');
+			$this->user_timeline_model
+									->insert($this->input->head->uid,
+											 $nid,'1');
 			$this->output->set_body("result",0);
-			$this->output->set_body("description","notice published");
+			$this->output->set_body("description","动态已发布");
 		}
-
 	}
 
 	function view_test()

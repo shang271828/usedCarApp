@@ -6,7 +6,11 @@ class Menu_model extends CI_Model
 		parent ::__construct();
 		$this->load->database();
 	}
-
+	function get_letter()
+	{
+		$SQL = "SELECT  distinct(letter)
+				FROM (`brand_info`)";
+	}
 	function get_brand()
 	{
 

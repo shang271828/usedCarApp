@@ -38,7 +38,7 @@ class Article_model extends CI_model
 	{
 		$this->articleNumber  = ($pageNumber-1)*$numberPerPage;
 		$this->numberPerPage = $numberPerPage;
-		$uid = $this->input->head->uid;
+		
 
 				$SQL = "SELECT `aid`, `title`, `author`, `summary`,`content`,`image`, `time`, `counter_view`, `counter_follow`, `counter_praise`";
 				$SQL .=" FROM (`prefix_article`)";

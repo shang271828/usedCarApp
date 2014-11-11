@@ -10,18 +10,7 @@ class User_preference_model extends CI_Model
 
 	function addUser($uid)
 	{
-		// $data = array
-		// (   
-		// 	"uid"        => $uid,
-  //      		"price"      => "",
-  //      		"mileage"    =>	"",
-  //      		"brand"		 =>	"",
-  //      		"age"		 => "",
-  //      		"car_type"   => "",
-  //      		"speed_box"  => ""
 
-		// 	);
-		// $this->db->insert($this->table,$data);
 		$SQL = "INSERT INTO `prefix_user_preference` (`uid`, `price`, `mileage`, `brand`,`age`, `car_type`,`speed_box`) 
 				  VALUES (".$uid.", '', '', '', '','','')";
 		$this->db->query($SQL);

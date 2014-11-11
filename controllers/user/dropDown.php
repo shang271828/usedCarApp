@@ -1,5 +1,5 @@
 <?php
-class DropDown extends MY_Controller
+class DropDown extends CI_Controller
 {
 
 	function __construct()
@@ -29,7 +29,7 @@ class DropDown extends MY_Controller
 	 				
 				$this->output->set_body("result",0);
 				$this->output->set_body("description",'获得车系信息');
-				$this->output->set_body("notice_detail", $menu_list);
+				$this->output->set_body("menu_detail", $menu_list);
 			}
 
 			elseif ($this->menu_type == 'city') 
@@ -39,7 +39,7 @@ class DropDown extends MY_Controller
 	 			
 				$this->output->set_body("result",0);
 				$this->output->set_body("description",'获得城市信息');
-				$this->output->set_body("notice_detail", $city_list);
+				$this->output->set_body("menu_detail", $city_list);
 			}
 			
 		}
